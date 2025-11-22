@@ -1597,7 +1597,7 @@
                     <button class="btn btn-primary" onclick="checkAllTrackingNumbers()" style="padding: 8px 15px; font-size: 0.9rem;" data-en="Refresh Tracking Status" data-es="Actualizar Estado de Seguimiento">Refresh Tracking Status</button>
                 </div>
                 <div style="margin-bottom: 15px;">
-                    <select id="canadaHistoryFilter" onchange="loadCanadaHistory()" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%; max-width: 300px;">
+                    <select id="canadaHistoryFilter" onchange="loadCanadaHistory().catch(err => console.error('Error:', err))" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%; max-width: 300px;">
                         <option value="all" data-en="All Requests" data-es="Todas las Solicitudes" selected>All Requests</option>
                         <option value="pending" data-en="Pending" data-es="Pendientes">Pending</option>
                         <option value="sent" data-en="Sent" data-es="Enviadas">Sent</option>
@@ -2309,7 +2309,9 @@
                 if (typeof updateMonitorDashboard === 'function') updateMonitorDashboard();
                 if (typeof refreshActivityLog === 'function') refreshActivityLog();
                 if (typeof loadChangeHistory === 'function') loadChangeHistory();
-                if (typeof loadCanadaHistory === 'function') loadCanadaHistory();
+                if (typeof loadCanadaHistory === 'function') {
+                    loadCanadaHistory().catch(err => console.error('Error loading Canada history:', err));
+                }
                 if (typeof updateCanadaRequestSummary === 'function') updateCanadaRequestSummary();
                 
             } catch (error) {
@@ -2489,6 +2491,46 @@
                 console.error('Error migrating Canada requests:', error);
                 throw error;
             }
+        }
+        
+        // Function to check UPS and Canada tracking status
+        function checkTrackingStatus() {
+            const upsClientId = localStorage.getItem('upsClientId');
+            const upsClientSecret = localStorage.getItem('upsClientSecret');
+            const canadaHistory = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+            
+            let message = '=== TRACKING STATUS CHECK ===\n\n';
+            
+            // Check UPS keys
+            if (upsClientId && upsClientSecret) {
+                message += `✓ UPS API Keys: SET\n`;
+                message += `  Client ID: ${upsClientId.substring(0, 10)}...\n`;
+            } else {
+                message += `✗ UPS API Keys: NOT SET\n`;
+                message += `  Go to Settings tab and enter your UPS Client ID and Secret\n\n`;
+            }
+            
+            // Check Canada requests
+            message += `\nCanada Requests: ${canadaHistory.length}\n`;
+            if (canadaHistory.length > 0) {
+                let withTracking = 0;
+                let withUPSStatus = 0;
+                canadaHistory.forEach(req => {
+                    if (req.trackingShipments && req.trackingShipments.length > 0) {
+                        withTracking++;
+                        req.trackingShipments.forEach(ship => {
+                            if (ship.upsStatus) withUPSStatus++;
+                        });
+                    }
+                });
+                message += `  - Requests with tracking: ${withTracking}\n`;
+                message += `  - Shipments with UPS status: ${withUPSStatus}\n`;
+            }
+            
+            alert(message);
+            console.log('UPS Client ID:', upsClientId ? 'SET' : 'NOT SET');
+            console.log('UPS Client Secret:', upsClientSecret ? 'SET' : 'NOT SET');
+            console.log('Canada Requests:', canadaHistory.length);
         }
         
         // Function to check localStorage data (for debugging)
