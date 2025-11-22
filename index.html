@@ -4893,37 +4893,86 @@
             // If using Supabase and user is logged in, save to database
             if (useSupabase && currentUser) {
                 try {
-                    // Create saved budget record
-                    const { data: savedBudget, error: budgetError } = await supabase
+                    // Check if a budget with the same week_start already exists for this user
+                    const { data: existingBudgets } = await supabase
                         .from('saved_budgets')
-                        .insert([{
-                            user_id: currentUser.id,
-                            saved_date: snapshot.savedDate,
-                            week_start: snapshot.weekStart,
-                            week_label: snapshot.weekLabel,
-                            total: snapshot.total,
-                            item_count: snapshot.itemCount,
-                            approved_count: snapshot.approvedCount,
-                            pending_count: snapshot.pendingCount,
-                            language: snapshot.language
-                        }])
-                        .select()
-                        .single();
+                        .select('id')
+                        .eq('user_id', currentUser.id)
+                        .eq('week_start', snapshot.weekStart);
                     
-                    if (budgetError) throw budgetError;
-                    
-                    // Save budget items
-                    const budgetItems = snapshot.items.map(item => ({
-                        saved_budget_id: savedBudget.id,
-                        item_data: item
-                    }));
-                    
-                    if (budgetItems.length > 0) {
-                        await supabase.from('saved_budget_items').insert(budgetItems);
+                    // If budget exists, update it instead of creating a duplicate
+                    if (existingBudgets && existingBudgets.length > 0) {
+                        const existingId = existingBudgets[0].id;
+                        
+                        // Delete old items
+                        await supabase
+                            .from('saved_budget_items')
+                            .delete()
+                            .eq('saved_budget_id', existingId);
+                        
+                        // Update the budget
+                        const { data: savedBudget, error: budgetError } = await supabase
+                            .from('saved_budgets')
+                            .update({
+                                saved_date: snapshot.savedDate,
+                                week_label: snapshot.weekLabel,
+                                total: snapshot.total,
+                                item_count: snapshot.itemCount,
+                                approved_count: snapshot.approvedCount,
+                                pending_count: snapshot.pendingCount,
+                                language: snapshot.language
+                            })
+                            .eq('id', existingId)
+                            .select()
+                            .single();
+                        
+                        if (budgetError) throw budgetError;
+                        
+                        // Save new budget items
+                        const budgetItems = snapshot.items.map(item => ({
+                            saved_budget_id: savedBudget.id,
+                            item_data: item
+                        }));
+                        
+                        if (budgetItems.length > 0) {
+                            await supabase.from('saved_budget_items').insert(budgetItems);
+                        }
+                        
+                        // Update snapshot ID with database ID
+                        snapshot.id = savedBudget.id;
+                    } else {
+                        // Create new saved budget record
+                        const { data: savedBudget, error: budgetError } = await supabase
+                            .from('saved_budgets')
+                            .insert([{
+                                user_id: currentUser.id,
+                                saved_date: snapshot.savedDate,
+                                week_start: snapshot.weekStart,
+                                week_label: snapshot.weekLabel,
+                                total: snapshot.total,
+                                item_count: snapshot.itemCount,
+                                approved_count: snapshot.approvedCount,
+                                pending_count: snapshot.pendingCount,
+                                language: snapshot.language
+                            }])
+                            .select()
+                            .single();
+                        
+                        if (budgetError) throw budgetError;
+                        
+                        // Save budget items
+                        const budgetItems = snapshot.items.map(item => ({
+                            saved_budget_id: savedBudget.id,
+                            item_data: item
+                        }));
+                        
+                        if (budgetItems.length > 0) {
+                            await supabase.from('saved_budget_items').insert(budgetItems);
+                        }
+                        
+                        // Update snapshot ID with database ID
+                        snapshot.id = savedBudget.id;
                     }
-                    
-                    // Update snapshot ID with database ID
-                    snapshot.id = savedBudget.id;
                 } catch (error) {
                     console.error('Error saving budget to Supabase:', error);
                     // Continue with localStorage only if Supabase fails
@@ -8592,6 +8641,7 @@ Budget Manager System`;
                     const { data: savedBudgets, error } = await supabase
                         .from('saved_budgets')
                         .select('*')
+                        .eq('user_id', currentUser.id)
                         .order('saved_date', { ascending: false });
                     
                     if (error) throw error;
@@ -8622,6 +8672,8 @@ Budget Manager System`;
                             })
                         );
                         
+                        // Update localStorage to match Supabase (to keep them in sync and prevent duplicates)
+                        localStorage.setItem('savedBudgets', JSON.stringify(budgetsWithItems));
                         return budgetsWithItems;
                     } else {
                         // If Supabase is empty but localStorage has data, return localStorage
@@ -9464,8 +9516,8 @@ Budget Manager System`;
             logActivity('export', `${currentLanguage === 'en' ? 'Exported saved budget' : 'Presupuesto guardado exportado'}: ${budget.weekLabel}`, null);
         }
 
-        function deleteSavedBudget(budgetId) {
-            const savedBudgets = getAllSavedBudgets();
+        async function deleteSavedBudget(budgetId) {
+            const savedBudgets = await getAllSavedBudgets();
             const budget = savedBudgets.find(b => b.id === budgetId);
             
             if (!budget) {
@@ -9482,10 +9534,34 @@ Budget Manager System`;
                 return;
             }
             
-            // Remove the budget from the array
-            const updatedBudgets = savedBudgets.filter(b => b.id !== budgetId);
+            // Delete from Supabase if using it
+            if (useSupabase && currentUser) {
+                try {
+                    // Delete budget items first (foreign key constraint)
+                    await supabase
+                        .from('saved_budget_items')
+                        .delete()
+                        .eq('saved_budget_id', budgetId);
+                    
+                    // Delete the budget
+                    const { error } = await supabase
+                        .from('saved_budgets')
+                        .delete()
+                        .eq('id', budgetId)
+                        .eq('user_id', currentUser.id);
+                    
+                    if (error) throw error;
+                } catch (error) {
+                    console.error('Error deleting budget from Supabase:', error);
+                    alert(currentLanguage === 'en' 
+                        ? 'Error deleting budget from database: ' + error.message 
+                        : 'Error al eliminar presupuesto de la base de datos: ' + error.message);
+                    return;
+                }
+            }
             
-            // Save updated budgets to localStorage
+            // Remove the budget from localStorage
+            const updatedBudgets = savedBudgets.filter(b => b.id !== budgetId);
             localStorage.setItem('savedBudgets', JSON.stringify(updatedBudgets));
             
             // Log activity
@@ -9497,7 +9573,7 @@ Budget Manager System`;
                 : `Presupuesto "${budget.weekLabel}" eliminado exitosamente.`);
             
             // Reload the report to reflect the deletion
-            loadReport();
+            await loadReport();
         }
 
         function generateSummaryReport(dateRange, itemFilter = 'all') {
