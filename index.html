@@ -2222,11 +2222,39 @@
                 
                 // If no data in Supabase and no local data, load from localStorage as fallback
                 if ((!categoriesData || categoriesData.length === 0) && Object.keys(categories).length === 0) {
-                    const localCategories = JSON.parse(localStorage.getItem('customCategories')) || {};
-                    const localItems = JSON.parse(localStorage.getItem('categoryItems')) || {};
+                    const localCategories = JSON.parse(localStorage.getItem('customCategories') || '{}');
+                    const localItems = JSON.parse(localStorage.getItem('categoryItems') || '{}');
                     if (Object.keys(localCategories).length > 0 || Object.keys(localItems).length > 0) {
                         categories = localCategories;
                         itemDatabase = localItems;
+                    }
+                }
+                
+                // Also check if items exist in localStorage even if categories were loaded from Supabase
+                // This handles the case where categories migrated but items didn't
+                const localItems = JSON.parse(localStorage.getItem('categoryItems') || '{}');
+                if (Object.keys(localItems).length > 0) {
+                    // Count items in Supabase vs localStorage
+                    let supabaseItemCount = 0;
+                    Object.keys(itemDatabase).forEach(cat => {
+                        if (Array.isArray(itemDatabase[cat])) {
+                            supabaseItemCount += itemDatabase[cat].length;
+                        }
+                    });
+                    
+                    let localItemCount = 0;
+                    Object.keys(localItems).forEach(cat => {
+                        if (Array.isArray(localItems[cat])) {
+                            localItemCount += localItems[cat].length;
+                        }
+                    });
+                    
+                    // If localStorage has more items, use it and migrate
+                    if (localItemCount > supabaseItemCount) {
+                        console.log(`Found more items in localStorage (${localItemCount}) than in Supabase (${supabaseItemCount}). Restoring from localStorage...`);
+                        itemDatabase = localItems;
+                        // Save to Supabase
+                        await saveCategoryItems();
                     }
                 }
                 
@@ -2343,10 +2371,70 @@
             console.log('Category Items:', Object.keys(items).length, items);
             console.log('Current Budget Items:', budgetItems.length, budgetItems);
             
-            const message = `LocalStorage Check:\n- Saved Budgets: ${savedBudgets.length}\n- Categories: ${Object.keys(categories).length}\n- Category Items: ${Object.keys(items).length}\n- Current Budget Items: ${budgetItems.length}\n\nCheck browser console (F12) for details.`;
+            // Count total items across all categories
+            let totalItems = 0;
+            Object.keys(items).forEach(cat => {
+                if (Array.isArray(items[cat])) {
+                    totalItems += items[cat].length;
+                }
+            });
+            
+            const message = `LocalStorage Check:\n- Saved Budgets: ${savedBudgets.length}\n- Categories: ${Object.keys(categories).length}\n- Category Items: ${totalItems} items in ${Object.keys(items).length} categories\n- Current Budget Items: ${budgetItems.length}\n\nCheck browser console (F12) for details.`;
             alert(message);
             
             return { savedBudgets, categories, items, budgetItems };
+        }
+        
+        // Function to restore category items from localStorage
+        async function restoreCategoryItems() {
+            const localItems = JSON.parse(localStorage.getItem('categoryItems') || '{}');
+            const localCategories = JSON.parse(localStorage.getItem('customCategories') || '{}');
+            
+            // Count total items
+            let totalItems = 0;
+            Object.keys(localItems).forEach(cat => {
+                if (Array.isArray(localItems[cat])) {
+                    totalItems += localItems[cat].length;
+                }
+            });
+            
+            if (totalItems === 0) {
+                alert('No category items found in localStorage to restore.');
+                return;
+            }
+            
+            if (!confirm(`Found ${totalItems} items in ${Object.keys(localItems).length} categories in localStorage.\n\nRestore these items?`)) {
+                return;
+            }
+            
+            try {
+                // Restore to app memory
+                itemDatabase = localItems;
+                if (Object.keys(localCategories).length > 0) {
+                    categories = localCategories;
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('categoryItems', JSON.stringify(itemDatabase));
+                if (Object.keys(categories).length > 0) {
+                    localStorage.setItem('customCategories', JSON.stringify(categories));
+                }
+                
+                // Save to Supabase if logged in
+                if (useSupabase && currentUser) {
+                    await saveCategoryItems();
+                }
+                
+                // Refresh UI
+                if (typeof loadCategoriesList === 'function') loadCategoriesList();
+                if (typeof populateCategoryDropdowns === 'function') populateCategoryDropdowns();
+                
+                alert(`Successfully restored ${totalItems} items!`);
+                showApprovalStatus('success', `Restored ${totalItems} items from ${Object.keys(localItems).length} categories`);
+            } catch (error) {
+                console.error('Error restoring items:', error);
+                alert('Error restoring items: ' + error.message);
+            }
         }
         
         // Emergency recovery function - restores data from localStorage to Supabase
