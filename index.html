@@ -2213,10 +2213,24 @@
                 
                 // If saved budgets exist in localStorage but not in Supabase, migrate them
                 if ((!savedBudgetsData || savedBudgetsData.length === 0)) {
-                    const localSavedBudgets = JSON.parse(localStorage.getItem('savedBudgets')) || [];
+                    const localSavedBudgets = JSON.parse(localStorage.getItem('savedBudgets') || '[]');
                     if (localSavedBudgets.length > 0) {
                         console.log('Migrating saved budgets to Supabase...');
                         await migrateSavedBudgets(localSavedBudgets);
+                    }
+                }
+                
+                // Check and migrate Canada requests
+                const { data: canadaRequestsData } = await supabase
+                    .from('canada_requests')
+                    .select('id')
+                    .eq('user_id', currentUser.id);
+                
+                if ((!canadaRequestsData || canadaRequestsData.length === 0)) {
+                    const localCanadaHistory = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+                    if (localCanadaHistory.length > 0) {
+                        console.log('Migrating Canada requests to Supabase...');
+                        await migrateCanadaRequests(localCanadaHistory);
                     }
                 }
                 
@@ -2355,6 +2369,125 @@
             } catch (error) {
                 console.error('Error migrating data:', error);
                 showApprovalStatus('error', 'Error migrating data: ' + error.message);
+            }
+        }
+        
+        // Function to migrate Canada requests to Supabase
+        async function migrateCanadaRequests(localHistory) {
+            if (!currentUser || !useSupabase) return;
+            
+            try {
+                for (const request of localHistory) {
+                    // Create or update Canada request
+                    const { data: existingRequest } = await supabase
+                        .from('canada_requests')
+                        .select('id')
+                        .eq('user_id', currentUser.id)
+                        .eq('date', request.date)
+                        .single();
+                    
+                    let requestId;
+                    if (existingRequest) {
+                        requestId = existingRequest.id;
+                        // Update existing request
+                        await supabase
+                            .from('canada_requests')
+                            .update({
+                                status: request.status,
+                                sent_date: request.sentDate,
+                                received_date: request.receivedDate
+                            })
+                            .eq('id', requestId);
+                    } else {
+                        // Create new request
+                        const { data: newRequest, error: reqError } = await supabase
+                            .from('canada_requests')
+                            .insert([{
+                                user_id: currentUser.id,
+                                date: request.date,
+                                status: request.status,
+                                sent_date: request.sentDate,
+                                received_date: request.receivedDate
+                            }])
+                            .select()
+                            .single();
+                        
+                        if (reqError) throw reqError;
+                        requestId = newRequest.id;
+                    }
+                    
+                    // Migrate request items
+                    if (request.items && request.items.length > 0) {
+                        // Delete existing items
+                        await supabase
+                            .from('canada_request_items')
+                            .delete()
+                            .eq('request_id', requestId);
+                        
+                        // Insert items
+                        const items = request.items.map(item => ({
+                            request_id: requestId,
+                            name_en: item.nameEn,
+                            name_es: item.nameEs,
+                            category: item.category,
+                            quantity: item.quantity,
+                            unit_price: item.unitPrice,
+                            total_price: item.totalPrice,
+                            notes: item.notes
+                        }));
+                        
+                        await supabase.from('canada_request_items').insert(items);
+                    }
+                    
+                    // Migrate tracking shipments
+                    if (request.trackingShipments && request.trackingShipments.length > 0) {
+                        // Delete existing tracking
+                        await supabase
+                            .from('canada_tracking_shipments')
+                            .delete()
+                            .eq('request_id', requestId);
+                        
+                        // Insert tracking
+                        const tracking = request.trackingShipments.map(shipment => ({
+                            request_id: requestId,
+                            tracking_number: shipment.trackingNumber,
+                            item_ids: shipment.itemIds || [],
+                            ups_status: shipment.upsStatus,
+                            ups_last_update: shipment.upsLastUpdate,
+                            ups_has_duties_due: shipment.upsHasDutiesDue || false,
+                            ups_has_delay: shipment.upsHasDelay || false,
+                            ups_exception_description: shipment.upsExceptionDescription
+                        }));
+                        
+                        await supabase.from('canada_tracking_shipments').insert(tracking);
+                    }
+                    
+                    // Migrate backorders
+                    if (request.backorders && request.backorders.length > 0) {
+                        // Delete existing backorders
+                        await supabase
+                            .from('canada_backorders')
+                            .delete()
+                            .eq('request_id', requestId);
+                        
+                        // Insert backorders
+                        const backorders = request.backorders.map(bo => ({
+                            request_id: requestId,
+                            name_en: bo.nameEn,
+                            name_es: bo.nameEs,
+                            category: bo.category,
+                            backorder_qty: bo.backorderQty,
+                            notes: bo.notes
+                        }));
+                        
+                        await supabase.from('canada_backorders').insert(backorders);
+                    }
+                }
+                
+                console.log(`Migrated ${localHistory.length} Canada requests`);
+            } catch (error) {
+                console.error('Error migrating Canada requests:', error);
+                throw error;
             }
         }
         
@@ -12446,14 +12579,110 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             }
         }
         
-        function loadCanadaHistory() {
+        async function loadCanadaHistory() {
             const historyDiv = document.getElementById('canadaRequestHistory');
             if (!historyDiv) return;
             
             // Also load backorders summary
             loadBackordersSummary();
             
-            const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
+            let history = [];
+            
+            // If using Supabase, load from database
+            if (useSupabase && currentUser) {
+                try {
+                    // Load Canada requests
+                    const { data: requests, error: requestsError } = await supabase
+                        .from('canada_requests')
+                        .select('*')
+                        .eq('user_id', currentUser.id)
+                        .order('date', { ascending: false });
+                    
+                    if (requestsError) throw requestsError;
+                    
+                    if (requests && requests.length > 0) {
+                        // Load items and tracking for each request
+                        history = await Promise.all(
+                            requests.map(async (req) => {
+                                // Load request items
+                                const { data: items } = await supabase
+                                    .from('canada_request_items')
+                                    .select('*')
+                                    .eq('request_id', req.id);
+                                
+                                // Load tracking shipments
+                                const { data: tracking } = await supabase
+                                    .from('canada_tracking_shipments')
+                                    .select('*')
+                                    .eq('request_id', req.id);
+                                
+                                // Load backorders
+                                const { data: backorders } = await supabase
+                                    .from('canada_backorders')
+                                    .select('*')
+                                    .eq('request_id', req.id);
+                                
+                                return {
+                                    id: req.id,
+                                    date: req.date,
+                                    status: req.status,
+                                    sentDate: req.sent_date,
+                                    receivedDate: req.received_date,
+                                    items: (items || []).map(item => ({
+                                        id: item.id,
+                                        nameEn: item.name_en,
+                                        nameEs: item.name_es,
+                                        category: item.category,
+                                        quantity: item.quantity,
+                                        unitPrice: parseFloat(item.unit_price || 0),
+                                        totalPrice: parseFloat(item.total_price || 0),
+                                        notes: item.notes
+                                    })),
+                                    trackingShipments: (tracking || []).map(t => ({
+                                        trackingNumber: t.tracking_number,
+                                        itemIds: t.item_ids || [],
+                                        upsStatus: t.ups_status,
+                                        upsLastUpdate: t.ups_last_update,
+                                        upsHasDutiesDue: t.ups_has_duties_due || false,
+                                        upsHasDelay: t.ups_has_delay || false,
+                                        upsExceptionDescription: t.ups_exception_description
+                                    })),
+                                    trackingNumbers: (tracking || []).map(t => t.tracking_number),
+                                    trackingNumber: (tracking && tracking.length > 0) ? tracking[0].tracking_number : '',
+                                    backorders: (backorders || []).map(bo => ({
+                                        id: bo.id,
+                                        nameEn: bo.name_en,
+                                        nameEs: bo.name_es,
+                                        category: bo.category,
+                                        backorderQty: bo.backorder_qty,
+                                        notes: bo.notes
+                                    }))
+                                };
+                            })
+                        );
+                        
+                        // Update localStorage to keep in sync
+                        localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
+                    } else {
+                        // If Supabase is empty, check localStorage and migrate
+                        const localHistory = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+                        if (localHistory.length > 0) {
+                            console.log('Migrating Canada requests from localStorage to Supabase...');
+                            await migrateCanadaRequests(localHistory);
+                            // Reload after migration
+                            return loadCanadaHistory();
+                        }
+                        history = localHistory;
+                    }
+                } catch (error) {
+                    console.error('Error loading Canada history from Supabase:', error);
+                    // Fallback to localStorage
+                    history = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+                }
+            } else {
+                // Fallback to localStorage
+                history = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+            }
             const filterSelect = document.getElementById('canadaHistoryFilter');
             const filter = filterSelect?.value || 'all';
             
