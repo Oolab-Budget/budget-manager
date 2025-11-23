@@ -4306,6 +4306,9 @@
                 }
             };
             
+            // Apply automatic credit if item was in alerts
+            applyAutomaticCreditIfInAlerts(newItem);
+            
             items.push(newItem);
             saveItems();
             renderBudgetItems();
@@ -5529,9 +5532,47 @@
                 
                 // Clear budget after a short delay to allow export to complete
                 setTimeout(() => {
+                    // Reload categories to ensure we have latest data
+                    categories = JSON.parse(localStorage.getItem('customCategories')) || {};
+                    
                     // Get count before clearing
                     const itemCountBeforeClear = items.length;
                     console.log('About to clear budget. Current items:', itemCountBeforeClear);
+                    
+                    // Check for payroll items with receipt amounts before clearing
+                    let payrollAdjustment = null;
+                    const payrollItems = items.filter(item => {
+                        const categoryKey = item.category;
+                        const category = categories[categoryKey];
+                        // Check if category name contains "payroll" (case insensitive) or category key is "payroll"
+                        const isPayroll = categoryKey && (
+                            categoryKey.toLowerCase() === 'payroll' ||
+                            (category && (
+                                category.nameEn && category.nameEn.toLowerCase().includes('payroll') ||
+                                category.nameEs && category.nameEs.toLowerCase().includes('nómina')
+                            ))
+                        );
+                        return isPayroll && item.receiptAmount && item.receiptAmount > 0;
+                    });
+                    
+                    if (payrollItems.length > 0) {
+                        // Use the first payroll item with receipt amount
+                        const payrollItem = payrollItems[0];
+                        const budgeted = payrollItem.totalPrice || 0;
+                        const actual = payrollItem.receiptAmount || 0;
+                        const difference = actual - budgeted;
+                        
+                        if (Math.abs(difference) > 0.01) { // Only adjust if difference is significant
+                            payrollAdjustment = {
+                                difference: difference,
+                                budgeted: budgeted,
+                                actual: actual,
+                                itemNameEn: payrollItem.nameEn,
+                                itemNameEs: payrollItem.nameEs
+                            };
+                            console.log('Payroll adjustment found:', payrollAdjustment);
+                        }
+                    }
                     
                     // Clear items array completely
                     items = [];
@@ -5559,6 +5600,74 @@
                     // - Pushed items for next week
                     // Pass true to checkNextWeek and false to skipRecurring (we want recurring items)
                     checkAndAddDueItems(true, false);
+                    
+                    // Reload categories again after items are added (checkAndAddDueItems may have reloaded them)
+                    categories = JSON.parse(localStorage.getItem('customCategories')) || {};
+                    
+                    // Apply payroll adjustment if there was one
+                    if (payrollAdjustment) {
+                        // Find the payroll item that was just added
+                        const newPayrollItems = items.filter(item => {
+                            const categoryKey = item.category;
+                            const category = categories[categoryKey];
+                            const isPayroll = categoryKey && (
+                                categoryKey.toLowerCase() === 'payroll' ||
+                                (category && (
+                                    category.nameEn && category.nameEn.toLowerCase().includes('payroll') ||
+                                    category.nameEs && category.nameEs.toLowerCase().includes('nómina')
+                                ))
+                            );
+                            return isPayroll && 
+                                   item.nameEn === payrollAdjustment.itemNameEn &&
+                                   item.nameEs === payrollAdjustment.itemNameEs;
+                        });
+                        
+                        if (newPayrollItems.length > 0) {
+                            const newPayrollItem = newPayrollItems[0];
+                            const originalTotal = newPayrollItem.totalPrice || 0;
+                            const adjustment = payrollAdjustment.difference;
+                            const newTotal = Math.max(0, originalTotal + adjustment); // Don't allow negative
+                            
+                            // Update the total price
+                            newPayrollItem.totalPrice = newTotal;
+                            
+                            // Calculate new unit price based on quantity
+                            if (newPayrollItem.quantity && newPayrollItem.quantity > 0) {
+                                newPayrollItem.unitPrice = newTotal / newPayrollItem.quantity;
+                            }
+                            
+                            // Add adjustment note
+                            const adjustmentNote = currentLanguage === 'en'
+                                ? `Previous week adjustment: ${adjustment >= 0 ? '+' : ''}$${adjustment.toFixed(2)} MXN (Actual: $${payrollAdjustment.actual.toFixed(2)} vs Budgeted: $${payrollAdjustment.budgeted.toFixed(2)})`
+                                : `Ajuste semana anterior: ${adjustment >= 0 ? '+' : ''}$${adjustment.toFixed(2)} MXN (Real: $${payrollAdjustment.actual.toFixed(2)} vs Presupuestado: $${payrollAdjustment.budgeted.toFixed(2)})`;
+                            
+                            // Add or update notes
+                            if (!newPayrollItem.notes || newPayrollItem.notes === '(none)') {
+                                newPayrollItem.notes = adjustmentNote;
+                            } else {
+                                newPayrollItem.notes = newPayrollItem.notes + '\n' + adjustmentNote;
+                            }
+                            
+                            // Also update notesEn and notesEs
+                            if (!newPayrollItem.notesEn || newPayrollItem.notesEn === '(none)') {
+                                newPayrollItem.notesEn = `Previous week adjustment: ${adjustment >= 0 ? '+' : ''}$${adjustment.toFixed(2)} MXN (Actual: $${payrollAdjustment.actual.toFixed(2)} vs Budgeted: $${payrollAdjustment.budgeted.toFixed(2)})`;
+                            } else {
+                                newPayrollItem.notesEn = newPayrollItem.notesEn + '\n' + `Previous week adjustment: ${adjustment >= 0 ? '+' : ''}$${adjustment.toFixed(2)} MXN (Actual: $${payrollAdjustment.actual.toFixed(2)} vs Budgeted: $${payrollAdjustment.budgeted.toFixed(2)})`;
+                            }
+                            
+                            if (!newPayrollItem.notesEs || newPayrollItem.notesEs === '(none)') {
+                                newPayrollItem.notesEs = `Ajuste semana anterior: ${adjustment >= 0 ? '+' : ''}$${adjustment.toFixed(2)} MXN (Real: $${payrollAdjustment.actual.toFixed(2)} vs Presupuestado: $${payrollAdjustment.budgeted.toFixed(2)})`;
+                            } else {
+                                newPayrollItem.notesEs = newPayrollItem.notesEs + '\n' + `Ajuste semana anterior: ${adjustment >= 0 ? '+' : ''}$${adjustment.toFixed(2)} MXN (Real: $${payrollAdjustment.actual.toFixed(2)} vs Presupuestado: $${payrollAdjustment.budgeted.toFixed(2)})`;
+                            }
+                            
+                            console.log('Payroll adjustment applied:', {
+                                original: originalTotal,
+                                adjustment: adjustment,
+                                newTotal: newTotal
+                            });
+                        }
+                    }
                     
                     const itemsAfterAdd = items.length;
                     const addedCount = itemsAfterAdd - itemsBeforeAdd;
@@ -7672,6 +7781,9 @@ Budget Manager System`;
                 hasPriceAdjustment: priceAdjustmentNote !== null
             };
             
+            // Apply automatic credit if item was in alerts
+            applyAutomaticCreditIfInAlerts(newItem);
+            
             console.log(`New item created with notes:`, {
                 notes: newItem.notes,
                 notesEn: newItem.notesEn,
@@ -8127,6 +8239,9 @@ Budget Manager System`;
                 // Update receipt amount
                 const editReceiptAmount = document.getElementById('editReceiptAmount').value ? parseFloat(document.getElementById('editReceiptAmount').value) : null;
                 item.receiptAmount = editReceiptAmount;
+                
+                // Remove from alerts tracking if receipt was added
+                removeItemFromAlertsTracking(item);
                 
                 // Update supplier
                 item.supplier = {
@@ -11232,6 +11347,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                     dateAdded: today.toISOString()
                                 };
                                 
+                                // Apply automatic credit if item was in alerts
+                                applyAutomaticCreditIfInAlerts(newItem);
+                                
                                 items.push(newItem);
                                 itemsAdded = true;
                                 addedItemsList.push({ name: item.nameEn, reason: 'Due Date Category' });
@@ -11274,6 +11392,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 weeklyAddedWeek: targetWeekStart.toISOString(),
                                 dateAdded: today.toISOString()
                             };
+                            
+                            // Apply automatic credit if item was in alerts
+                            applyAutomaticCreditIfInAlerts(newItem);
                             
                             items.push(newItem);
                             itemsAdded = true;
@@ -11332,6 +11453,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                     monthlyAddedYear: currentYear,
                                     dateAdded: today.toISOString()
                                 };
+                                
+                                // Apply automatic credit if item was in alerts
+                                applyAutomaticCreditIfInAlerts(newItem);
                                 
                                 items.push(newItem);
                                 itemsAdded = true;
@@ -11926,16 +12050,103 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         populateMonthlyDayDropdown(); // Populate day of month dropdown
         
         updateLanguage();
+        // Function to remove item from alerts tracking when receipt is added
+        function removeItemFromAlertsTracking(item) {
+            if (item.invoicePhoto || (item.receiptAmount && item.receiptAmount > 0)) {
+                const itemsInAlerts = JSON.parse(localStorage.getItem('itemsInAlerts')) || [];
+                const updatedAlerts = itemsInAlerts.filter(alert => 
+                    !(alert.nameEn === item.nameEn && 
+                      alert.nameEs === item.nameEs && 
+                      alert.category === item.category)
+                );
+                if (updatedAlerts.length !== itemsInAlerts.length) {
+                    localStorage.setItem('itemsInAlerts', JSON.stringify(updatedAlerts));
+                    console.log('Item removed from alerts tracking:', item.nameEn);
+                }
+            }
+        }
+        
+        // Function to check if item was in alerts and apply automatic credit
+        function applyAutomaticCreditIfInAlerts(item) {
+            const itemsInAlerts = JSON.parse(localStorage.getItem('itemsInAlerts')) || [];
+            
+            // Find matching item in alerts
+            const alertItem = itemsInAlerts.find(alert => 
+                alert.nameEn === item.nameEn && 
+                alert.nameEs === item.nameEs && 
+                alert.category === item.category
+            );
+            
+            if (alertItem && alertItem.budgetedAmount > 0) {
+                // Apply credit: subtract the previous budgeted amount
+                const originalTotal = item.totalPrice || 0;
+                const creditAmount = alertItem.budgetedAmount;
+                const newTotal = Math.max(0, originalTotal - creditAmount); // Don't allow negative
+                
+                // Update the total price
+                item.totalPrice = newTotal;
+                
+                // Calculate new unit price based on quantity
+                if (item.quantity && item.quantity > 0) {
+                    item.unitPrice = newTotal / item.quantity;
+                }
+                
+                // Add credit note
+                const creditNoteEn = `Automatic credit applied: -$${creditAmount.toFixed(2)} MXN (Item was missing receipt in previous budget)`;
+                const creditNoteEs = `Crédito automático aplicado: -$${creditAmount.toFixed(2)} MXN (El artículo no tenía recibo en el presupuesto anterior)`;
+                
+                // Add or update notes
+                if (!item.notes || item.notes === '(none)') {
+                    item.notes = currentLanguage === 'en' ? creditNoteEn : creditNoteEs;
+                } else {
+                    item.notes = item.notes + '\n' + (currentLanguage === 'en' ? creditNoteEn : creditNoteEs);
+                }
+                
+                // Also update notesEn and notesEs
+                if (!item.notesEn || item.notesEn === '(none)') {
+                    item.notesEn = creditNoteEn;
+                } else {
+                    item.notesEn = item.notesEn + '\n' + creditNoteEn;
+                }
+                
+                if (!item.notesEs || item.notesEs === '(none)') {
+                    item.notesEs = creditNoteEs;
+                } else {
+                    item.notesEs = item.notesEs + '\n' + creditNoteEs;
+                }
+                
+                // Remove from alerts tracking (credit has been applied)
+                const updatedAlerts = itemsInAlerts.filter(alert => 
+                    !(alert.nameEn === item.nameEn && 
+                      alert.nameEs === item.nameEs && 
+                      alert.category === item.category)
+                );
+                localStorage.setItem('itemsInAlerts', JSON.stringify(updatedAlerts));
+                
+                console.log('Automatic credit applied:', {
+                    item: item.nameEn,
+                    originalTotal: originalTotal,
+                    creditAmount: creditAmount,
+                    newTotal: newTotal
+                });
+                
+                return true; // Credit was applied
+            }
+            
+            return false; // No credit applied
+        }
+        
         // Function to load items missing receipts
         function loadMissingReceipts() {
             const missingReceiptsList = document.getElementById('missingReceiptsList');
             if (!missingReceiptsList) return;
             
-            // Get all items from current budget that don't have photos
+            // Get all items from current budget that don't have photos or receipt amounts
             // and have been in the budget for more than 7 days
             const today = new Date();
-            const itemsWithoutPhotos = items.filter(item => {
-                if (item.invoicePhoto) return false; // Has photo, skip
+            const itemsWithoutReceipts = items.filter(item => {
+                // Skip if item has photo or receipt amount
+                if (item.invoicePhoto || (item.receiptAmount && item.receiptAmount > 0)) return false;
                 
                 if (!item.dateAdded) return false; // No date added, skip
                 
@@ -11946,10 +12157,14 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 return daysSinceAdded > 7;
             });
             
-            if (itemsWithoutPhotos.length === 0) {
-                // Check if there are items without photos but less than 7 days old
-                const itemsWithoutPhotosRecent = items.filter(item => !item.invoicePhoto && item.dateAdded);
-                if (itemsWithoutPhotosRecent.length > 0) {
+            if (itemsWithoutReceipts.length === 0) {
+                // Check if there are items without receipts but less than 7 days old
+                const itemsWithoutReceiptsRecent = items.filter(item => 
+                    !item.invoicePhoto && 
+                    (!item.receiptAmount || item.receiptAmount <= 0) && 
+                    item.dateAdded
+                );
+                if (itemsWithoutReceiptsRecent.length > 0) {
                     missingReceiptsList.innerHTML = `
                         <div style="padding: 20px; text-align: center; color: #3498db; background: #ebf5fb; border-radius: 8px;">
                             <strong>${currentLanguage === 'en' ? 'No items require receipts yet (7-day grace period)' : 'Aún no hay artículos que requieran recibos (período de gracia de 7 días)'}</strong>
@@ -11968,8 +12183,11 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 return;
             }
             
+            // Track items in alerts for automatic credit application
+            const itemsInAlerts = [];
+            
             let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
-            itemsWithoutPhotos.forEach(item => {
+            itemsWithoutReceipts.forEach(item => {
                 const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
                 const dateAdded = item.dateAdded ? new Date(item.dateAdded).toLocaleDateString() : 'N/A';
                 const categoryName = categories[item.category] ? (currentLanguage === 'en' ? categories[item.category].nameEn : categories[item.category].nameEs) : item.category;
@@ -11979,6 +12197,15 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 const today = new Date();
                 const addedDate = new Date(item.dateAdded);
                 const daysSinceAdded = Math.floor((today - addedDate) / (1000 * 60 * 60 * 24));
+                
+                // Track this item for automatic credit
+                itemsInAlerts.push({
+                    nameEn: item.nameEn,
+                    nameEs: item.nameEs,
+                    category: item.category,
+                    budgetedAmount: budgetedAmount,
+                    dateTracked: new Date().toISOString()
+                });
                 
                 html += `
                     <div style="padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;">
@@ -11999,6 +12226,27 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             });
             html += '</div>';
             missingReceiptsList.innerHTML = html;
+            
+            // Save items in alerts to localStorage for automatic credit application
+            if (itemsInAlerts.length > 0) {
+                const existingAlerts = JSON.parse(localStorage.getItem('itemsInAlerts')) || [];
+                // Merge with existing, avoiding duplicates
+                itemsInAlerts.forEach(newAlert => {
+                    const exists = existingAlerts.find(existing => 
+                        existing.nameEn === newAlert.nameEn && 
+                        existing.nameEs === newAlert.nameEs && 
+                        existing.category === newAlert.category
+                    );
+                    if (!exists) {
+                        existingAlerts.push(newAlert);
+                    } else {
+                        // Update the budgeted amount if it's different
+                        exists.budgetedAmount = newAlert.budgetedAmount;
+                        exists.dateTracked = newAlert.dateTracked;
+                    }
+                });
+                localStorage.setItem('itemsInAlerts', JSON.stringify(existingAlerts));
+            }
         }
         
         // Function to load weekly budgets vs actual spending
