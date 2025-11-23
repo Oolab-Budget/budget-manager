@@ -9467,8 +9467,8 @@ Budget Manager System`;
             return reportHTML;
         }
 
-        async function viewSavedBudget(budgetId) {
-            const savedBudgets = await getAllSavedBudgets();
+        function viewSavedBudget(budgetId) {
+            const savedBudgets = getAllSavedBudgetsSync();
             const budget = savedBudgets.find(b => b.id === budgetId);
             
             if (!budget) {
@@ -9647,8 +9647,8 @@ Budget Manager System`;
             updateLanguage();
         }
 
-        async function addReceiptToSavedBudgetItem(budgetId, itemIndex) {
-            const savedBudgets = await getAllSavedBudgets();
+        function addReceiptToSavedBudgetItem(budgetId, itemIndex) {
+            const savedBudgets = getAllSavedBudgetsSync();
             const budget = savedBudgets.find(b => b.id === budgetId);
             
             if (!budget || !budget.items || !budget.items[itemIndex]) {
@@ -9766,7 +9766,8 @@ Budget Manager System`;
         }
 
         async function saveReceiptToSavedBudgetItem(budgetId, itemIndex) {
-            const savedBudgets = await getAllSavedBudgets();
+            // Use sync version for immediate access, then update Supabase if needed
+            const savedBudgets = getAllSavedBudgetsSync();
             const budget = savedBudgets.find(b => b.id === budgetId);
             
             if (!budget || !budget.items || !budget.items[itemIndex]) {
