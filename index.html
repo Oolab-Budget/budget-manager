@@ -3883,8 +3883,8 @@
                 // Refresh alerts when switching to alerts tab
                 if (tabName === 'alerts') {
                     loadMissingReceipts();
-                    calculateBudgetVsActual().catch(console.error);
-                    loadWeeklyBudgetsVsActual().catch(console.error);
+                    calculateBudgetVsActual();
+                    loadWeeklyBudgetsVsActual();
                 }
                 
                 // Refresh Canada tab when switching to it
@@ -4314,7 +4314,7 @@
             // Refresh alerts if on alerts tab
             if (document.getElementById('alertsTab') && document.getElementById('alertsTab').classList.contains('active')) {
                 loadMissingReceipts();
-                calculateBudgetVsActual().catch(console.error);
+                calculateBudgetVsActual();
             }
             
             if (saveToCategory) {
@@ -8156,7 +8156,7 @@ Budget Manager System`;
                 // Refresh alerts if on alerts tab
                 if (document.getElementById('alertsTab') && document.getElementById('alertsTab').classList.contains('active')) {
                     loadMissingReceipts();
-                    calculateBudgetVsActual().catch(console.error);
+                    calculateBudgetVsActual();
                 }
                 
                 alert(currentLanguage === 'en' ? 'Item updated successfully' : 'Artículo actualizado exitosamente');
@@ -9278,6 +9278,38 @@ Budget Manager System`;
             return html;
         }
 
+        // Synchronous version - reads from localStorage only (for immediate access)
+        function getAllSavedBudgetsSync() {
+            return JSON.parse(localStorage.getItem('savedBudgets')) || [];
+        }
+        
+        // Synchronous version with date range filter
+        function getSavedBudgetsByDateRangeSync(dateRange) {
+            const allBudgets = getAllSavedBudgetsSync();
+            const now = new Date();
+            let startDate;
+            
+            switch(dateRange) {
+                case 'last30':
+                    startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'last90':
+                    startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'lastYear':
+                    startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'all':
+                default:
+                    return allBudgets;
+            }
+            
+            return allBudgets.filter(budget => {
+                const budgetDate = new Date(budget.savedDate);
+                return budgetDate >= startDate;
+            });
+        }
+        
         async function getAllSavedBudgets() {
             // Always check localStorage first as backup
             const localBudgets = JSON.parse(localStorage.getItem('savedBudgets')) || [];
@@ -9937,8 +9969,8 @@ Budget Manager System`;
             }
         }
 
-        async function printSavedBudget(budgetId) {
-            const savedBudgets = await getAllSavedBudgets();
+        async         function printSavedBudget(budgetId) {
+            const savedBudgets = getAllSavedBudgetsSync();
             const budget = savedBudgets.find(b => b.id === budgetId);
             
             if (!budget) {
@@ -10162,8 +10194,8 @@ Budget Manager System`;
             };
         }
 
-        async function exportSavedBudget(budgetId) {
-            const savedBudgets = await getAllSavedBudgets();
+        async         function exportSavedBudget(budgetId) {
+            const savedBudgets = getAllSavedBudgetsSync();
             const budget = savedBudgets.find(b => b.id === budgetId);
             
             if (!budget) {
@@ -11943,11 +11975,11 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         }
         
         // Function to load weekly budgets vs actual spending
-        async function loadWeeklyBudgetsVsActual() {
+        async         function loadWeeklyBudgetsVsActual() {
             const container = document.getElementById('weeklyBudgetsVsActual');
             if (!container) return;
             
-            const savedBudgets = await getAllSavedBudgets();
+            const savedBudgets = getAllSavedBudgetsSync();
             
             if (savedBudgets.length === 0) {
                 container.innerHTML = `
@@ -12115,7 +12147,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         }
         
         // Function to calculate budget vs actual spending
-        async function calculateBudgetVsActual() {
+        function calculateBudgetVsActual() {
             // Calculate totals from current budget
             let totalBudgeted = 0;
             let totalActual = 0;
@@ -12140,7 +12172,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             });
             
             // Add totals from all saved budgets (including partial payments)
-            const savedBudgets = await getAllSavedBudgets();
+            const savedBudgets = getAllSavedBudgetsSync();
             savedBudgets.forEach(budget => {
                 if (budget.items && budget.items.length > 0) {
                     budget.items.forEach(item => {
@@ -12260,7 +12292,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         }
         
         // Function to apply difference to next budget
-        async function applyDifferenceToNextBudget(difference, category, nameEn, nameEs, quantity) {
+        function applyDifferenceToNextBudget(difference, category, nameEn, nameEs, quantity) {
             // Find the item in the category database
             const categoryItems = itemDatabase[category] || [];
             const itemIndex = categoryItems.findIndex(item => 
@@ -12314,7 +12346,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             
             // Mark the comparison item as having adjustment applied
             // We need to find and update the item in saved budgets and current items
-            const savedBudgets = await getAllSavedBudgets();
+            const savedBudgets = getAllSavedBudgetsSync();
             savedBudgets.forEach(budget => {
                 if (budget.items) {
                     budget.items.forEach(budgetItem => {
@@ -12337,7 +12369,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             saveItems();
             
             // Refresh the display
-            await calculateBudgetVsActual();
+            calculateBudgetVsActual();
             
             // Show success message
             showApprovalStatus('success', currentLanguage === 'en' 
