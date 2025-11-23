@@ -18,24 +18,38 @@
         // Fix for MutationObserver error from Supabase library
         // This must run immediately after Supabase script loads to intercept errors
         (function() {
-            if (typeof MutationObserver !== 'undefined') {
-                const originalObserve = MutationObserver.prototype.observe;
-                MutationObserver.prototype.observe = function(target, options) {
-                    // Only observe if target is a valid DOM Node
-                    if (target && target.nodeType === 1) {
-                        try {
-                            return originalObserve.call(this, target, options);
-                        } catch (e) {
-                            // Silently ignore observation errors
-                            if (e.message && (e.message.includes('observe') || e.message.includes('Node'))) {
-                                return;
+            // Wait for MutationObserver to be available (in case script loads async)
+            function patchMutationObserver() {
+                if (typeof MutationObserver !== 'undefined' && MutationObserver.prototype) {
+                    const originalObserve = MutationObserver.prototype.observe;
+                    if (originalObserve) {
+                        MutationObserver.prototype.observe = function(target, options) {
+                            // Only observe if target is a valid DOM Node
+                            if (target && (target.nodeType === 1 || target.nodeType === 11)) {
+                                try {
+                                    return originalObserve.call(this, target, options);
+                                } catch (e) {
+                                    // Silently ignore observation errors
+                                    if (e && (e.message && (e.message.includes('observe') || e.message.includes('Node')) || e.name === 'TypeError')) {
+                                        return;
+                                    }
+                                    throw e;
+                                }
                             }
-                            throw e;
-                        }
+                            // Silently ignore invalid targets
+                            return;
+                        };
                     }
-                    // Silently ignore invalid targets
-                    return;
-                };
+                }
+            }
+            
+            // Try immediately
+            patchMutationObserver();
+            
+            // Also try after a short delay in case MutationObserver isn't ready yet
+            if (typeof MutationObserver === 'undefined') {
+                setTimeout(patchMutationObserver, 0);
+                setTimeout(patchMutationObserver, 10);
             }
         })();
     </script>
@@ -8550,19 +8564,19 @@ Budget Manager System`;
                     reportHTML = await generateSavedBudgetsReport(dateRange, itemFilter);
                     break;
                 case 'byCategory':
-                    reportHTML = generateCategoryReport(dateRange, itemFilter);
+                    reportHTML = await generateCategoryReport(dateRange, itemFilter);
                     break;
                 case 'bySupplier':
-                    reportHTML = generateSupplierReport(dateRange, itemFilter);
+                    reportHTML = await generateSupplierReport(dateRange, itemFilter);
                     break;
                 case 'byPriority':
-                    reportHTML = generatePriorityReport(dateRange, itemFilter);
+                    reportHTML = await generatePriorityReport(dateRange, itemFilter);
                     break;
                 case 'historical':
                     reportHTML = generateHistoricalReport(dateRange, itemFilter);
                     break;
                 case 'itemAnalysis':
-                    reportHTML = generateItemAnalysisReport(dateRange, itemFilter);
+                    reportHTML = await generateItemAnalysisReport(dateRange, itemFilter);
                     break;
             }
             
@@ -10336,8 +10350,8 @@ Budget Manager System`;
             `;
         }
 
-        function generateCategoryReport(dateRange, itemFilter = 'all') {
-            const savedBudgets = getSavedBudgetsByDateRange(dateRange);
+        async function generateCategoryReport(dateRange, itemFilter = 'all') {
+            const savedBudgets = await getSavedBudgetsByDateRange(dateRange);
             const categoryTotals = {};
             let grandTotal = 0;
             
@@ -10408,8 +10422,8 @@ Budget Manager System`;
             return reportHTML;
         }
 
-        function generateSupplierReport(dateRange, itemFilter = 'all') {
-            const savedBudgets = getSavedBudgetsByDateRange(dateRange);
+        async function generateSupplierReport(dateRange, itemFilter = 'all') {
+            const savedBudgets = await getSavedBudgetsByDateRange(dateRange);
             const supplierTotals = {};
             let grandTotal = 0;
             
@@ -10481,8 +10495,8 @@ Budget Manager System`;
             return reportHTML;
         }
 
-        function generatePriorityReport(dateRange, itemFilter = 'all') {
-            const savedBudgets = getSavedBudgetsByDateRange(dateRange);
+        async function generatePriorityReport(dateRange, itemFilter = 'all') {
+            const savedBudgets = await getSavedBudgetsByDateRange(dateRange);
             const priorityTotals = { high: 0, medium: 0, low: 0 };
             const priorityCounts = { high: 0, medium: 0, low: 0 };
             let grandTotal = 0;
@@ -10572,7 +10586,7 @@ Budget Manager System`;
             `;
         }
 
-        function generateItemAnalysisReport(dateRange, itemFilter = 'all') {
+        async function generateItemAnalysisReport(dateRange, itemFilter = 'all') {
             let filteredItems = items;
             
             // Filter by item if specified
@@ -10584,7 +10598,7 @@ Budget Manager System`;
             }
             
             // Collect all items including from saved budgets (including partial budgets)
-            const savedBudgets = getSavedBudgetsByDateRange(dateRange);
+            const savedBudgets = await getSavedBudgetsByDateRange(dateRange);
             const allItems = [...filteredItems];
             
             savedBudgets.forEach(budget => {
