@@ -2379,8 +2379,21 @@
             if (!currentUser || !useSupabase) return;
             
             try {
+                // Get the current max request_number for this user to avoid conflicts
+                const { data: existingRequests } = await supabase
+                    .from('canada_requests')
+                    .select('request_number')
+                    .eq('user_id', currentUser.id)
+                    .order('request_number', { ascending: false })
+                    .limit(1);
+                
+                let nextRequestNumber = 1;
+                if (existingRequests && existingRequests.length > 0) {
+                    nextRequestNumber = (existingRequests[0].request_number || 0) + 1;
+                }
+                
                 for (const request of localHistory) {
-                    // Create or update Canada request
+                    // Check if request already exists by date (to avoid duplicates)
                     const { data: existingRequest } = await supabase
                         .from('canada_requests')
                         .select('id')
@@ -2401,11 +2414,12 @@
                             })
                             .eq('id', requestId);
                     } else {
-                        // Create new request
+                        // Create new request with request_number
                         const { data: newRequest, error: reqError } = await supabase
                             .from('canada_requests')
                             .insert([{
                                 user_id: currentUser.id,
+                                request_number: nextRequestNumber,
                                 date: request.date,
                                 status: request.status,
                                 sent_date: request.sentDate,
@@ -2416,6 +2430,7 @@
                         
                         if (reqError) throw reqError;
                         requestId = newRequest.id;
+                        nextRequestNumber++; // Increment for next request
                     }
                     
                     // Migrate request items
