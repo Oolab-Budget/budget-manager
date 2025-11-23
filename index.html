@@ -2393,13 +2393,26 @@
                 }
                 
                 for (const request of localHistory) {
+                    // Normalize date format
+                    let requestDate = request.date;
+                    if (!requestDate) {
+                        console.warn('Request missing date, skipping:', request);
+                        continue;
+                    }
+                    // Ensure date is in ISO format
+                    if (typeof requestDate === 'string') {
+                        requestDate = new Date(requestDate).toISOString();
+                    } else if (requestDate instanceof Date) {
+                        requestDate = requestDate.toISOString();
+                    }
+                    
                     // Check if request already exists by date (to avoid duplicates)
                     const { data: existingRequest } = await supabase
                         .from('canada_requests')
                         .select('id')
                         .eq('user_id', currentUser.id)
-                        .eq('date', request.date)
-                        .single();
+                        .eq('date', requestDate)
+                        .maybeSingle(); // Use maybeSingle() instead of single() to avoid errors if not found
                     
                     let requestId;
                     if (existingRequest) {
@@ -2420,10 +2433,10 @@
                             .insert([{
                                 user_id: currentUser.id,
                                 request_number: nextRequestNumber,
-                                date: request.date,
-                                status: request.status,
-                                sent_date: request.sentDate,
-                                received_date: request.receivedDate
+                                date: requestDate,
+                                status: request.status || 'pending',
+                                sent_date: request.sentDate ? new Date(request.sentDate).toISOString() : null,
+                                received_date: request.receivedDate ? new Date(request.receivedDate).toISOString() : null
                             }])
                             .select()
                             .single();
