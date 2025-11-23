@@ -9468,19 +9468,25 @@ Budget Manager System`;
         }
 
         function viewSavedBudget(budgetId) {
-            const savedBudgets = getAllSavedBudgetsSync();
-            const budget = savedBudgets.find(b => b.id === budgetId);
-            
-            if (!budget) {
-                alert(currentLanguage === 'en' ? 'Budget not found' : 'Presupuesto no encontrado');
-                return;
-            }
-            
-            // Switch to Reports tab and set report type to savedBudgets
-            switchTab('budgetReports');
-            document.getElementById('reportType').value = 'savedBudgets';
-            
-            // Create a modal or detailed view
+            try {
+                // Convert budgetId to number if it's a string (for comparison)
+                const idToFind = typeof budgetId === 'string' ? parseInt(budgetId) : budgetId;
+                
+                const savedBudgets = getAllSavedBudgetsSync();
+                console.log('Looking for budget ID:', idToFind, 'Found budgets:', savedBudgets.length);
+                
+                // Try to find by exact match first, then try string/number conversion
+                let budget = savedBudgets.find(b => b.id === idToFind || b.id === budgetId || String(b.id) === String(budgetId));
+                
+                if (!budget) {
+                    console.error('Budget not found. Available IDs:', savedBudgets.map(b => b.id));
+                    alert(currentLanguage === 'en' ? 'Budget not found' : 'Presupuesto no encontrado');
+                    return;
+                }
+                
+                console.log('Found budget:', budget.weekLabel);
+                
+                // Create a modal or detailed view
             const isPartial = budget.isPartialPayment || budget.weekLabel?.includes('Partial Payment');
             let detailsHTML = `
                 <div style="background: white; border-radius: 10px; padding: 20px; max-width: 800px; margin: 20px auto;">
@@ -9643,8 +9649,28 @@ Budget Manager System`;
                 </div>
             `;
             
-            document.getElementById('reportContent').innerHTML = detailsHTML;
-            updateLanguage();
+                // Switch to Reports tab and set report type to savedBudgets
+                switchTab('budgetReports');
+                
+                // Wait a moment for tab switch to complete, then set content
+                setTimeout(() => {
+                    const reportContent = document.getElementById('reportContent');
+                    if (reportContent) {
+                        reportContent.innerHTML = detailsHTML;
+                        updateLanguage();
+                    }
+                    
+                    const reportTypeSelect = document.getElementById('reportType');
+                    if (reportTypeSelect) {
+                        reportTypeSelect.value = 'savedBudgets';
+                    }
+                }, 200);
+            } catch (error) {
+                console.error('Error in viewSavedBudget:', error);
+                alert(currentLanguage === 'en' 
+                    ? 'Error loading budget details: ' + error.message 
+                    : 'Error al cargar detalles del presupuesto: ' + error.message);
+            }
         }
 
         function addReceiptToSavedBudgetItem(budgetId, itemIndex) {
