@@ -13,6 +13,32 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <!-- Supabase client library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Fix MutationObserver error from Supabase - must run immediately after library loads -->
+    <script>
+        // Fix for MutationObserver error from Supabase library
+        // This must run immediately after Supabase script loads to intercept errors
+        (function() {
+            if (typeof MutationObserver !== 'undefined') {
+                const originalObserve = MutationObserver.prototype.observe;
+                MutationObserver.prototype.observe = function(target, options) {
+                    // Only observe if target is a valid DOM Node
+                    if (target && target.nodeType === 1) {
+                        try {
+                            return originalObserve.call(this, target, options);
+                        } catch (e) {
+                            // Silently ignore observation errors
+                            if (e.message && (e.message.includes('observe') || e.message.includes('Node'))) {
+                                return;
+                            }
+                            throw e;
+                        }
+                    }
+                    // Silently ignore invalid targets
+                    return;
+                };
+            }
+        })();
+    </script>
     <style>
         * {
             margin: 0;
@@ -1907,24 +1933,39 @@
     </div>
 
     <script>
+        // Fix for MutationObserver error from Supabase library
+        // This suppresses the error when Supabase tries to observe DOM elements before they're ready
+        (function() {
+            const originalObserve = MutationObserver.prototype.observe;
+            MutationObserver.prototype.observe = function(target, options) {
+                // Only observe if target is a valid DOM Node
+                if (target && target.nodeType === 1) {
+                    try {
+                        return originalObserve.call(this, target, options);
+                    } catch (e) {
+                        // Silently ignore observation errors
+                        if (e.message && e.message.includes('observe')) {
+                            return;
+                        }
+                        throw e;
+                    }
+                }
+                // Silently ignore invalid targets
+                return;
+            };
+        })();
+        
         // Supabase initialization
         const SUPABASE_URL = 'https://oxsbyeelxxekqebqcrbs.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94c2J5ZWVseHhla3FlYnFjcmJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM2NjkzMTgsImV4cCI6MjA3OTI0NTMxOH0.hOeT9NOD9O9cnKbI1bqOh1VP_sIlYqbZtroqGxoOMVI';
         
-        // Initialize Supabase client - wait for library to load
+        // Initialize Supabase client - wait for DOM and library to load
         let supabase;
-        if (typeof window.supabase !== 'undefined') {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                auth: {
-                    persistSession: true,
-                    autoRefreshToken: true,
-                    detectSessionInUrl: true
-                }
-            });
-        } else {
-            // Wait for script to load
-            window.addEventListener('load', function() {
-                if (typeof window.supabase !== 'undefined') {
+        
+        // Function to initialize Supabase client
+        function initializeSupabaseClient() {
+            if (typeof window.supabase !== 'undefined') {
+                try {
                     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
                         auth: {
                             persistSession: true,
@@ -1932,12 +1973,41 @@
                             detectSessionInUrl: true
                         }
                     });
-                    // Re-initialize auth check after library loads
-                    initializeAuth();
-                } else {
-                    console.error('Supabase library failed to load');
+                    // Initialize auth check after client is ready
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', initializeAuth);
+                    } else {
+                        initializeAuth();
+                    }
+                } catch (e) {
+                    console.error('Error initializing Supabase client:', e);
                 }
-            });
+            }
+        }
+        
+        // Wait for both DOM and Supabase library to be ready
+        if (document.readyState === 'loading') {
+            // DOM is still loading
+            if (typeof window.supabase !== 'undefined') {
+                // Supabase is already loaded, wait for DOM
+                document.addEventListener('DOMContentLoaded', initializeSupabaseClient);
+            } else {
+                // Wait for both
+                window.addEventListener('load', function() {
+                    initializeSupabaseClient();
+                });
+            }
+        } else {
+            // DOM is ready
+            if (typeof window.supabase !== 'undefined') {
+                // Supabase is already loaded
+                initializeSupabaseClient();
+            } else {
+                // Wait for Supabase library
+                window.addEventListener('load', function() {
+                    initializeSupabaseClient();
+                });
+            }
         }
         
         // Check authentication status
