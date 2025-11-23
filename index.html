@@ -2458,7 +2458,11 @@
                             ups_last_update: shipment.upsLastUpdate,
                             ups_has_duties_due: shipment.upsHasDutiesDue || false,
                             ups_has_delay: shipment.upsHasDelay || false,
-                            ups_exception_description: shipment.upsExceptionDescription
+                            ups_exception_description: shipment.upsExceptionDescription,
+                            ups_picked_up: shipment.upsPickedUp || false,
+                            ups_in_transit: shipment.upsInTransit || false,
+                            ups_duties_paid: shipment.upsDutiesPaid || false,
+                            ups_duties_amount: shipment.upsDutiesAmount || ''
                         }));
                         
                         await supabase.from('canada_tracking_shipments').insert(tracking);
@@ -2494,7 +2498,7 @@
         }
         
         // Function to check UPS and Canada tracking status
-        function checkTrackingStatus() {
+        async function checkTrackingStatus() {
             const upsClientId = localStorage.getItem('upsClientId');
             const upsClientSecret = localStorage.getItem('upsClientSecret');
             const canadaHistory = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
@@ -2510,8 +2514,8 @@
                 message += `  Go to Settings tab and enter your UPS Client ID and Secret\n\n`;
             }
             
-            // Check Canada requests
-            message += `\nCanada Requests: ${canadaHistory.length}\n`;
+            // Check Canada requests in localStorage
+            message += `\nCanada Requests (localStorage): ${canadaHistory.length}\n`;
             if (canadaHistory.length > 0) {
                 let withTracking = 0;
                 let withUPSStatus = 0;
@@ -2527,10 +2531,151 @@
                 message += `  - Shipments with UPS status: ${withUPSStatus}\n`;
             }
             
+            // Check Supabase
+            if (useSupabase && currentUser) {
+                try {
+                    const { data: supabaseRequests, error: reqError } = await supabase
+                        .from('canada_requests')
+                        .select('id')
+                        .eq('user_id', currentUser.id);
+                    
+                    if (reqError) throw reqError;
+                    
+                    message += `\nCanada Requests (Supabase): ${supabaseRequests?.length || 0}\n`;
+                    
+                    if (supabaseRequests && supabaseRequests.length > 0) {
+                        const { data: tracking, error: trackError } = await supabase
+                            .from('canada_tracking_shipments')
+                            .select('*')
+                            .in('request_id', supabaseRequests.map(r => r.id));
+                        
+                        if (!trackError && tracking) {
+                            message += `  - Tracking shipments: ${tracking.length}\n`;
+                            const withStatus = tracking.filter(t => t.ups_status).length;
+                            message += `  - With UPS status: ${withStatus}\n`;
+                            if (tracking.length > 0) {
+                                message += `  - Sample tracking: ${tracking[0].tracking_number} (${tracking[0].ups_status || 'no status'})\n`;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    message += `\n✗ Error checking Supabase: ${error.message}\n`;
+                }
+            } else {
+                message += `\n✗ Not logged in to Supabase\n`;
+            }
+            
             alert(message);
             console.log('UPS Client ID:', upsClientId ? 'SET' : 'NOT SET');
             console.log('UPS Client Secret:', upsClientSecret ? 'SET' : 'NOT SET');
-            console.log('Canada Requests:', canadaHistory.length);
+            console.log('Canada Requests (localStorage):', canadaHistory.length);
+        }
+        
+        // Function to export Canada requests data (run on local machine)
+        function exportCanadaRequests() {
+            const localHistory = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+            
+            if (localHistory.length === 0) {
+                alert('No Canada requests found in localStorage to export.');
+                return;
+            }
+            
+            const exportData = JSON.stringify(localHistory, null, 2);
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(exportData).then(() => {
+                alert(`Exported ${localHistory.length} Canada requests!\n\nData copied to clipboard. Paste it into the import function on the live site.`);
+                console.log('=== CANADA REQUESTS DATA (copy this) ===');
+                console.log(exportData);
+            }).catch(() => {
+                // Fallback if clipboard doesn't work
+                const textarea = document.createElement('textarea');
+                textarea.value = exportData;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert(`Exported ${localHistory.length} Canada requests!\n\nData copied to clipboard. Paste it into the import function on the live site.`);
+                console.log('=== CANADA REQUESTS DATA (copy this) ===');
+                console.log(exportData);
+            });
+        }
+        
+        // Function to import Canada requests data (run on live site)
+        async function importCanadaRequests(jsonData) {
+            if (!currentUser || !useSupabase) {
+                alert('Please log in first to import Canada requests to Supabase');
+                return;
+            }
+            
+            let data;
+            try {
+                // If jsonData is a string, parse it; if it's already an object, use it
+                data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+            } catch (error) {
+                alert('Invalid JSON data. Please check the data and try again.');
+                return;
+            }
+            
+            if (!Array.isArray(data) || data.length === 0) {
+                alert('No valid Canada requests data found.');
+                return;
+            }
+            
+            if (!confirm(`Found ${data.length} Canada requests to import.\n\nImport these to Supabase?`)) {
+                return;
+            }
+            
+            try {
+                showApprovalStatus('info', 'Importing Canada requests... Please wait.');
+                
+                // Save to localStorage first
+                localStorage.setItem('canadaRequestHistory', JSON.stringify(data));
+                
+                // Migrate to Supabase
+                await migrateCanadaRequests(data);
+                
+                showApprovalStatus('success', `Successfully imported ${data.length} Canada requests!`);
+                
+                // Reload the history
+                await loadCanadaHistory();
+            } catch (error) {
+                console.error('Error importing Canada requests:', error);
+                showApprovalStatus('error', 'Error importing Canada requests: ' + error.message);
+                alert('Error importing Canada requests: ' + error.message);
+            }
+        }
+        
+        // Function to manually restore Canada requests from localStorage to Supabase
+        async function restoreCanadaRequests() {
+            if (!currentUser || !useSupabase) {
+                alert('Please log in first to restore Canada requests to Supabase');
+                return;
+            }
+            
+            const localHistory = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+            
+            if (localHistory.length === 0) {
+                alert('No Canada requests found in localStorage to restore.');
+                return;
+            }
+            
+            if (!confirm(`Found ${localHistory.length} Canada requests in localStorage.\n\nRestore these to Supabase?`)) {
+                return;
+            }
+            
+            try {
+                showApprovalStatus('info', 'Restoring Canada requests... Please wait.');
+                await migrateCanadaRequests(localHistory);
+                showApprovalStatus('success', `Successfully restored ${localHistory.length} Canada requests!`);
+                
+                // Reload the history
+                await loadCanadaHistory();
+            } catch (error) {
+                console.error('Error restoring Canada requests:', error);
+                showApprovalStatus('error', 'Error restoring Canada requests: ' + error.message);
+                alert('Error restoring Canada requests: ' + error.message);
+            }
         }
         
         // Function to check localStorage data (for debugging)
@@ -12687,7 +12832,15 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                         upsLastUpdate: t.ups_last_update,
                                         upsHasDutiesDue: t.ups_has_duties_due || false,
                                         upsHasDelay: t.ups_has_delay || false,
-                                        upsExceptionDescription: t.ups_exception_description
+                                        upsExceptionDescription: t.ups_exception_description,
+                                        upsPickedUp: t.ups_picked_up || false,
+                                        upsInTransit: t.ups_in_transit || false,
+                                        upsDutiesPaid: t.ups_duties_paid || false,
+                                        upsDutiesAmount: t.ups_duties_amount || '',
+                                        upsStatusCode: t.ups_status_code || '',
+                                        upsLastLocation: t.ups_last_location || '',
+                                        upsLastDate: t.ups_last_date || '',
+                                        upsLastChecked: t.ups_last_checked || ''
                                     })),
                                     trackingNumbers: (tracking || []).map(t => t.tracking_number),
                                     trackingNumber: (tracking && tracking.length > 0) ? tracking[0].tracking_number : '',
