@@ -6484,6 +6484,53 @@
             // Always save history even if no status changes (to save UPS status data)
             localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
             
+            // Save tracking updates to Supabase if logged in
+            if (useSupabase && currentUser && updated) {
+                try {
+                    for (const request of history) {
+                        if (request.trackingShipments && request.trackingShipments.length > 0 && request.id) {
+                            // Update request status if changed
+                            if (request.status) {
+                                await supabase
+                                    .from('canada_requests')
+                                    .update({
+                                        status: request.status,
+                                        sent_date: request.sentDate,
+                                        received_date: request.receivedDate
+                                    })
+                                    .eq('id', request.id)
+                                    .eq('user_id', currentUser.id);
+                            }
+                            
+                            // Update tracking shipments
+                            for (const shipment of request.trackingShipments) {
+                                if (shipment.trackingNumber) {
+                                    await supabase
+                                        .from('canada_tracking_shipments')
+                                        .update({
+                                            ups_status: shipment.upsStatus || null,
+                                            ups_last_update: shipment.upsLastChecked || null,
+                                            ups_has_duties_due: shipment.upsHasDutiesDue || false,
+                                            ups_has_delay: shipment.upsHasDelay || false,
+                                            ups_duties_paid: shipment.upsDutiesPaid || false,
+                                            ups_duties_amount: shipment.upsDutiesAmount || null,
+                                            ups_picked_up: shipment.upsPickedUp || false,
+                                            ups_in_transit: shipment.upsInTransit || false,
+                                            ups_last_location: shipment.upsLastLocation || null,
+                                            ups_last_date: shipment.upsLastDate || null
+                                        })
+                                        .eq('request_id', request.id)
+                                        .eq('tracking_number', shipment.trackingNumber);
+                                }
+                            }
+                        }
+                    }
+                    console.log('Tracking updates saved to Supabase');
+                } catch (error) {
+                    console.error('Error saving tracking updates to Supabase:', error);
+                }
+            }
+            
             // Always refresh Canada tab if it's currently visible
             const canadaTab = document.getElementById('canadaTab');
             if (canadaTab && canadaTab.classList.contains('active')) {
@@ -6536,6 +6583,9 @@
             }, intervalMs);
             
             console.log(`UPS tracking polling started - checking every ${intervalHours} hours`);
+            
+            // Check for duties alerts on startup
+            checkForDutiesAlerts();
         }
         
         // Test UPS tracking
@@ -13947,8 +13997,12 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                             ${request.trackingShipments && request.trackingShipments.length > 0 ? 
                                                 request.trackingShipments.map((shipment, idx) => {
                                                     const shipmentItems = request.items.filter((item, itemIdx) => {
-                                                        const itemId = item.id || `item_${item.nameEn}_${item.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
-                                                        return shipment.itemIds && shipment.itemIds.includes(itemId);
+                                                        const itemId = item.id !== undefined && item.id !== null 
+                                                            ? String(item.id) 
+                                                            : `item_${item.nameEn}_${item.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                                                        // Convert shipment itemIds to strings for comparison
+                                                        const shipmentItemIds = (shipment.itemIds || []).map(id => String(id));
+                                                        return shipmentItemIds.includes(String(itemId));
                                                     });
                                                     
                                                     // Get UPS status if available
@@ -14103,18 +14157,48 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                     const unitLabel = unitLabels[unit] || unitLabels['sheet'];
                                     
                                     // Check if there's a sent item or backorder
-                                    const itemId = item.id || `item_${item.nameEn}_${item.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                                    const itemId = item.id !== undefined && item.id !== null 
+                                        ? String(item.id) 
+                                        : `item_${item.nameEn}_${item.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                                    
+                                    // Find which tracking shipment this item belongs to
+                                    let trackingInfo = '';
+                                    if (request.trackingShipments && request.trackingShipments.length > 0) {
+                                        request.trackingShipments.forEach((shipment, shipmentIdx) => {
+                                            const shipmentItemIds = (shipment.itemIds || []).map(id => String(id));
+                                            if (shipmentItemIds.includes(String(itemId))) {
+                                                const trackingLink = `<a href="https://www.ups.com/track?tracknum=${shipment.trackingNumber}" 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    style="color: #3498db; text-decoration: underline; font-size: 0.8rem; margin-left: 5px;"
+                                                    title="${currentLanguage === 'en' ? 'Click to track on UPS website' : 'Haz clic para rastrear en el sitio web de UPS'}">
+                                                    📦 ${currentLanguage === 'en' ? 'Tracking' : 'Seguimiento'} #${shipmentIdx + 1}: ${shipment.trackingNumber}
+                                                </a>`;
+                                                trackingInfo = trackingLink;
+                                            }
+                                        });
+                                    }
+                                    
                                     const sentItem = request.sentItems && request.sentItems.find(si => {
-                                        const siId = si.id || `item_${si.nameEn}_${si.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
-                                        return siId === itemId;
+                                        const siId = si.id !== undefined && si.id !== null 
+                                            ? String(si.id) 
+                                            : `item_${si.nameEn}_${si.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                                        return String(siId) === String(itemId);
                                     });
                                     const backorder = request.backorders && request.backorders.find(bo => {
-                                        const boId = bo.id || `item_${bo.nameEn}_${bo.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
-                                        return boId === itemId;
+                                        const boId = bo.id !== undefined && bo.id !== null 
+                                            ? String(bo.id) 
+                                            : `item_${bo.nameEn}_${bo.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                                        return String(boId) === String(itemId);
                                     });
                                     
                                     let itemDisplay = `<div style="padding: 5px; background: #f8f9fa; border-radius: 4px; font-size: 0.85rem;">`;
                                     itemDisplay += `• ${itemName} `;
+                                    
+                                    // Add tracking info if this item is in a tracking shipment
+                                    if (trackingInfo) {
+                                        itemDisplay += `<br>${trackingInfo}`;
+                                    }
                                     
                                     if (sentItem && request.status === 'sent') {
                                         const sentUnitLabel = unitLabels[sentItem.unit] || unitLabels['sheet'];
@@ -15052,6 +15136,11 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         loadEmailJSSettings(); // Load saved EmailJS settings
         loadDeepLSettings(); // Load saved DeepL API key
         loadUPSSettings(); // Load saved UPS settings and start polling
+        
+        // Check for duties alerts on page load (after data is loaded)
+        setTimeout(() => {
+            checkForDutiesAlerts();
+        }, 2000); // Wait 2 seconds for data to load
         loadCanadaEmailJSSettings(); // Load saved Canada EmailJS settings
         
         // Check and add due items on page load
