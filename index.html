@@ -14185,6 +14185,13 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             const content = document.getElementById('trackingModalContent');
             const modalTitle = document.getElementById('trackingModalTitle');
             
+            // Always get fresh data from localStorage to ensure we have latest sentItems
+            const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
+            const freshRequest = history.find(r => r.id == currentTrackingRequestId) || request;
+            
+            // Use fresh request data (this ensures sentItems are up to date)
+            request = freshRequest;
+            
             // Update modal title based on request status
             const isAlreadySent = request.status === 'sent';
             if (modalTitle) {
@@ -14359,22 +14366,32 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         }
         
         function updateSentQuantity(itemId) {
+            // Get fresh data from localStorage
             const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
             const request = history.find(r => r.id == currentTrackingRequestId);
-            if (!request) return;
+            if (!request) {
+                console.error('Request not found for ID:', currentTrackingRequestId);
+                return;
+            }
             
             const item = request.items.find((it, idx) => {
                 const itId = it.id || `item_${it.nameEn}_${it.category}_${idx}`.replace(/[^a-zA-Z0-9_]/g, '_');
                 return itId === itemId;
             });
             
-            if (!item) return;
+            if (!item) {
+                console.error('Item not found for ID:', itemId);
+                return;
+            }
             
             const sentQtyInput = document.getElementById(`sentQty_${itemId}`);
             const sentUnitSelect = document.getElementById(`sentUnit_${itemId}`);
             const backorderInfo = document.getElementById(`backorderInfo_${itemId}`);
             
-            if (!sentQtyInput || !sentUnitSelect) return;
+            if (!sentQtyInput || !sentUnitSelect) {
+                console.error('Form elements not found for item:', itemId);
+                return;
+            }
             
             const requestedQty = item.quantity || 1;
             const requestedUnit = item.unit || 'sheet';
@@ -14407,10 +14424,21 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 sentItem.unit = sentUnit;
             }
             
-            // Update the select element to ensure it shows the correct value
-            if (sentUnitSelect) {
-                sentUnitSelect.value = sentUnit;
-            }
+            // Save to localStorage IMMEDIATELY
+            localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
+            
+            // Force update the select element to ensure it shows the correct value
+            // Use setTimeout to ensure DOM is ready
+            setTimeout(() => {
+                const updatedSelect = document.getElementById(`sentUnit_${itemId}`);
+                if (updatedSelect && updatedSelect.value !== sentUnit) {
+                    updatedSelect.value = sentUnit;
+                    // Trigger change event to ensure any listeners are notified
+                    updatedSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }, 0);
+            
+            console.log('Updated sentItem:', { itemId, quantity: sentQty, unit: sentUnit, savedToLocalStorage: true });
             
             // Calculate backorder (only if units match)
             if (backorderInfo) {
@@ -14432,9 +14460,6 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     backorderInfo.style.display = 'block';
                 }
             }
-            
-            // Save to localStorage temporarily
-            localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
             
             // Update tracking shipment displays to reflect unit changes
             updateTrackingShipmentDisplays();
