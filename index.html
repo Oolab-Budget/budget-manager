@@ -1634,7 +1634,10 @@
             <div class="form-section" style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="margin: 0;" data-en="Request History" data-es="Historial de Solicitudes">Request History</h3>
-                    <button class="btn btn-primary" onclick="checkAllTrackingNumbers()" style="padding: 8px 15px; font-size: 0.9rem;" data-en="Refresh Tracking Status" data-es="Actualizar Estado de Seguimiento">Refresh Tracking Status</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="migrateCanadaRequestsBtn" class="btn btn-warning" onclick="migrateCanadaRequestsFromLocalStorage()" style="padding: 8px 15px; font-size: 0.9rem; display: none;" data-en="Migrate to Supabase" data-es="Migrar a Supabase" title="Migrate requests from localStorage to Supabase">Migrate to Supabase</button>
+                        <button class="btn btn-primary" onclick="checkAllTrackingNumbers()" style="padding: 8px 15px; font-size: 0.9rem;" data-en="Refresh Tracking Status" data-es="Actualizar Estado de Seguimiento">Refresh Tracking Status</button>
+                    </div>
                 </div>
                 <div style="margin-bottom: 15px;">
                     <select id="canadaHistoryFilter" onchange="loadCanadaHistory().catch(err => console.error('Error:', err))" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%; max-width: 300px;">
@@ -2112,6 +2115,8 @@
             if (currentUser) {
                 document.getElementById('logoutBtn').style.display = 'block';
             }
+            // Show/hide migration button based on Supabase login
+            updateMigrationButtonVisibility();
         }
         
         function showLoginForm() {
@@ -2397,12 +2402,26 @@
                     loadCanadaHistory().catch(err => console.error('Error loading Canada history:', err));
                 }
                 if (typeof updateCanadaRequestSummary === 'function') updateCanadaRequestSummary();
+                updateMigrationButtonVisibility();
                 
             } catch (error) {
                 console.error('Error loading user data:', error);
                 showApprovalStatus('error', 'Failed to load data: ' + error.message);
                 // Fallback to localStorage
                 loadFromLocalStorage();
+                updateMigrationButtonVisibility();
+            }
+        }
+        
+        // Function to update migration button visibility
+        function updateMigrationButtonVisibility() {
+            const migrateBtn = document.getElementById('migrateCanadaRequestsBtn');
+            if (migrateBtn) {
+                if (useSupabase && currentUser) {
+                    migrateBtn.style.display = 'inline-block';
+                } else {
+                    migrateBtn.style.display = 'none';
+                }
             }
         }
         
@@ -2459,6 +2478,75 @@
         }
         
         // Function to migrate Canada requests to Supabase
+        // Function to save a single Canada request to Supabase
+        async function saveCanadaRequestToSupabase(request) {
+            if (!currentUser || !useSupabase) return;
+            
+            try {
+                // Get or create request counter
+                let { data: counterData } = await supabase
+                    .from('canada_request_counters')
+                    .select('counter')
+                    .eq('user_id', currentUser.id)
+                    .single();
+                
+                if (!counterData) {
+                    // Initialize counter
+                    await supabase.from('canada_request_counters').insert({
+                        user_id: currentUser.id,
+                        counter: 0
+                    });
+                    counterData = { counter: 0 };
+                }
+                
+                const requestNumber = counterData.counter;
+                
+                // Create request
+                const { data: newRequest, error: reqError } = await supabase
+                    .from('canada_requests')
+                    .insert([{
+                        user_id: currentUser.id,
+                        request_number: requestNumber,
+                        date: new Date(request.date).toISOString(),
+                        status: request.status || 'pending'
+                    }])
+                    .select()
+                    .single();
+                
+                if (reqError) throw reqError;
+                
+                // Insert request items
+                if (request.items && request.items.length > 0) {
+                    const items = request.items.map(item => ({
+                        request_id: newRequest.id,
+                        name_en: item.nameEn,
+                        name_es: item.nameEs,
+                        category: item.category,
+                        quantity: item.quantity,
+                        unit: item.unit || 'sheet',
+                        unit_price: item.unitPrice || 0,
+                        total_price: (item.unitPrice || 0) * (item.quantity || 1)
+                    }));
+                    
+                    await supabase.from('canada_request_items').insert(items);
+                }
+                
+                // Increment counter
+                await supabase
+                    .from('canada_request_counters')
+                    .update({ counter: requestNumber + 1 })
+                    .eq('user_id', currentUser.id);
+                
+                // Update the request object with the new database ID
+                request.id = newRequest.id;
+                
+                console.log('Canada request saved to Supabase:', newRequest.id);
+            } catch (error) {
+                console.error('Error saving Canada request to Supabase:', error);
+                throw error;
+            }
+        }
+
         async function migrateCanadaRequests(localHistory) {
             if (!currentUser || !useSupabase) return;
             
@@ -2621,6 +2709,62 @@
             }
         }
         
+        // Function to migrate Canada requests from localStorage to Supabase (user-triggered)
+        async function migrateCanadaRequestsFromLocalStorage() {
+            if (!useSupabase || !currentUser) {
+                alert(currentLanguage === 'en' 
+                    ? 'Please log in to Supabase first to migrate requests.' 
+                    : 'Por favor inicia sesión en Supabase primero para migrar solicitudes.');
+                return;
+            }
+            
+            const localHistory = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+            
+            if (localHistory.length === 0) {
+                alert(currentLanguage === 'en' 
+                    ? 'No requests found in localStorage to migrate.' 
+                    : 'No se encontraron solicitudes en localStorage para migrar.');
+                return;
+            }
+            
+            if (!confirm(currentLanguage === 'en' 
+                ? `Found ${localHistory.length} request(s) in localStorage.\n\nMigrate these to Supabase? This will not create duplicates if requests already exist.` 
+                : `Se encontraron ${localHistory.length} solicitud(es) en localStorage.\n\n¿Migrar estas a Supabase? Esto no creará duplicados si las solicitudes ya existen.`)) {
+                return;
+            }
+            
+            try {
+                // Show loading message
+                const historyDiv = document.getElementById('canadaRequestHistory');
+                if (historyDiv) {
+                    historyDiv.innerHTML = `
+                        <div style="padding: 20px; text-align: center; color: #3498db; background: #e3f2fd; border-radius: 8px;">
+                            <div style="margin-bottom: 10px;">⏳ ${currentLanguage === 'en' ? 'Migrating requests...' : 'Migrando solicitudes...'}</div>
+                            <div style="font-size: 0.9rem; color: #666;">${currentLanguage === 'en' ? 'Please wait...' : 'Por favor espera...'}</div>
+                        </div>
+                    `;
+                }
+                
+                await migrateCanadaRequests(localHistory);
+                
+                // Reload history to show migrated requests
+                await loadCanadaHistory();
+                
+                // Show success message
+                showApprovalStatus('success', currentLanguage === 'en' 
+                    ? `Successfully migrated ${localHistory.length} request(s) to Supabase!` 
+                    : `¡Se migraron exitosamente ${localHistory.length} solicitud(es) a Supabase!`);
+            } catch (error) {
+                console.error('Error migrating Canada requests:', error);
+                showApprovalStatus('error', currentLanguage === 'en' 
+                    ? `Error migrating requests: ${error.message}` 
+                    : `Error al migrar solicitudes: ${error.message}`);
+                
+                // Reload history anyway
+                await loadCanadaHistory();
+            }
+        }
+
         // Function to check UPS and Canada tracking status
         async function checkTrackingStatus() {
             const upsClientId = localStorage.getItem('upsClientId');
@@ -12937,7 +13081,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             }
         }
         
-        function generateCanadaRequest() {
+        async function generateCanadaRequest() {
             const selected = Object.keys(canadaSelectedItems).filter(id => canadaSelectedItems[id].selected);
             
             if (selected.length === 0) {
@@ -12980,10 +13124,20 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             canadaRequestCounter++;
             localStorage.setItem('canadaRequestCounter', canadaRequestCounter.toString());
             
-            // Save to history
+            // Save to history (localStorage)
             const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
             history.unshift(request);
             localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
+            
+            // Save to Supabase if logged in
+            if (useSupabase && currentUser) {
+                try {
+                    await saveCanadaRequestToSupabase(request);
+                } catch (err) {
+                    console.error('Error saving Canada request to Supabase:', err);
+                    // Continue even if Supabase save fails - request is still in localStorage
+                }
+            }
             
             // Clear selection
             Object.keys(canadaSelectedItems).forEach(id => {
@@ -12993,7 +13147,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             
             loadCanadaItems();
             updateCanadaRequestSummary();
-            loadCanadaHistory();
+            await loadCanadaHistory();
             
             // Generate PDF and send email
             generateCanadaRequestPDF(request).then(() => {
