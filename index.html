@@ -14075,7 +14075,17 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                                             ${upsLastLocation ? `
                                                                 <div style="font-size: 0.75rem; color: #555; margin-top: 3px;">
                                                                     ${currentLanguage === 'en' ? 'Last Location' : 'Última Ubicación'}: ${upsLastLocation}
-                                                                    ${upsLastDate ? ` (${new Date(upsLastDate).toLocaleDateString()})` : ''}
+                                                                    ${upsLastDate ? (() => {
+                                                                        try {
+                                                                            const date = new Date(upsLastDate);
+                                                                            if (!isNaN(date.getTime())) {
+                                                                                return ` (${date.toLocaleDateString()})`;
+                                                                            }
+                                                                        } catch (e) {
+                                                                            // Invalid date, skip
+                                                                        }
+                                                                        return '';
+                                                                    })() : ''}
                                                                 </div>
                                                             ` : ''}
                                                             ${shipmentItems.length > 0 ? `
