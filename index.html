@@ -14128,23 +14128,70 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             historyDiv.innerHTML = html;
         }
         
-        function deleteCanadaRequest(requestId) {
+        async function deleteCanadaRequest(requestId) {
             if (!confirm(currentLanguage === 'en' 
                 ? `Are you sure you want to delete Request #${requestId}? This action cannot be undone.` 
                 : `¿Estás seguro de que deseas eliminar la Solicitud #${requestId}? Esta acción no se puede deshacer.`)) {
                 return;
             }
             
-            const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
-            const filteredHistory = history.filter(req => req.id != requestId);
-            localStorage.setItem('canadaRequestHistory', JSON.stringify(filteredHistory));
-            
-            loadCanadaHistory();
-            
-            // Show confirmation message
-            alert(currentLanguage === 'en' 
-                ? `Request #${requestId} has been deleted.` 
-                : `La Solicitud #${requestId} ha sido eliminada.`);
+            try {
+                // Delete from Supabase if logged in
+                if (useSupabase && currentUser) {
+                    // Delete related data first (cascade should handle this, but being explicit)
+                    // Delete tracking shipments
+                    const { data: shipments } = await supabase
+                        .from('canada_tracking_shipments')
+                        .select('id')
+                        .eq('request_id', requestId);
+                    
+                    if (shipments && shipments.length > 0) {
+                        await supabase
+                            .from('canada_tracking_shipments')
+                            .delete()
+                            .eq('request_id', requestId);
+                    }
+                    
+                    // Delete request items
+                    await supabase
+                        .from('canada_request_items')
+                        .delete()
+                        .eq('request_id', requestId);
+                    
+                    // Delete backorders
+                    await supabase
+                        .from('canada_backorders')
+                        .delete()
+                        .eq('request_id', requestId);
+                    
+                    // Delete the request itself
+                    const { error } = await supabase
+                        .from('canada_requests')
+                        .delete()
+                        .eq('id', requestId)
+                        .eq('user_id', currentUser.id);
+                    
+                    if (error) throw error;
+                }
+                
+                // Delete from localStorage
+                const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
+                const filteredHistory = history.filter(req => req.id != requestId);
+                localStorage.setItem('canadaRequestHistory', JSON.stringify(filteredHistory));
+                
+                // Reload history
+                await loadCanadaHistory();
+                
+                // Show confirmation message
+                showApprovalStatus('success', currentLanguage === 'en' 
+                    ? `Request #${requestId} has been deleted.` 
+                    : `La Solicitud #${requestId} ha sido eliminada.`);
+            } catch (error) {
+                console.error('Error deleting Canada request:', error);
+                showApprovalStatus('error', currentLanguage === 'en' 
+                    ? `Error deleting request: ${error.message}` 
+                    : `Error al eliminar solicitud: ${error.message}`);
+            }
         }
         
         // Store current request being processed
