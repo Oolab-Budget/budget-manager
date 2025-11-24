@@ -14386,11 +14386,8 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             
             // Find or create sent item - use consistent ID matching
             let sentItem = request.sentItems.find(si => {
-                const siId = si.id || `item_${si.nameEn}_${si.category}_${request.items.findIndex((it, idx) => {
-                    const itId = it.id || `item_${it.nameEn}_${it.category}_${idx}`.replace(/[^a-zA-Z0-9_]/g, '_');
-                    return itId === itemId;
-                })}`.replace(/[^a-zA-Z0-9_]/g, '_');
-                return siId === itemId;
+                // Match by ID directly
+                return si.id === itemId;
             });
             
             if (!sentItem) {
@@ -14436,9 +14433,66 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             
             // Save to localStorage temporarily
             localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
+            
+            // Update tracking shipment displays to reflect unit changes
+            updateTrackingShipmentDisplays();
+        }
+        
+        function updateTrackingShipmentDisplays() {
+            // Update all tracking shipment item displays to show current sent quantities/units
+            // Get fresh data from localStorage to ensure we have the latest sentItems
+            const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
+            const request = history.find(r => r.id == currentTrackingRequestId);
+            if (!request) return;
+            
+            // Ensure sentItems exists
+            if (!request.sentItems) {
+                request.sentItems = [];
+            }
+            
+            // Update each tracking shipment section
+            trackingShipments.forEach((shipment, shipmentIndex) => {
+                if (!shipment.itemIds) return;
+                
+                shipment.itemIds.forEach(itemId => {
+                    const sentItem = request.sentItems.find(si => si.id === itemId);
+                    if (!sentItem) return;
+                    
+                    // Find the label for this item in this shipment
+                    const label = document.querySelector(`label[for="shipment_${shipmentIndex}_item_${itemId}"]`);
+                    if (label) {
+                        // Find the original item to get requested quantity
+                        const originalItem = request.items.find((it, idx) => {
+                            const itId = it.id || `item_${it.nameEn}_${it.category}_${idx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                            return itId === itemId;
+                        });
+                        
+                        if (originalItem) {
+                            const unitLabels = {
+                                'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
+                                'sheet': currentLanguage === 'en' ? 'Sheet' : 'Hoja'
+                            };
+                            const itemName = currentLanguage === 'en' ? originalItem.nameEn : originalItem.nameEs;
+                            const requestedUnit = originalItem.unit || 'sheet';
+                            const requestedUnitLabel = unitLabels[requestedUnit] || unitLabels['sheet'];
+                            const sentUnitLabel = unitLabels[sentItem.unit] || unitLabels['sheet'];
+                            
+                            const qtyDisplay = `${currentLanguage === 'en' ? 'Sent' : 'Enviado'}: ${sentItem.quantity} ${sentUnitLabel} (${currentLanguage === 'en' ? 'Req' : 'Sol'}: ${originalItem.quantity} ${requestedUnitLabel})`;
+                            label.innerHTML = `${itemName} (${qtyDisplay})`;
+                        }
+                    }
+                });
+            });
         }
 
         function buildTrackingShipmentHtml(shipment, index, request) {
+            // Get fresh request data from localStorage to ensure we have latest sentItems
+            const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
+            const freshRequest = history.find(r => r.id == currentTrackingRequestId) || request;
+            
+            // Use fresh request data if available, otherwise use passed request
+            const currentRequest = freshRequest || request;
+            
             // Get all assigned item IDs from other shipments
             const otherShipmentItemIds = new Set();
             trackingShipments.forEach((s, idx) => {
@@ -14447,8 +14501,8 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 }
             });
             
-            const selectedItems = request.items.filter(item => {
-                const itemId = item.id || `item_${request.items.indexOf(item)}`;
+            const selectedItems = currentRequest.items.filter(item => {
+                const itemId = item.id || `item_${currentRequest.items.indexOf(item)}`;
                 return shipment.itemIds && shipment.itemIds.includes(itemId);
             });
             
@@ -14479,15 +14533,15 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 <p style="color: #7f8c8d; font-style: italic; text-align: center; padding: 10px;">
                                     ${currentLanguage === 'en' ? 'No items available' : 'No hay artículos disponibles'}
                                 </p>
-                            ` : request.items.map((item, itemIndex) => {
+                            ` : currentRequest.items.map((item, itemIndex) => {
                                 // Generate consistent ID (same as in openTrackingModal)
                                 const itemId = item.id || `item_${item.nameEn}_${item.category}_${itemIndex}`.replace(/[^a-zA-Z0-9_]/g, '_');
                                 const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
                                 const isChecked = shipment.itemIds && shipment.itemIds.includes(itemId);
                                 const isInOtherShipment = otherShipmentItemIds.has(itemId);
-                                const sentItem = request.sentItems && request.sentItems.find(si => {
-                                    const siId = si.id || `item_${si.nameEn}_${si.category}_${itemIndex}`.replace(/[^a-zA-Z0-9_]/g, '_');
-                                    return siId === itemId;
+                                // Get sentItem from currentRequest (which has fresh data from localStorage)
+                                const sentItem = currentRequest.sentItems && currentRequest.sentItems.find(si => {
+                                    return si.id === itemId;
                                 });
                                 const unitLabels = {
                                     'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
