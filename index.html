@@ -1792,7 +1792,7 @@
     <div id="trackingModal" class="modal">
         <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
-                <h2 data-en="Mark Request as Sent" data-es="Marcar Solicitud como Enviada">Mark Request as Sent</h2>
+                <h2 id="trackingModalTitle" data-en="Mark Request as Sent" data-es="Marcar Solicitud como Enviada">Mark Request as Sent</h2>
                 <button class="close" onclick="closeTrackingModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -13867,6 +13867,12 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                             title="${currentLanguage === 'en' ? 'Delete this request' : 'Eliminar esta solicitud'}">
                                         ${currentLanguage === 'en' ? 'Delete' : 'Eliminar'}
                                     </button>
+                                ` : request.status === 'sent' ? `
+                                    <button class="btn btn-sm" onclick="editCanadaRequestTracking(${request.id})" 
+                                            style="background: #3498db; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;"
+                                            title="${currentLanguage === 'en' ? 'Edit items, quantities, and tracking numbers' : 'Editar artículos, cantidades y números de seguimiento'}">
+                                        ${currentLanguage === 'en' ? 'Edit Items & Tracking' : 'Editar Artículos y Seguimiento'}
+                                    </button>
                                 ` : ''}
                             </div>
                         </div>
@@ -14015,9 +14021,23 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             }
         }
 
+        function editCanadaRequestTracking(requestId) {
+            // Same functionality as markCanadaRequestSent, but for already sent requests
+            markCanadaRequestSent(requestId);
+        }
+
         function openTrackingModal(request) {
             const modal = document.getElementById('trackingModal');
             const content = document.getElementById('trackingModalContent');
+            const modalTitle = document.getElementById('trackingModalTitle');
+            
+            // Update modal title based on request status
+            const isAlreadySent = request.status === 'sent';
+            if (modalTitle) {
+                modalTitle.textContent = isAlreadySent 
+                    ? (currentLanguage === 'en' ? 'Edit Items & Tracking' : 'Editar Artículos y Seguimiento')
+                    : (currentLanguage === 'en' ? 'Mark Request as Sent' : 'Marcar Solicitud como Enviada');
+            }
             
             // Calculate which items are assigned to shipments
             const assignedItemIds = new Set();
