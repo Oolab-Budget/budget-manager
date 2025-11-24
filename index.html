@@ -14215,9 +14215,11 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 const isAssigned = assignedItemIds.has(itemId);
                 
                 // Get sent quantity if already saved, otherwise default to requested
-                const sentItem = request.sentItems && request.sentItems.find(si => {
-                    const siId = si.id || `item_${si.nameEn}_${si.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
-                    return siId === itemId;
+                // Use fresh data from localStorage to ensure we have latest sentItems
+                const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
+                const freshRequest = history.find(r => r.id == currentTrackingRequestId) || request;
+                const sentItem = freshRequest.sentItems && freshRequest.sentItems.find(si => {
+                    return si.id === itemId;
                 });
                 const sentQty = sentItem ? sentItem.quantity : requestedQty;
                 const sentUnit = sentItem ? sentItem.unit : (requestedUnit || 'sheet');
@@ -14582,6 +14584,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         }
 
         function addTrackingShipment() {
+            // Save current sentItems before rebuilding modal
+            saveCurrentSentItems();
+            
             trackingShipments.push({
                 trackingNumber: '',
                 itemIds: []
@@ -14592,8 +14597,52 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 openTrackingModal(request);
             }
         }
+        
+        function saveCurrentSentItems() {
+            // Save all current sent quantity/unit values from the form before modal rebuild
+            const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
+            const request = history.find(r => r.id == currentTrackingRequestId);
+            if (!request) return;
+            
+            if (!request.sentItems) {
+                request.sentItems = [];
+            }
+            
+            // Update sentItems from current form values
+            request.items.forEach((item, index) => {
+                const itemId = item.id || `item_${item.nameEn}_${item.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                const sentQtyInput = document.getElementById(`sentQty_${itemId}`);
+                const sentUnitSelect = document.getElementById(`sentUnit_${itemId}`);
+                
+                if (sentQtyInput && sentUnitSelect) {
+                    const sentQty = parseInt(sentQtyInput.value) || 0;
+                    const sentUnit = sentUnitSelect.value || 'sheet';
+                    
+                    let sentItem = request.sentItems.find(si => si.id === itemId);
+                    if (sentItem) {
+                        sentItem.quantity = sentQty;
+                        sentItem.unit = sentUnit;
+                    } else {
+                        sentItem = {
+                            id: itemId,
+                            nameEn: item.nameEn,
+                            nameEs: item.nameEs,
+                            category: item.category,
+                            quantity: sentQty,
+                            unit: sentUnit
+                        };
+                        request.sentItems.push(sentItem);
+                    }
+                }
+            });
+            
+            localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
+        }
 
         function removeTrackingShipment(index) {
+            // Save current sentItems before rebuilding modal
+            saveCurrentSentItems();
+            
             trackingShipments.splice(index, 1);
             const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
             const request = history.find(r => r.id == currentTrackingRequestId);
