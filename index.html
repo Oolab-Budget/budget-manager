@@ -13680,6 +13680,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     console.log('Loaded requests from Supabase:', requests?.length || 0);
                     
                     if (requests && requests.length > 0) {
+                        // Get existing localStorage data to preserve sentItems (not stored in Supabase)
+                        const localHistory = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+                        
                         // Load items and tracking for each request
                         history = await Promise.all(
                             requests.map(async (req) => {
@@ -13701,6 +13704,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                     .select('*')
                                     .eq('request_id', req.id);
                                 
+                                // Find matching request in localStorage to preserve sentItems
+                                const localRequest = localHistory.find(lr => lr.id == req.id);
+                                
                                 return {
                                     id: req.id,
                                     date: req.date,
@@ -13717,6 +13723,8 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                         totalPrice: parseFloat(item.total_price || 0),
                                         notes: item.notes
                                     })),
+                                    // Preserve sentItems from localStorage (not stored in Supabase)
+                                    sentItems: localRequest?.sentItems || [],
                                     trackingShipments: (tracking || []).map(t => ({
                                         trackingNumber: t.tracking_number,
                                         itemIds: t.item_ids || [],
@@ -14747,7 +14755,12 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     const sentQty = parseInt(sentQtyInput.value) || 0;
                     const sentUnit = sentUnitSelect.value || 'sheet';
                     
-                    let sentItem = request.sentItems.find(si => si.id === itemId);
+                    let sentItem = request.sentItems.find(si => {
+                        const siId = si.id !== undefined && si.id !== null 
+                            ? String(si.id) 
+                            : `item_${si.nameEn}_${si.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                        return String(siId) === String(itemId);
+                    });
                     if (sentItem) {
                         sentItem.quantity = sentQty;
                         sentItem.unit = sentUnit;
@@ -14764,6 +14777,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     }
                 }
             });
+            
+            // Save to localStorage immediately to preserve changes
+            localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
             
             localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
         }
@@ -14853,6 +14869,10 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     : 'Por favor ingresa números de seguimiento para todos los envíos.');
                 return;
             }
+            
+            // CRITICAL: Save current sentItems from form BEFORE doing anything else
+            // This captures any unit/quantity changes the user made
+            saveCurrentSentItems();
             
             // Note: We allow partial shipments - unassigned items will be tracked as backorders
             const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
