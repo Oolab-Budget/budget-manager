@@ -2483,26 +2483,29 @@
             if (!currentUser || !useSupabase) return;
             
             try {
-                // Get or create request counter
-                let { data: counterData } = await supabase
-                    .from('canada_request_counters')
-                    .select('counter')
+                // Get the max request_number for this user to avoid duplicates
+                const { data: existingRequests, error: maxError } = await supabase
+                    .from('canada_requests')
+                    .select('request_number')
                     .eq('user_id', currentUser.id)
-                    .single();
+                    .order('request_number', { ascending: false })
+                    .limit(1);
                 
-                if (!counterData) {
-                    // Initialize counter
-                    await supabase.from('canada_request_counters').insert({
-                        user_id: currentUser.id,
-                        counter: 0
-                    });
-                    counterData = { counter: 0 };
+                if (maxError && maxError.code !== 'PGRST116') { // PGRST116 = no rows returned
+                    throw maxError;
                 }
                 
-                const requestNumber = counterData.counter;
+                // Calculate next request number
+                let requestNumber = 0;
+                if (existingRequests && existingRequests.length > 0) {
+                    requestNumber = (existingRequests[0].request_number || 0) + 1;
+                }
                 
                 // Create request
-                const { data: newRequest, error: reqError } = await supabase
+                let newRequest;
+                let reqError;
+                
+                const { data: requestData, error: insertError } = await supabase
                     .from('canada_requests')
                     .insert([{
                         user_id: currentUser.id,
@@ -2513,7 +2516,31 @@
                     .select()
                     .single();
                 
-                if (reqError) throw reqError;
+                if (insertError) {
+                    reqError = insertError;
+                    // If duplicate key error, try with next number
+                    if (insertError.code === '23505') {
+                        console.warn('Duplicate request_number detected, retrying with next number...');
+                        requestNumber += 1;
+                        const { data: retryRequest, error: retryError } = await supabase
+                            .from('canada_requests')
+                            .insert([{
+                                user_id: currentUser.id,
+                                request_number: requestNumber,
+                                date: new Date(request.date).toISOString(),
+                                status: request.status || 'pending'
+                            }])
+                            .select()
+                            .single();
+                        
+                        if (retryError) throw retryError;
+                        newRequest = retryRequest;
+                    } else {
+                        throw insertError;
+                    }
+                } else {
+                    newRequest = requestData;
+                }
                 
                 // Insert request items
                 if (request.items && request.items.length > 0) {
@@ -2531,16 +2558,10 @@
                     await supabase.from('canada_request_items').insert(items);
                 }
                 
-                // Increment counter
-                await supabase
-                    .from('canada_request_counters')
-                    .update({ counter: requestNumber + 1 })
-                    .eq('user_id', currentUser.id);
-                
                 // Update the request object with the new database ID
                 request.id = newRequest.id;
                 
-                console.log('Canada request saved to Supabase:', newRequest.id);
+                console.log('Canada request saved to Supabase:', newRequest.id, 'request_number:', requestNumber);
             } catch (error) {
                 console.error('Error saving Canada request to Supabase:', error);
                 throw error;
