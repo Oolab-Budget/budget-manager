@@ -13982,6 +13982,15 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     statusColor = '#f39c12';
                 }
                 
+                // Debug: Log tracking shipments
+                console.log(`Request #${request.id} tracking data:`, {
+                    hasTrackingShipments: !!(request.trackingShipments && request.trackingShipments.length > 0),
+                    trackingShipmentsCount: request.trackingShipments?.length || 0,
+                    trackingShipments: request.trackingShipments,
+                    hasTrackingNumbers: !!(request.trackingNumbers && request.trackingNumbers.length > 0),
+                    trackingNumber: request.trackingNumber
+                });
+                
                 html += `
                     <div data-request-id="${request.id}" style="padding: 15px; background: white; border: 1px solid #e1e8ed; border-radius: 8px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -14732,9 +14741,12 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 }
             });
             
-            const selectedItems = currentRequest.items.filter(item => {
-                const itemId = item.id || `item_${currentRequest.items.indexOf(item)}`;
-                return shipment.itemIds && shipment.itemIds.includes(itemId);
+            const selectedItems = currentRequest.items.filter((item, itemIdx) => {
+                const itemId = item.id !== undefined && item.id !== null 
+                    ? String(item.id) 
+                    : `item_${item.nameEn}_${item.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                const shipmentItemIds = (shipment.itemIds || []).map(id => String(id));
+                return shipmentItemIds.includes(String(itemId));
             });
             
             return `
@@ -14766,10 +14778,13 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 </p>
                             ` : currentRequest.items.map((item, itemIndex) => {
                                 // Generate consistent ID (same as in openTrackingModal)
-                                const itemId = item.id || `item_${item.nameEn}_${item.category}_${itemIndex}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                                const itemId = item.id !== undefined && item.id !== null 
+                                    ? String(item.id) 
+                                    : `item_${item.nameEn}_${item.category}_${itemIndex}`.replace(/[^a-zA-Z0-9_]/g, '_');
                                 const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
-                                const isChecked = shipment.itemIds && shipment.itemIds.includes(itemId);
-                                const isInOtherShipment = otherShipmentItemIds.has(itemId);
+                                const shipmentItemIds = (shipment.itemIds || []).map(id => String(id));
+                                const isChecked = shipmentItemIds.includes(String(itemId));
+                                const isInOtherShipment = Array.from(otherShipmentItemIds).some(id => String(id) === String(itemId));
                                 // Get sentItem from currentRequest (which has fresh data from localStorage)
                                 const sentItem = currentRequest.sentItems && currentRequest.sentItems.find(si => {
                                     return si.id === itemId;
@@ -14955,6 +14970,15 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         }
 
         async function saveTrackingShipments() {
+            // CRITICAL: Read tracking numbers from input fields BEFORE validation
+            // This ensures we capture what the user actually typed
+            trackingShipments.forEach((shipment, index) => {
+                const trackingInput = document.getElementById(`tracking_${index}`);
+                if (trackingInput) {
+                    shipment.trackingNumber = trackingInput.value.trim();
+                }
+            });
+            
             // Validate that all shipments have tracking numbers
             const emptyTracking = trackingShipments.some(s => !s.trackingNumber || s.trackingNumber.trim() === '');
             if (emptyTracking) {
