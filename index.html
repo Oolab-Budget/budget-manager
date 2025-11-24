@@ -14309,8 +14309,12 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             itemsHtml += '<div style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; padding: 10px; background: #f8f9fa;">';
             
             request.items.forEach((item, index) => {
-                // Generate consistent ID based on item properties
-                const itemId = item.id || `item_${item.nameEn}_${item.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                // Generate consistent ID - use database ID if available, otherwise generate from properties
+                // For Supabase items, item.id is the database ID (number), so we need to use it as-is
+                // For localStorage items, we generate a string ID
+                const itemId = item.id !== undefined && item.id !== null 
+                    ? String(item.id) 
+                    : `item_${item.nameEn}_${item.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
                 const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
                 const requestedQty = item.quantity || 1;
                 const requestedUnit = item.unit || 'sheet';
@@ -14321,7 +14325,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
                 const freshRequest = history.find(r => r.id == currentTrackingRequestId) || request;
                 const sentItem = freshRequest.sentItems && freshRequest.sentItems.find(si => {
-                    return si.id === itemId;
+                    return String(si.id) === String(itemId);
                 });
                 const sentQty = sentItem ? sentItem.quantity : requestedQty;
                 const sentUnit = sentItem ? sentItem.unit : (requestedUnit || 'sheet');
@@ -14470,8 +14474,11 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             }
             
             const item = request.items.find((it, idx) => {
-                const itId = it.id || `item_${it.nameEn}_${it.category}_${idx}`.replace(/[^a-zA-Z0-9_]/g, '_');
-                return itId === itemId;
+                // Match ID consistently - convert both to strings for comparison
+                const itId = it.id !== undefined && it.id !== null 
+                    ? String(it.id) 
+                    : `item_${it.nameEn}_${it.category}_${idx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                return String(itId) === String(itemId);
             });
             
             if (!item) {
@@ -14730,7 +14737,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             
             // Update sentItems from current form values
             request.items.forEach((item, index) => {
-                const itemId = item.id || `item_${item.nameEn}_${item.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                const itemId = item.id !== undefined && item.id !== null 
+                    ? String(item.id) 
+                    : `item_${item.nameEn}_${item.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
                 const sentQtyInput = document.getElementById(`sentQty_${itemId}`);
                 const sentUnitSelect = document.getElementById(`sentUnit_${itemId}`);
                 
@@ -14835,7 +14844,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             }
         }
 
-        function saveTrackingShipments() {
+        async function saveTrackingShipments() {
             // Validate that all shipments have tracking numbers
             const emptyTracking = trackingShipments.some(s => !s.trackingNumber || s.trackingNumber.trim() === '');
             if (emptyTracking) {
@@ -14870,11 +14879,15 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 
                 request.backorders = [];
                 request.items.forEach((item, index) => {
-                    const itemId = item.id || `item_${item.nameEn}_${item.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
-                    const isAssigned = allAssignedItemIds.has(itemId);
+                    const itemId = item.id !== undefined && item.id !== null 
+                        ? String(item.id) 
+                        : `item_${item.nameEn}_${item.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                    const isAssigned = allAssignedItemIds.has(String(itemId));
                     const sentItem = request.sentItems && request.sentItems.find(si => {
-                        const siId = si.id || `item_${si.nameEn}_${si.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
-                        return siId === itemId;
+                        const siId = si.id !== undefined && si.id !== null 
+                            ? String(si.id) 
+                            : `item_${si.nameEn}_${si.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                        return String(siId) === String(itemId);
                     });
                     
                     const requestedQty = item.quantity || 1;
@@ -14915,9 +14928,86 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     }
                 });
                 
+                // Save to localStorage first
                 localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
+                
+                // Save to Supabase if logged in
+                if (useSupabase && currentUser && request.id) {
+                    try {
+                        // Update request status and sent_date
+                        const { error: updateError } = await supabase
+                            .from('canada_requests')
+                            .update({
+                                status: 'sent',
+                                sent_date: request.sentDate
+                            })
+                            .eq('id', request.id)
+                            .eq('user_id', currentUser.id);
+                        
+                        if (updateError) throw updateError;
+                        
+                        // Delete existing tracking shipments for this request
+                        await supabase
+                            .from('canada_tracking_shipments')
+                            .delete()
+                            .eq('request_id', request.id);
+                        
+                        // Insert new tracking shipments
+                        if (trackingShipments.length > 0) {
+                            const trackingData = trackingShipments.map(shipment => ({
+                                request_id: request.id,
+                                tracking_number: shipment.trackingNumber,
+                                item_ids: shipment.itemIds || [],
+                                ups_status: shipment.upsStatus || null,
+                                ups_details: shipment.upsDetails || null
+                            }));
+                            
+                            const { error: trackingError } = await supabase
+                                .from('canada_tracking_shipments')
+                                .insert(trackingData);
+                            
+                            if (trackingError) throw trackingError;
+                        }
+                        
+                        // Delete existing backorders for this request
+                        await supabase
+                            .from('canada_backorders')
+                            .delete()
+                            .eq('request_id', request.id);
+                        
+                        // Insert new backorders
+                        if (request.backorders && request.backorders.length > 0) {
+                            const backorderData = request.backorders.map(bo => ({
+                                request_id: request.id,
+                                item_id: bo.id,
+                                name_en: bo.nameEn,
+                                name_es: bo.nameEs,
+                                category: bo.category,
+                                requested_qty: bo.requestedQty,
+                                sent_qty: bo.sentQty,
+                                backorder_qty: bo.backorderQty,
+                                unit: bo.unit,
+                                reason: bo.reason
+                            }));
+                            
+                            const { error: backorderError } = await supabase
+                                .from('canada_backorders')
+                                .insert(backorderData);
+                            
+                            if (backorderError) throw backorderError;
+                        }
+                        
+                        console.log('Tracking shipments saved to Supabase for request:', request.id);
+                    } catch (error) {
+                        console.error('Error saving tracking shipments to Supabase:', error);
+                        alert(currentLanguage === 'en' 
+                            ? 'Error saving to database. Changes saved locally only.' 
+                            : 'Error al guardar en la base de datos. Los cambios se guardaron solo localmente.');
+                    }
+                }
+                
                 closeTrackingModal();
-                loadCanadaHistory();
+                await loadCanadaHistory();
             }
         }
 
