@@ -14928,10 +14928,16 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     }
                 });
                 
-                // Save to localStorage first
+                // Save to localStorage first (this ensures immediate UI update)
                 localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
                 
-                // Save to Supabase if logged in
+                // Close modal immediately so user sees the change
+                closeTrackingModal();
+                
+                // Reload history to show updated status immediately
+                await loadCanadaHistory();
+                
+                // Save to Supabase in background (don't block UI)
                 if (useSupabase && currentUser && request.id) {
                     try {
                         // Update request status and sent_date
@@ -14998,16 +15004,14 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                         }
                         
                         console.log('Tracking shipments saved to Supabase for request:', request.id);
+                        
+                        // Reload history again after Supabase save to ensure sync
+                        await loadCanadaHistory();
                     } catch (error) {
                         console.error('Error saving tracking shipments to Supabase:', error);
-                        alert(currentLanguage === 'en' 
-                            ? 'Error saving to database. Changes saved locally only.' 
-                            : 'Error al guardar en la base de datos. Los cambios se guardaron solo localmente.');
+                        // Don't show alert - changes are already saved locally and visible
                     }
                 }
-                
-                closeTrackingModal();
-                await loadCanadaHistory();
             }
         }
 
