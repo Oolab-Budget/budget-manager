@@ -14283,17 +14283,8 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             });
             itemsHtml += '</div>';
             
-            // Show remaining items count
-            const remainingCount = request.items.length - assignedItemIds.size;
-            if (remainingCount > 0) {
-                itemsHtml += `<div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-left: 4px solid #f39c12; border-radius: 4px;">
-                    <strong style="color: #d68910;">⚠️ ${currentLanguage === 'en' ? 'Remaining Items' : 'Artículos Restantes'}: ${remainingCount} ${currentLanguage === 'en' ? 'item(s) not yet assigned to a shipment' : 'artículo(s) aún no asignado(s) a un envío'}</strong>
-                </div>`;
-            } else if (assignedItemIds.size > 0) {
-                itemsHtml += `<div style="margin-top: 10px; padding: 10px; background: #e8f5e9; border-left: 4px solid #27ae60; border-radius: 4px;">
-                    <strong style="color: #27ae60;">✓ ${currentLanguage === 'en' ? 'All items assigned to shipments' : 'Todos los artículos asignados a envíos'}</strong>
-                </div>`;
-            }
+            // Show remaining items count (will be updated dynamically)
+            itemsHtml += `<div data-remaining-items style="margin-top: 10px;"></div>`;
             itemsHtml += '</div>';
             
             // Build HTML for tracking shipments
@@ -14348,6 +14339,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 updateSentQuantity(itemId);
             });
             
+            // Update remaining items count
+            updateRemainingItemsCount();
+            
             modal.style.display = 'block';
         }
         
@@ -14390,9 +14384,12 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 request.sentItems = [];
             }
             
-            // Find or create sent item
+            // Find or create sent item - use consistent ID matching
             let sentItem = request.sentItems.find(si => {
-                const siId = si.id || `item_${si.nameEn}_${si.category}_${request.items.indexOf(item)}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                const siId = si.id || `item_${si.nameEn}_${si.category}_${request.items.findIndex((it, idx) => {
+                    const itId = it.id || `item_${it.nameEn}_${it.category}_${idx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                    return itId === itemId;
+                })}`.replace(/[^a-zA-Z0-9_]/g, '_');
                 return siId === itemId;
             });
             
@@ -14409,6 +14406,11 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             } else {
                 sentItem.quantity = sentQty;
                 sentItem.unit = sentUnit;
+            }
+            
+            // Update the select element to ensure it shows the correct value
+            if (sentUnitSelect) {
+                sentUnitSelect.value = sentUnit;
             }
             
             // Calculate backorder (only if units match)
@@ -14564,12 +14566,49 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 } else {
                     trackingShipments[shipmentIndex].itemIds = trackingShipments[shipmentIndex].itemIds.filter(id => id !== itemId);
                 }
-                // Refresh modal to update remaining items count
-                const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
-                const request = history.find(r => r.id == currentTrackingRequestId);
-                if (request) {
-                    openTrackingModal(request);
+                
+                // Also update the main checkbox if it exists
+                const mainCheckbox = document.getElementById(`item_${itemId}`);
+                if (mainCheckbox) {
+                    mainCheckbox.checked = isChecked;
+                    toggleItemEditFields(itemId);
                 }
+                
+                // Update remaining items count without full refresh
+                updateRemainingItemsCount();
+            }
+        }
+        
+        function updateRemainingItemsCount() {
+            const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
+            const request = history.find(r => r.id == currentTrackingRequestId);
+            if (!request) return;
+            
+            const assignedItemIds = new Set();
+            trackingShipments.forEach(shipment => {
+                if (shipment.itemIds) {
+                    shipment.itemIds.forEach(id => assignedItemIds.add(id));
+                }
+            });
+            
+            const remainingCount = request.items.length - assignedItemIds.size;
+            const remainingDiv = document.querySelector('[data-remaining-items]');
+            if (remainingCount > 0) {
+                const itemsHtml = `<div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-left: 4px solid #f39c12; border-radius: 4px;">
+                    <strong style="color: #d68910;">⚠️ ${currentLanguage === 'en' ? 'Remaining Items' : 'Artículos Restantes'}: ${remainingCount} ${currentLanguage === 'en' ? 'item(s) not yet assigned to a shipment' : 'artículo(s) aún no asignado(s) a un envío'}</strong>
+                </div>`;
+                if (remainingDiv) {
+                    remainingDiv.innerHTML = itemsHtml;
+                }
+            } else if (assignedItemIds.size > 0) {
+                const itemsHtml = `<div style="margin-top: 10px; padding: 10px; background: #e8f5e9; border-left: 4px solid #27ae60; border-radius: 4px;">
+                    <strong style="color: #27ae60;">✓ ${currentLanguage === 'en' ? 'All items assigned to shipments' : 'Todos los artículos asignados a envíos'}</strong>
+                </div>`;
+                if (remainingDiv) {
+                    remainingDiv.innerHTML = itemsHtml;
+                }
+            } else if (remainingDiv) {
+                remainingDiv.innerHTML = '';
             }
         }
 
