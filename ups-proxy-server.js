@@ -37,6 +37,25 @@ app.use(cors({
 
 app.use(express.json());
 
+// Request logging middleware
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    next();
+});
+
+// Root endpoint - list available endpoints
+app.get('/', (req, res) => {
+    res.json({
+        service: 'UPS Proxy Server',
+        status: 'running',
+        endpoints: {
+            health: 'GET /health',
+            token: 'POST /api/ups/token',
+            track: 'POST /api/ups/track'
+        }
+    });
+});
+
 // UPS OAuth Token Endpoint
 app.post('/api/ups/token', async (req, res) => {
     try {
@@ -73,6 +92,8 @@ app.post('/api/ups/token', async (req, res) => {
 
 // UPS Tracking Endpoint
 app.post('/api/ups/track', async (req, res) => {
+    console.log('POST /api/ups/track - Request received');
+    console.log('Body:', JSON.stringify(req.body, null, 2));
     try {
         const { trackingNumber, accessToken, clientId } = req.body;
         
@@ -126,6 +147,22 @@ app.post('/api/ups/track', async (req, res) => {
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', service: 'UPS Proxy Server' });
+});
+
+// Catch-all route for debugging
+app.use((req, res) => {
+    console.log(`404 - ${req.method} ${req.path} - Not found`);
+    res.status(404).json({
+        error: 'Endpoint not found',
+        method: req.method,
+        path: req.path,
+        availableEndpoints: [
+            'GET /',
+            'GET /health',
+            'POST /api/ups/token',
+            'POST /api/ups/track'
+        ]
+    });
 });
 
 app.listen(PORT, () => {
