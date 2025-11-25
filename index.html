@@ -14184,14 +14184,17 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                                                     ✅ ${currentLanguage === 'en' ? 'IMPORT FEES PAID' : 'TARIFAS DE IMPORTACIÓN PAGADAS'}
                                                                 </div>
                                                             ` : ''}
-                                                            ${upsStatus ? `
-                                                                <div style="font-size: 0.8rem; color: ${upsHasDutiesDue ? '#d68910' : (upsHasDelay ? '#c0392b' : '#2c3e50')}; font-weight: ${(upsHasDutiesDue || upsHasDelay) ? '600' : '500'}; margin-top: 5px; margin-bottom: 3px;">
-                                                                    ${currentLanguage === 'en' ? 'UPS Status' : 'Estado UPS'}: <strong>${upsStatus}</strong>
-                                                                    ${upsPickedUp ? ` <span style="color: #3498db;">📦 ${currentLanguage === 'en' ? 'PICKED UP' : 'RECOGIDO'}</span>` : ''}
-                                                                    ${upsInTransit && !upsPickedUp ? ` <span style="color: #3498db;">🚚 ${currentLanguage === 'en' ? 'IN TRANSIT' : 'EN TRÁNSITO'}</span>` : ''}
-                                                                    ${upsHasDelay ? ` <span style="color: #e74c3c;">⚠️ ${currentLanguage === 'en' ? 'DELAY/EXCEPTION' : 'RETRASO/EXCEPCIÓN'}</span>` : ''}
+                                                            <div style="font-size: 0.85rem; color: ${upsHasDutiesDue ? '#d68910' : (upsHasDelay ? '#c0392b' : (upsStatus ? '#2c3e50' : '#7f8c8d'))}; font-weight: ${(upsHasDutiesDue || upsHasDelay || upsStatus) ? '600' : '500'}; margin-top: 8px; margin-bottom: 5px; padding: 6px 8px; background: ${upsStatus ? '#f8f9fa' : '#fff3cd'}; border-radius: 4px; border-left: 3px solid ${upsHasDutiesDue ? '#f39c12' : (upsHasDelay ? '#e74c3c' : (upsStatus ? '#3498db' : '#f39c12'))};">
+                                                                <div style="font-weight: 600; margin-bottom: 3px;">
+                                                                    ${currentLanguage === 'en' ? 'Status' : 'Estado'}: 
+                                                                    <strong style="color: ${upsHasDutiesDue ? '#d68910' : (upsHasDelay ? '#c0392b' : (upsStatus ? '#2c3e50' : '#7f8c8d'))};">
+                                                                        ${upsStatus || (currentLanguage === 'en' ? 'Checking...' : 'Verificando...')}
+                                                                    </strong>
                                                                 </div>
-                                                            ` : ''}
+                                                                ${upsPickedUp ? `<div style="font-size: 0.75rem; color: #3498db; margin-top: 3px;">📦 ${currentLanguage === 'en' ? 'PICKED UP' : 'RECOGIDO'}</div>` : ''}
+                                                                ${upsInTransit && !upsPickedUp ? `<div style="font-size: 0.75rem; color: #3498db; margin-top: 3px;">🚚 ${currentLanguage === 'en' ? 'IN TRANSIT' : 'EN TRÁNSITO'}</div>` : ''}
+                                                                ${upsHasDelay ? `<div style="font-size: 0.75rem; color: #e74c3c; margin-top: 3px;">⚠️ ${currentLanguage === 'en' ? 'DELAY/EXCEPTION' : 'RETRASO/EXCEPCIÓN'}</div>` : ''}
+                                                            </div>
                                                             ${upsHasDutiesDue && upsDutiesAmount ? `
                                                                 <div style="font-size: 0.75rem; color: #d68910; font-weight: 600; margin-top: 3px; padding: 4px; background: #fff3cd; border-radius: 3px;">
                                                                     ${currentLanguage === 'en' ? 'Amount Due' : 'Monto Pendiente'}: ${upsDutiesAmount}
@@ -14275,10 +14278,12 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 ` : ''}
                             </div>
                         </div>
+                        ${request.trackingShipments && request.trackingShipments.length > 0 ? '' : `
                         <div style="margin-top: 10px;">
                             <div style="font-size: 0.9rem; color: #7f8c8d; margin-bottom: 5px;">
                                 ${currentLanguage === 'en' ? 'Items' : 'Artículos'} (${request.items.length}):
                             </div>
+                        `}
                             ${(() => {
                                 const unitLabels = {
                                     'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
@@ -14393,8 +14398,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 </div>
                                 `;
                             })()}
-                            `;
-                            })()}
+                            ${request.trackingShipments && request.trackingShipments.length > 0 ? '' : `</div>`}
                         </div>
                     </div>
                 `;
@@ -15199,6 +15203,49 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 
                 // Save to localStorage first (this ensures immediate UI update)
                 localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
+                
+                // Immediately check UPS status for all new tracking numbers
+                console.log('Checking UPS status for newly added tracking numbers...');
+                for (const shipment of trackingShipmentsToSave) {
+                    if (shipment.trackingNumber && shipment.trackingNumber.trim()) {
+                        try {
+                            const result = await checkUPSTracking(shipment.trackingNumber.trim());
+                            
+                            // Update shipment with UPS status
+                            shipment.upsStatus = result.status;
+                            shipment.upsStatusCode = result.statusCode;
+                            shipment.upsHasDelay = result.hasDelay;
+                            shipment.upsHasDutiesDue = result.hasDutiesDue || false;
+                            shipment.upsDutiesPaid = result.dutiesPaid || false;
+                            shipment.upsDutiesAmount = result.dutiesAmount || '';
+                            shipment.upsLastLocation = result.lastLocation;
+                            shipment.upsLastDate = result.lastDate;
+                            shipment.upsLastChecked = new Date().toISOString();
+                            shipment.upsPickedUp = result.pickedUp || false;
+                            shipment.upsInTransit = result.inTransit || false;
+                            
+                            console.log(`✅ UPS status for ${shipment.trackingNumber}:`, result.status);
+                            
+                            // Update the request in history
+                            const updatedHistory = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
+                            const updatedRequest = updatedHistory.find(r => r.id == currentTrackingRequestId);
+                            if (updatedRequest && updatedRequest.trackingShipments) {
+                                const updatedShipment = updatedRequest.trackingShipments.find(s => s.trackingNumber === shipment.trackingNumber);
+                                if (updatedShipment) {
+                                    Object.assign(updatedShipment, shipment);
+                                }
+                                localStorage.setItem('canadaRequestHistory', JSON.stringify(updatedHistory));
+                            }
+                            
+                            // Small delay to avoid rate limiting
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                        } catch (error) {
+                            console.error(`Error checking UPS status for ${shipment.trackingNumber}:`, error);
+                            shipment.upsStatus = 'Error checking status';
+                            shipment.upsLastChecked = new Date().toISOString();
+                        }
+                    }
+                }
                 
                 // Close modal immediately so user sees the change
                 closeTrackingModal();
