@@ -13846,28 +13846,11 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                     .select('*')
                                     .eq('request_id', req.id);
                                 
-                                // Find matching request in localStorage to preserve sentItems
+                                // Find matching request in localStorage to preserve sentItems and trackingShipments
                                 const localRequest = localHistory.find(lr => lr.id == req.id);
                                 
-                                return {
-                                    id: req.id,
-                                    date: req.date,
-                                    status: req.status,
-                                    sentDate: req.sent_date,
-                                    receivedDate: req.received_date,
-                                    items: (items || []).map(item => ({
-                                        id: item.id,
-                                        nameEn: item.name_en,
-                                        nameEs: item.name_es,
-                                        category: item.category,
-                                        quantity: item.quantity,
-                                        unitPrice: parseFloat(item.unit_price || 0),
-                                        totalPrice: parseFloat(item.total_price || 0),
-                                        notes: item.notes
-                                    })),
-                                    // Preserve sentItems from localStorage (not stored in Supabase)
-                                    sentItems: localRequest?.sentItems || [],
-                                    trackingShipments: (tracking || []).map(t => {
+                                // Get tracking shipments from Supabase
+                                const supabaseTracking = (tracking || []).map(t => {
                                         // Get item IDs from shipment_items column (JSONB)
                                         let itemIds = t.shipment_items || [];
                                         if (typeof itemIds === 'string') {
@@ -13898,9 +13881,35 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                             upsLastDate: t.ups_last_date || null,
                                             upsLastChecked: t.ups_last_checked || null
                                         };
-                                    }),
-                                    trackingNumbers: (tracking || []).map(t => t.tracking_number),
-                                    trackingNumber: (tracking && tracking.length > 0) ? tracking[0].tracking_number : '',
+                                    });
+                                
+                                // If Supabase has no tracking shipments but localStorage does, use localStorage
+                                // This handles the case where Supabase save failed but localStorage has the data
+                                const finalTrackingShipments = supabaseTracking.length > 0 
+                                    ? supabaseTracking 
+                                    : (localRequest?.trackingShipments || []);
+                                
+                                return {
+                                    id: req.id,
+                                    date: req.date,
+                                    status: req.status,
+                                    sentDate: req.sent_date,
+                                    receivedDate: req.received_date,
+                                    items: (items || []).map(item => ({
+                                        id: item.id,
+                                        nameEn: item.name_en,
+                                        nameEs: item.name_es,
+                                        category: item.category,
+                                        quantity: item.quantity,
+                                        unitPrice: parseFloat(item.unit_price || 0),
+                                        totalPrice: parseFloat(item.total_price || 0),
+                                        notes: item.notes
+                                    })),
+                                    // Preserve sentItems from localStorage (not stored in Supabase)
+                                    sentItems: localRequest?.sentItems || [],
+                                    trackingShipments: finalTrackingShipments,
+                                    trackingNumbers: finalTrackingShipments.map(t => t.trackingNumber),
+                                    trackingNumber: finalTrackingShipments.length > 0 ? finalTrackingShipments[0].trackingNumber : '',
                                     backorders: (backorders || []).map(bo => ({
                                         id: bo.id,
                                         nameEn: bo.name_en,
