@@ -14278,99 +14278,95 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 ` : ''}
                             </div>
                         </div>
-                        ${request.trackingShipments && request.trackingShipments.length > 0 ? '' : `
-                        <div style="margin-top: 10px;">
-                            <div style="font-size: 0.9rem; color: #7f8c8d; margin-bottom: 5px;">
-                                ${currentLanguage === 'en' ? 'Items' : 'Artículos'} (${request.items.length}):
-                            </div>
-                            ${(() => {
-                                const unitLabels = {
-                                    'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
-                                    'sheet': currentLanguage === 'en' ? 'Sheet' : 'Hoja'
-                                };
-                                return `
-                            <div style="display: flex; flex-direction: column; gap: 5px;">
-                                ${request.items.map((item, itemIdx) => {
-                                    const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
-                                    const unit = item.unit || 'sheet';
-                                    const unitLabel = unitLabels[unit] || unitLabels['sheet'];
-                                    
-                                    // Check if there's a sent item or backorder
-                                    const itemId = item.id !== undefined && item.id !== null 
-                                        ? String(item.id) 
-                                        : `item_${item.nameEn}_${item.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
-                                    
-                                    // Find which tracking shipment this item belongs to
-                                    let trackingInfo = '';
-                                    if (request.trackingShipments && request.trackingShipments.length > 0) {
-                                        request.trackingShipments.forEach((shipment, shipmentIdx) => {
-                                            const shipmentItemIds = (shipment.itemIds || []).map(id => String(id));
-                                            if (shipmentItemIds.includes(String(itemId))) {
-                                                const trackingLink = `<a href="https://www.ups.com/track?tracknum=${shipment.trackingNumber}" 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    style="color: #3498db; text-decoration: underline; font-size: 0.8rem; margin-left: 5px;"
-                                                    title="${currentLanguage === 'en' ? 'Click to track on UPS website' : 'Haz clic para rastrear en el sitio web de UPS'}">
-                                                    📦 ${currentLanguage === 'en' ? 'Tracking' : 'Seguimiento'} #${shipmentIdx + 1}: ${shipment.trackingNumber}
-                                                </a>`;
-                                                trackingInfo = trackingLink;
-                                            }
-                                        });
-                                    }
-                                    
-                                    const sentItem = request.sentItems && request.sentItems.find(si => {
-                                        const siId = si.id !== undefined && si.id !== null 
-                                            ? String(si.id) 
-                                            : `item_${si.nameEn}_${si.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
-                                        return String(siId) === String(itemId);
-                                    });
-                                    const backorder = request.backorders && request.backorders.find(bo => {
-                                        const boId = bo.id !== undefined && bo.id !== null 
-                                            ? String(bo.id) 
-                                            : `item_${bo.nameEn}_${bo.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
-                                        return String(boId) === String(itemId);
-                                    });
-                                    
-                                    let itemDisplay = `<div style="padding: 5px; background: #f8f9fa; border-radius: 4px; font-size: 0.85rem;">`;
-                                    itemDisplay += `• ${itemName} `;
-                                    
-                                    // Add tracking info if this item is in a tracking shipment
-                                    if (trackingInfo) {
-                                        itemDisplay += `<br>${trackingInfo}`;
-                                    }
-                                    
-                                    if (sentItem && request.status === 'sent') {
-                                        const sentUnitLabel = unitLabels[sentItem.unit] || unitLabels['sheet'];
-                                        itemDisplay += `<span style="color: #2c3e50;">(${currentLanguage === 'en' ? 'Requested' : 'Solicitado'}: ${item.quantity} ${unitLabel}, ${currentLanguage === 'en' ? 'Sent' : 'Enviado'}: ${sentItem.quantity} ${sentUnitLabel})</span>`;
-                                        if (backorder) {
-                                            // Check if this backorder is dismissed
-                                            const dismissedBackorders = JSON.parse(localStorage.getItem('dismissedBackorders')) || {};
-                                            const boGroupKey = `${backorder.nameEn}_${backorder.category}`;
-                                            const isDismissed = dismissedBackorders[boGroupKey] === true;
-                                            
-                                            if (!isDismissed) {
-                                                itemDisplay += ` <span style="color: #e74c3c; font-weight: 600;">⚠️ ${currentLanguage === 'en' ? 'Backorder' : 'Pedido Pendiente'}: ${backorder.backorderQty} ${unitLabel}</span>`;
-                                            }
+                        ${(() => {
+                            // Only show items section if there are no tracking shipments
+                            if (request.trackingShipments && request.trackingShipments.length > 0) {
+                                return '';
+                            }
+                            
+                            const unitLabels = {
+                                'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
+                                'sheet': currentLanguage === 'en' ? 'Sheet' : 'Hoja'
+                            };
+                            
+                            const itemsHtml = request.items.map((item, itemIdx) => {
+                                const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+                                const unit = item.unit || 'sheet';
+                                const unitLabel = unitLabels[unit] || unitLabels['sheet'];
+                                
+                                // Check if there's a sent item or backorder
+                                const itemId = item.id !== undefined && item.id !== null 
+                                    ? String(item.id) 
+                                    : `item_${item.nameEn}_${item.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                                
+                                // Find which tracking shipment this item belongs to
+                                let trackingInfo = '';
+                                if (request.trackingShipments && request.trackingShipments.length > 0) {
+                                    request.trackingShipments.forEach((shipment, shipmentIdx) => {
+                                        const shipmentItemIds = (shipment.itemIds || []).map(id => String(id));
+                                        if (shipmentItemIds.includes(String(itemId))) {
+                                            const trackingLink = `<a href="https://www.ups.com/track?tracknum=${shipment.trackingNumber}" 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                style="color: #3498db; text-decoration: underline; font-size: 0.8rem; margin-left: 5px;"
+                                                title="${currentLanguage === 'en' ? 'Click to track on UPS website' : 'Haz clic para rastrear en el sitio web de UPS'}">
+                                                📦 ${currentLanguage === 'en' ? 'Tracking' : 'Seguimiento'} #${shipmentIdx + 1}: ${shipment.trackingNumber}
+                                            </a>`;
+                                            trackingInfo = trackingLink;
                                         }
-                                    } else {
-                                        itemDisplay += `<span style="color: #2c3e50;">(${currentLanguage === 'en' ? 'Qty' : 'Cant'}: ${item.quantity} ${unitLabel})</span>`;
+                                    });
+                                }
+                                
+                                const sentItem = request.sentItems && request.sentItems.find(si => {
+                                    const siId = si.id !== undefined && si.id !== null 
+                                        ? String(si.id) 
+                                        : `item_${si.nameEn}_${si.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                                    return String(siId) === String(itemId);
+                                });
+                                const backorder = request.backorders && request.backorders.find(bo => {
+                                    const boId = bo.id !== undefined && bo.id !== null 
+                                        ? String(bo.id) 
+                                        : `item_${bo.nameEn}_${bo.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                                    return String(boId) === String(itemId);
+                                });
+                                
+                                let itemDisplay = `<div style="padding: 5px; background: #f8f9fa; border-radius: 4px; font-size: 0.85rem;">`;
+                                itemDisplay += `• ${itemName} `;
+                                
+                                // Add tracking info if this item is in a tracking shipment
+                                if (trackingInfo) {
+                                    itemDisplay += `<br>${trackingInfo}`;
+                                }
+                                
+                                if (sentItem && request.status === 'sent') {
+                                    const sentUnitLabel = unitLabels[sentItem.unit] || unitLabels['sheet'];
+                                    itemDisplay += `<span style="color: #2c3e50;">(${currentLanguage === 'en' ? 'Requested' : 'Solicitado'}: ${item.quantity} ${unitLabel}, ${currentLanguage === 'en' ? 'Sent' : 'Enviado'}: ${sentItem.quantity} ${sentUnitLabel})</span>`;
+                                    if (backorder) {
+                                        // Check if this backorder is dismissed
+                                        const dismissedBackorders = JSON.parse(localStorage.getItem('dismissedBackorders')) || {};
+                                        const boGroupKey = `${backorder.nameEn}_${backorder.category}`;
+                                        const isDismissed = dismissedBackorders[boGroupKey] === true;
+                                        
+                                        if (!isDismissed) {
+                                            itemDisplay += ` <span style="color: #e74c3c; font-weight: 600;">⚠️ ${currentLanguage === 'en' ? 'Backorder' : 'Pedido Pendiente'}: ${backorder.backorderQty} ${unitLabel}</span>`;
+                                        }
                                     }
-                                    
-                                    itemDisplay += `</div>`;
-                                    return itemDisplay;
-                                }).join('')}
-                            </div>
-                            ${(() => {
-                                // Filter out dismissed backorders
-                                const dismissedBackorders = JSON.parse(localStorage.getItem('dismissedBackorders')) || {};
-                                const visibleBackorders = request.backorders ? request.backorders.filter(bo => {
-                                    const boGroupKey = `${bo.nameEn}_${bo.category}`;
-                                    return dismissedBackorders[boGroupKey] !== true;
-                                }) : [];
+                                } else {
+                                    itemDisplay += `<span style="color: #2c3e50;">(${currentLanguage === 'en' ? 'Qty' : 'Cant'}: ${item.quantity} ${unitLabel})</span>`;
+                                }
                                 
-                                if (visibleBackorders.length === 0) return '';
-                                
-                                return `
+                                itemDisplay += `</div>`;
+                                return itemDisplay;
+                            }).join('');
+                            
+                            // Filter out dismissed backorders
+                            const dismissedBackorders = JSON.parse(localStorage.getItem('dismissedBackorders')) || {};
+                            const visibleBackorders = request.backorders ? request.backorders.filter(bo => {
+                                const boGroupKey = `${bo.nameEn}_${bo.category}`;
+                                return dismissedBackorders[boGroupKey] !== true;
+                            }) : [];
+                            
+                            const backordersHtml = visibleBackorders.length > 0 ? `
                                 <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-left: 4px solid #f39c12; border-radius: 4px;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
                                         <div style="font-weight: 600; color: #d68910; font-size: 0.9rem;">
@@ -14395,10 +14391,20 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                         }).join('')}
                                     </div>
                                 </div>
-                                `;
-                            })()}
+                            ` : '';
+                            
+                            return `
+                        <div style="margin-top: 10px;">
+                            <div style="font-size: 0.9rem; color: #7f8c8d; margin-bottom: 5px;">
+                                ${currentLanguage === 'en' ? 'Items' : 'Artículos'} (${request.items.length}):
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                                ${itemsHtml}
+                            </div>
+                            ${backordersHtml}
                         </div>
-                        `}
+                            `;
+                        })()}
                     </div>
                 `;
             });
