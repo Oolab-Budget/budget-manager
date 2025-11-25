@@ -14410,7 +14410,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             const assignedItemIds = new Set();
             trackingShipments.forEach(shipment => {
                 if (shipment.itemIds) {
-                    shipment.itemIds.forEach(id => assignedItemIds.add(id));
+                    shipment.itemIds.forEach(id => assignedItemIds.add(String(id))); // Ensure all IDs are strings for comparison
                 }
             });
             
@@ -14429,7 +14429,12 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
                 const requestedQty = item.quantity || 1;
                 const requestedUnit = item.unit || 'sheet';
-                const isAssigned = assignedItemIds.has(itemId);
+                const isAssigned = assignedItemIds.has(String(itemId));
+                
+                // Skip items that are already assigned to a shipment (they'll show in the shipment section only)
+                if (isAssigned) {
+                    return; // Don't render this item in the main list - it's already in a shipment
+                }
                 
                 // Get sent quantity if already saved, otherwise default to requested
                 // Use fresh data from localStorage to ensure we have latest sentItems
@@ -14447,31 +14452,21 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 };
                 const requestedUnitLabel = unitLabels[requestedUnit] || unitLabels['sheet'];
                 
-                // Find which shipment this item is assigned to
-                let assignedToShipment = null;
-                trackingShipments.forEach((shipment, idx) => {
-                    if (shipment.itemIds && shipment.itemIds.includes(itemId)) {
-                        assignedToShipment = idx + 1;
-                    }
-                });
-                
-                const borderColor = isAssigned ? '#27ae60' : '#e1e8ed';
-                const bgColor = isAssigned ? '#e8f5e9' : 'white';
+                const borderColor = '#e1e8ed';
+                const bgColor = 'white';
                 
                 itemsHtml += `
                     <div style="padding: 10px; margin-bottom: 8px; background: ${bgColor}; border-radius: 4px; border: 2px solid ${borderColor};">
                         <div style="display: flex; align-items: center; margin-bottom: 8px;">
                             <input type="checkbox" id="item_${itemId}" value="${itemId}" 
-                                   ${isAssigned ? 'checked' : ''}
                                    style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;"
                                    onchange="toggleItemEditFields('${itemId}')">
                             <label for="item_${itemId}" style="cursor: pointer; flex: 1;">
                                 <strong>${itemName}</strong> 
                                 <span style="color: #7f8c8d; font-size: 0.9rem;">(${currentLanguage === 'en' ? 'Requested' : 'Solicitado'}: ${requestedQty} ${requestedUnitLabel})</span>
-                                ${isAssigned ? `<span style="color: #27ae60; font-weight: 600; font-size: 0.85rem; margin-left: 10px;">✓ ${currentLanguage === 'en' ? 'Assigned to Shipment' : 'Asignado al Envío'} #${assignedToShipment}</span>` : ''}
                             </label>
                         </div>
-                        <div id="editFields_${itemId}" style="display: ${isAssigned ? 'block' : 'none'}; padding-left: 28px; padding-top: 8px; border-top: 1px solid #e1e8ed;">
+                        <div id="editFields_${itemId}" style="display: none; padding-left: 28px; padding-top: 8px; border-top: 1px solid #e1e8ed;">
                             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                                 <label style="display: flex; align-items: center; gap: 5px;">
                                     <span style="font-size: 0.85rem; color: #7f8c8d;">${currentLanguage === 'en' ? 'Sent Qty:' : 'Cant. Enviada:'}</span>
@@ -14491,11 +14486,6 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 </label>
                             </div>
                             <div id="backorderInfo_${itemId}" style="margin-top: 5px; font-size: 0.8rem; color: #e74c3c; font-weight: 600;"></div>
-                            ${isAssigned ? `
-                                <div style="margin-top: 8px; padding: 8px; background: #e8f5e9; border-radius: 4px; font-size: 0.85rem; color: #27ae60;">
-                                    <strong>${currentLanguage === 'en' ? 'Note:' : 'Nota:'}</strong> ${currentLanguage === 'en' ? 'This item is assigned to a tracking shipment. To reassign it, uncheck it here and select it in the tracking shipment section below.' : 'Este artículo está asignado a un envío con seguimiento. Para reasignarlo, desmárcalo aquí y selecciónalo en la sección de envío con seguimiento a continuación.'}
-                                </div>
-                            ` : ''}
                         </div>
                     </div>
                 `;
@@ -14998,14 +14988,39 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             
             // Save to request
             if (request) {
+                // Make a deep copy of trackingShipments to ensure we save the current state
+                const trackingShipmentsToSave = trackingShipments.map(shipment => ({
+                    trackingNumber: shipment.trackingNumber || '',
+                    itemIds: (shipment.itemIds || []).map(id => String(id)), // Ensure all IDs are strings
+                    upsStatus: shipment.upsStatus || null,
+                    upsLastUpdate: shipment.upsLastUpdate || null,
+                    upsHasDutiesDue: shipment.upsHasDutiesDue || false,
+                    upsHasDelay: shipment.upsHasDelay || false,
+                    upsExceptionDescription: shipment.upsExceptionDescription || null,
+                    upsPickedUp: shipment.upsPickedUp || false,
+                    upsInTransit: shipment.upsInTransit || false,
+                    upsDutiesPaid: shipment.upsDutiesPaid || false,
+                    upsDutiesAmount: shipment.upsDutiesAmount || '',
+                    upsStatusCode: shipment.upsStatusCode || null,
+                    upsLastLocation: shipment.upsLastLocation || null,
+                    upsLastDate: shipment.upsLastDate || null,
+                    upsLastChecked: shipment.upsLastChecked || null
+                }));
+                
                 request.status = 'sent';
-                request.trackingShipments = trackingShipments;
+                request.trackingShipments = trackingShipmentsToSave;
                 // Also keep old format for backward compatibility
-                request.trackingNumbers = trackingShipments.map(s => s.trackingNumber);
-                request.trackingNumber = trackingShipments.length > 0 ? trackingShipments[0].trackingNumber : '';
+                request.trackingNumbers = trackingShipmentsToSave.map(s => s.trackingNumber);
+                request.trackingNumber = trackingShipmentsToSave.length > 0 ? trackingShipmentsToSave[0].trackingNumber : '';
                 if (!request.sentDate) {
                     request.sentDate = new Date().toISOString();
                 }
+                
+                console.log('Saving tracking shipments:', {
+                    requestId: request.id,
+                    trackingShipmentsCount: trackingShipmentsToSave.length,
+                    trackingShipments: trackingShipmentsToSave
+                });
                 
                 // Calculate backorders - only for items NOT assigned to any shipment OR where sent qty < requested qty
                 const allAssignedItemIds = new Set();
@@ -15096,9 +15111,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                             .delete()
                             .eq('request_id', request.id);
                         
-                        // Insert new tracking shipments
-                        if (trackingShipments.length > 0) {
-                            const trackingData = trackingShipments.map(shipment => ({
+                        // Insert new tracking shipments (use trackingShipmentsToSave which has the correct data)
+                        if (trackingShipmentsToSave.length > 0) {
+                            const trackingData = trackingShipmentsToSave.map(shipment => ({
                                 request_id: request.id,
                                 tracking_number: shipment.trackingNumber,
                                 item_ids: shipment.itemIds || [],
@@ -15110,7 +15125,12 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 .from('canada_tracking_shipments')
                                 .insert(trackingData);
                             
-                            if (trackingError) throw trackingError;
+                            if (trackingError) {
+                                console.error('Error saving tracking shipments to Supabase:', trackingError);
+                                throw trackingError;
+                            }
+                            
+                            console.log('Successfully saved tracking shipments to Supabase:', trackingData);
                         }
                         
                         // Delete existing backorders for this request
