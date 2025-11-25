@@ -165,8 +165,13 @@ app.use((req, res) => {
     });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`UPS Proxy Server running on port ${PORT}`);
+    console.log(`Listening on 0.0.0.0:${PORT}`);
     console.log('Endpoints available: /health, /api/ups/token, /api/ups/track');
+    console.log('Environment:', {
+        NODE_ENV: process.env.NODE_ENV || 'not set',
+        PORT: PORT
+    });
 });
 
