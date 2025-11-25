@@ -13743,10 +13743,16 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                     .eq('request_id', req.id);
                                 
                                 // Load tracking shipments
-                                const { data: tracking } = await supabase
+                                const { data: tracking, error: trackingError } = await supabase
                                     .from('canada_tracking_shipments')
                                     .select('*')
                                     .eq('request_id', req.id);
+                                
+                                if (trackingError) {
+                                    console.error(`Error loading tracking for request ${req.id}:`, trackingError);
+                                } else {
+                                    console.log(`Loaded ${tracking?.length || 0} tracking shipments for request ${req.id}:`, tracking);
+                                }
                                 
                                 // Load backorders
                                 const { data: backorders } = await supabase
@@ -13775,23 +13781,38 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                     })),
                                     // Preserve sentItems from localStorage (not stored in Supabase)
                                     sentItems: localRequest?.sentItems || [],
-                                    trackingShipments: (tracking || []).map(t => ({
-                                        trackingNumber: t.tracking_number,
-                                        itemIds: t.item_ids || [],
-                                        upsStatus: t.ups_status,
-                                        upsLastUpdate: t.ups_last_update,
-                                        upsHasDutiesDue: t.ups_has_duties_due || false,
-                                        upsHasDelay: t.ups_has_delay || false,
-                                        upsExceptionDescription: t.ups_exception_description,
-                                        upsPickedUp: t.ups_picked_up || false,
-                                        upsInTransit: t.ups_in_transit || false,
-                                        upsDutiesPaid: t.ups_duties_paid || false,
-                                        upsDutiesAmount: t.ups_duties_amount || '',
-                                        upsStatusCode: t.ups_status_code || '',
-                                        upsLastLocation: t.ups_last_location || '',
-                                        upsLastDate: t.ups_last_date || '',
-                                        upsLastChecked: t.ups_last_checked || ''
-                                    })),
+                                    trackingShipments: (tracking || []).map(t => {
+                                        // Ensure item_ids is an array (it might be stored as JSON string in Supabase)
+                                        let itemIds = t.item_ids || [];
+                                        if (typeof itemIds === 'string') {
+                                            try {
+                                                itemIds = JSON.parse(itemIds);
+                                            } catch (e) {
+                                                console.error('Error parsing item_ids:', e);
+                                                itemIds = [];
+                                            }
+                                        }
+                                        // Ensure all IDs are strings for consistency
+                                        itemIds = itemIds.map(id => String(id));
+                                        
+                                        return {
+                                            trackingNumber: t.tracking_number || '',
+                                            itemIds: itemIds,
+                                            upsStatus: t.ups_status || null,
+                                            upsLastUpdate: t.ups_last_update || null,
+                                            upsHasDutiesDue: t.ups_has_duties_due || false,
+                                            upsHasDelay: t.ups_has_delay || false,
+                                            upsExceptionDescription: t.ups_exception_description || null,
+                                            upsPickedUp: t.ups_picked_up || false,
+                                            upsInTransit: t.ups_in_transit || false,
+                                            upsDutiesPaid: t.ups_duties_paid || false,
+                                            upsDutiesAmount: t.ups_duties_amount || '',
+                                            upsStatusCode: t.ups_status_code || null,
+                                            upsLastLocation: t.ups_last_location || null,
+                                            upsLastDate: t.ups_last_date || null,
+                                            upsLastChecked: t.ups_last_checked || null
+                                        };
+                                    }),
                                     trackingNumbers: (tracking || []).map(t => t.tracking_number),
                                     trackingNumber: (tracking && tracking.length > 0) ? tracking[0].tracking_number : '',
                                     backorders: (backorders || []).map(bo => ({
@@ -15115,9 +15136,21 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                         if (trackingShipmentsToSave.length > 0) {
                             const trackingData = trackingShipmentsToSave.map(shipment => ({
                                 request_id: request.id,
-                                tracking_number: shipment.trackingNumber,
+                                tracking_number: shipment.trackingNumber || '',
                                 item_ids: shipment.itemIds || [],
                                 ups_status: shipment.upsStatus || null,
+                                ups_last_update: shipment.upsLastUpdate || null,
+                                ups_has_duties_due: shipment.upsHasDutiesDue || false,
+                                ups_has_delay: shipment.upsHasDelay || false,
+                                ups_exception_description: shipment.upsExceptionDescription || null,
+                                ups_picked_up: shipment.upsPickedUp || false,
+                                ups_in_transit: shipment.upsInTransit || false,
+                                ups_duties_paid: shipment.upsDutiesPaid || false,
+                                ups_duties_amount: shipment.upsDutiesAmount || '',
+                                ups_status_code: shipment.upsStatusCode || null,
+                                ups_last_location: shipment.upsLastLocation || null,
+                                ups_last_date: shipment.upsLastDate || null,
+                                ups_last_checked: shipment.upsLastChecked || null,
                                 ups_details: shipment.upsDetails || null
                             }));
                             
