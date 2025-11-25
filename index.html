@@ -14283,7 +14283,6 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                             <div style="font-size: 0.9rem; color: #7f8c8d; margin-bottom: 5px;">
                                 ${currentLanguage === 'en' ? 'Items' : 'Artículos'} (${request.items.length}):
                             </div>
-                        `}
                             ${(() => {
                                 const unitLabels = {
                                     'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
@@ -14398,8 +14397,8 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 </div>
                                 `;
                             })()}
-                            ${request.trackingShipments && request.trackingShipments.length > 0 ? '' : `</div>`}
                         </div>
+                        `}
                     </div>
                 `;
             });
