@@ -11,13 +11,28 @@ const PORT = process.env.PORT || 3000;
 
 // Enable CORS for your frontend domain
 app.use(cors({
-    origin: [
-        'https://oolab-budget.github.io',
-        'http://localhost:5500',
-        'http://127.0.0.1:5500',
-        'file://' // Allow local file access
-    ],
-    credentials: true
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps, Postman, or file:// protocol)
+        // This happens when opening HTML files directly (file://)
+        if (!origin) {
+            return callback(null, true);
+        }
+        
+        const allowedOrigins = [
+            'https://oolab-budget.github.io',
+            'http://localhost:5500',
+            'http://127.0.0.1:5500',
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'null' // For file:// protocol
+        ];
+        
+        // Allow all origins for now (you can restrict this later for security)
+        callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
