@@ -130,5 +130,6 @@ app.get('/health', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`UPS Proxy Server running on port ${PORT}`);
+    console.log('Endpoints available: /health, /api/ups/token, /api/ups/track');
 });
 
