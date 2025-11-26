@@ -1,0 +1,25 @@
+{
+  "name": "ups-proxy-server",
+  "version": "1.0.0",
+  "description": "Proxy server for UPS API to bypass CORS restrictions",
+  "main": "ups-proxy-server.js",
+  "scripts": {
+    "start": "node ups-proxy-server.js",
+    "dev": "nodemon ups-proxy-server.js"
+  },
+  "keywords": ["ups", "api", "proxy", "cors"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
+
