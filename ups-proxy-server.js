@@ -1,6 +1,7 @@
 // UPS API Proxy Server
 // This server handles UPS API requests to bypass CORS restrictions
 // Deploy this to a service like Railway, Render, Heroku, or Vercel
+// Updated with enhanced logging for debugging
 
 const express = require('express');
 const cors = require('cors');
