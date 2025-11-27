@@ -179,5 +179,6 @@ app.listen(PORT, '0.0.0.0', () => {
         PORT: PORT
     });
     console.log('Server started at:', new Date().toISOString());
+    console.log('Enhanced logging enabled for /api/ups/track endpoint');
 });
 
