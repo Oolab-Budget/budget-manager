@@ -128,7 +128,8 @@ app.post('/api/ups/track', async (req, res) => {
                     RequestOption: '1',
                     TransactionReference: {
                         CustomerContext: transId
-                    }
+                    },
+                    Locale: 'en_US'
                 },
                 InquiryNumber: trackingNumber
             }
@@ -141,7 +142,7 @@ app.post('/api/ups/track', async (req, res) => {
             body: JSON.stringify(requestBody)
         });
         
-             console.log('Step 6: UPS API response received - Status:', response.status, 'OK:', response.ok);
+        console.log('Step 6: UPS API response received - Status:', response.status, 'OK:', response.ok);
         console.log('Step 6a: Response headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
         
         if (!response.ok) {
@@ -197,5 +198,4 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log('Server started at:', new Date().toISOString());
     console.log('Enhanced logging enabled for /api/ups/track endpoint');
 });
-
 
