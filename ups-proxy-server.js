@@ -136,7 +136,8 @@ app.post('/api/ups/track', async (req, res) => {
         };
         
         console.log('Step 5: Calling UPS API...', 'URL: https://onlinetools.ups.com/api/track/v1/details');
-        const response = await fetch('https://onlinetools.ups.com/api/track/v1/details', {
+        console.log('Step 5a: Request body being sent:', JSON.stringify(requestBody, null, 2));
+        const response = await fetch('https://onlinetools.ups.com/api/track/v1/details/1', {
             method: 'POST',
             headers: headers,
             body: JSON.stringify(requestBody)
