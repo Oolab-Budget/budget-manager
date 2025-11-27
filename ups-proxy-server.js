@@ -141,12 +141,16 @@ app.post('/api/ups/track', async (req, res) => {
             body: JSON.stringify(requestBody)
         });
         
-        console.log('Step 6: UPS API response received - Status:', response.status, 'OK:', response.ok);
+             console.log('Step 6: UPS API response received - Status:', response.status, 'OK:', response.ok);
+        console.log('Step 6a: Response headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
         
         if (!response.ok) {
             const errorText = await response.text();
             console.log('Step 7: UPS API error - Status:', response.status, 'Error:', errorText);
-            return res.status(response.status).json({ error: errorText });
+            console.log('Step 7a: Error text length:', errorText.length);
+            console.log('Step 7b: Request body sent to UPS:', JSON.stringify(requestBody, null, 2));
+            console.log('Step 7c: Headers sent to UPS:', JSON.stringify(headers, null, 2));
+            return res.status(response.status).json({ error: errorText || 'UPS API returned an error' });
         }
         
         console.log('Step 8: Parsing UPS API response...');
@@ -193,4 +197,5 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log('Server started at:', new Date().toISOString());
     console.log('Enhanced logging enabled for /api/ups/track endpoint');
 });
+
 
