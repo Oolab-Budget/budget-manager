@@ -38,8 +38,10 @@ app.use(cors({
 app.use(express.json());
 
 // Request logging middleware
+// Request logging middleware - Enhanced with detailed headers
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    console.log(`Request headers:`, JSON.stringify(req.headers, null, 2));
     next();
 });
 
@@ -90,10 +92,13 @@ app.post('/api/ups/token', async (req, res) => {
     }
 });
 
-// UPS Tracking Endpoint
+// UPS Tracking Endpoint - Enhanced logging for debugging 404 errors
 app.post('/api/ups/track', async (req, res) => {
-    console.log('POST /api/ups/track - Request received');
-    console.log('Body:', JSON.stringify(req.body, null, 2));
+    console.log('=== POST /api/ups/track - Request received ===');
+    console.log('Request path:', req.path);
+    console.log('Request method:', req.method);
+    console.log('Request URL:', req.url);
+    console.log('Body:', JSON.stringify(req.body, null, 2));    
     try {
         const { trackingNumber, accessToken, clientId } = req.body;
         
@@ -174,4 +179,5 @@ app.listen(PORT, '0.0.0.0', () => {
         PORT: PORT
     });
 });
+
 
