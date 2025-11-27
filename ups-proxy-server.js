@@ -1,6 +1,7 @@
 // UPS API Proxy Server
 // This server handles UPS API requests to bypass CORS restrictions
 // Deploy this to a service like Railway, Render, Heroku, or Vercel
+// Updated with enhanced logging for debugging
 
 const express = require('express');
 const cors = require('cors');
@@ -37,7 +38,6 @@ app.use(cors({
 
 app.use(express.json());
 
-// Request logging middleware
 // Request logging middleware - Enhanced with detailed headers
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
@@ -98,14 +98,18 @@ app.post('/api/ups/track', async (req, res) => {
     console.log('Request path:', req.path);
     console.log('Request method:', req.method);
     console.log('Request URL:', req.url);
-    console.log('Body:', JSON.stringify(req.body, null, 2));    
+    console.log('Body:', JSON.stringify(req.body, null, 2));
     try {
+        console.log('Step 1: Extracting request body...');
         const { trackingNumber, accessToken, clientId } = req.body;
+        console.log('Step 2: Extracted - trackingNumber:', trackingNumber, 'accessToken exists:', !!accessToken, 'clientId:', clientId);
         
         if (!trackingNumber || !accessToken) {
+            console.log('Step 3: Missing required fields - returning 400');
             return res.status(400).json({ error: 'Tracking number and access token are required' });
         }
         
+        console.log('Step 4: Building request to UPS API...');
         const transId = 'tracking-' + Date.now();
         const headers = {
             'Authorization': `Bearer ${accessToken}`,
@@ -130,21 +134,29 @@ app.post('/api/ups/track', async (req, res) => {
             }
         };
         
+        console.log('Step 5: Calling UPS API...', 'URL: https://onlinetools.ups.com/api/track/v1/details');
         const response = await fetch('https://onlinetools.ups.com/api/track/v1/details', {
             method: 'POST',
             headers: headers,
             body: JSON.stringify(requestBody)
         });
         
+        console.log('Step 6: UPS API response received - Status:', response.status, 'OK:', response.ok);
+        
         if (!response.ok) {
             const errorText = await response.text();
+            console.log('Step 7: UPS API error - Status:', response.status, 'Error:', errorText);
             return res.status(response.status).json({ error: errorText });
         }
         
+        console.log('Step 8: Parsing UPS API response...');
         const data = await response.json();
+        console.log('Step 9: Sending response to client...');
         res.json(data);
+        console.log('Step 10: Response sent successfully');
     } catch (error) {
         console.error('UPS Tracking error:', error);
+        console.error('Error stack:', error.stack);
         res.status(500).json({ error: error.message });
     }
 });
@@ -178,6 +190,7 @@ app.listen(PORT, '0.0.0.0', () => {
         NODE_ENV: process.env.NODE_ENV || 'not set',
         PORT: PORT
     });
+    console.log('Server started at:', new Date().toISOString());
+    console.log('Enhanced logging enabled for /api/ups/track endpoint');
 });
-
 
