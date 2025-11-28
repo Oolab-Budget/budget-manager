@@ -824,6 +824,188 @@
                 padding: 10px 8px;
             }
         }
+
+        /* Print Styles for 8.5 x 11 page */
+        @media print {
+            @page {
+                size: 8.5in 11in;
+                margin: 0.5in;
+            }
+            
+            body {
+                margin: 0;
+                padding: 0;
+                font-size: 10pt;
+                line-height: 1.3;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .header {
+                background: white !important;
+                color: black !important;
+                padding: 10px 0 !important;
+                border-bottom: 2px solid #000 !important;
+            }
+            
+            .tab-navigation,
+            .language-toggle,
+            .btn,
+            .item-actions,
+            .photo-upload,
+            input,
+            select,
+            textarea,
+            button {
+                display: none !important;
+            }
+            
+            .tab-content {
+                display: block !important;
+                padding: 0 !important;
+            }
+            
+            .form-section {
+                background: white !important;
+                border: none !important;
+                padding: 10px 0 !important;
+                margin: 0 0 15px 0 !important;
+                page-break-inside: avoid;
+            }
+            
+            .budget-summary {
+                background: white !important;
+                color: black !important;
+                padding: 15px !important;
+                border: 2px solid #000 !important;
+                margin-bottom: 15px !important;
+                page-break-inside: avoid;
+            }
+            
+            .budget-items {
+                box-shadow: none !important;
+                border: 1px solid #000 !important;
+            }
+            
+            .budget-table {
+                width: 100% !important;
+                min-width: auto !important;
+                font-size: 9pt !important;
+                border-collapse: collapse !important;
+            }
+            
+            .budget-table th {
+                background: #f0f0f0 !important;
+                color: black !important;
+                padding: 6px 4px !important;
+                border: 1px solid #000 !important;
+                text-align: left !important;
+                font-weight: bold !important;
+                font-size: 8pt !important;
+            }
+            
+            .budget-table td {
+                padding: 5px 4px !important;
+                border: 1px solid #ccc !important;
+                font-size: 8pt !important;
+                text-align: left !important;
+                word-wrap: break-word !important;
+                vertical-align: top !important;
+            }
+            
+            .budget-table tr {
+                page-break-inside: avoid;
+            }
+            
+            /* Text justification - right align for numeric columns */
+            .budget-table td,
+            .budget-table th {
+                text-align: left !important;
+            }
+            
+            /* Right align for Unit Price (5), Quantity (6), and Total (9) columns */
+            .budget-table td:nth-child(5),
+            .budget-table th:nth-child(5),
+            .budget-table td:nth-child(6),
+            .budget-table th:nth-child(6),
+            .budget-table td:nth-child(9),
+            .budget-table th:nth-child(9) {
+                text-align: right !important;
+            }
+            
+            /* Center align for Priority (7) and Status (10) columns */
+            .budget-table td:nth-child(7),
+            .budget-table th:nth-child(7),
+            .budget-table td:nth-child(10),
+            .budget-table th:nth-child(10) {
+                text-align: center !important;
+            }
+            
+            /* Ensure table fits on page */
+            table {
+                width: 100% !important;
+                max-width: 100% !important;
+                table-layout: fixed !important;
+            }
+            
+            /* Column widths optimized for 8.5" page with 0.5" margins = 7.5" usable width */
+            .budget-table th:nth-child(1),
+            .budget-table td:nth-child(1) {
+                width: 15% !important; /* Item */
+            }
+            
+            .budget-table th:nth-child(2),
+            .budget-table td:nth-child(2) {
+                width: 12% !important; /* Description */
+            }
+            
+            .budget-table th:nth-child(3),
+            .budget-table td:nth-child(3) {
+                width: 10% !important; /* Notes */
+            }
+            
+            .budget-table th:nth-child(4),
+            .budget-table td:nth-child(4) {
+                width: 10% !important; /* Category */
+            }
+            
+            .budget-table th:nth-child(5),
+            .budget-table td:nth-child(5) {
+                width: 9% !important; /* Unit Price */
+            }
+            
+            .budget-table th:nth-child(6),
+            .budget-table td:nth-child(6) {
+                width: 7% !important; /* Quantity */
+            }
+            
+            .budget-table th:nth-child(7),
+            .budget-table td:nth-child(7) {
+                width: 7% !important; /* Priority */
+            }
+            
+            .budget-table th:nth-child(8),
+            .budget-table td:nth-child(8) {
+                width: 8% !important; /* Invoice Photo */
+            }
+            
+            .budget-table th:nth-child(9),
+            .budget-table td:nth-child(9) {
+                width: 9% !important; /* Total */
+            }
+            
+            .budget-table th:nth-child(10),
+            .budget-table td:nth-child(10) {
+                width: 8% !important; /* Status */
+            }
+            
+            .budget-table th:nth-child(11),
+            .budget-table td:nth-child(11) {
+                width: 5% !important; /* Actions - hidden in print */
+            }
+        }
     </style>
 </head>
 <body>
@@ -2109,6 +2291,19 @@
             renderBudgetItems();
             updateTotal();
             updateApprovalSummary();
+            
+            // Check and add recurring items AFTER loading from localStorage
+            // Only add if items were actually added (to prevent duplicates on every load)
+            if (typeof checkAndAddDueItems === 'function') {
+                const itemsBefore = items.length;
+                checkAndAddDueItems();
+                // Only save if items were actually added
+                if (items.length > itemsBefore) {
+                    saveItems();
+                    renderBudgetItems();
+                    updateTotal();
+                }
+            }
         }
         
         // Authentication Functions
@@ -2411,6 +2606,15 @@
                 }
                 if (typeof updateCanadaRequestSummary === 'function') updateCanadaRequestSummary();
                 updateMigrationButtonVisibility();
+                
+                // Check and add recurring items AFTER data is loaded
+                if (typeof checkAndAddDueItems === 'function') {
+                    checkAndAddDueItems();
+                    // Save items after adding recurring items
+                    saveItems();
+                    renderBudgetItems();
+                    updateTotal();
+                }
                 
             } catch (error) {
                 console.error('Error loading user data:', error);
@@ -3214,6 +3418,9 @@
                 hasDueDate: dbItem.has_due_date,
                 dueDate: dbItem.due_date,
                 forCanada: dbItem.for_canada,
+                weeklyAddedWeek: dbItem.weekly_added_week,
+                monthlyAddedMonth: dbItem.monthly_added_month,
+                monthlyAddedYear: dbItem.monthly_added_year,
                 priceAdjustmentNote: dbItem.price_adjustment_note,
                 hasPriceAdjustment: dbItem.has_price_adjustment || false,
                 adjustmentApplied: dbItem.adjustment_applied || false,
@@ -3255,6 +3462,9 @@
                 has_due_date: appItem.hasDueDate || false,
                 due_date: appItem.dueDate,
                 for_canada: appItem.forCanada || false,
+                weekly_added_week: appItem.weeklyAddedWeek,
+                monthly_added_month: appItem.monthlyAddedMonth,
+                monthly_added_year: appItem.monthlyAddedYear,
                 supplier_name: appItem.supplier?.name || '',
                 supplier_phone: appItem.supplier?.phone || '',
                 supplier_email: appItem.supplier?.email || '',
@@ -4652,42 +4862,78 @@
                         .eq('user_id', currentUser.id);
                     
                     const existingIds = new Set(existingItems?.map(item => item.id) || []);
-                    const currentIds = new Set(items.map(item => item.id).filter(id => id && typeof id === 'number'));
+                    // Include both number and string IDs for comparison
+                    const currentIds = new Set(items.map(item => {
+                        const id = item.id;
+                        // Convert to number if it's a valid number string, otherwise keep as is
+                        if (typeof id === 'string' && !isNaN(id) && !isNaN(parseFloat(id))) {
+                            return parseFloat(id);
+                        }
+                        return id;
+                    }).filter(id => id !== null && id !== undefined));
                     
                     // Delete items that are no longer in the current items array
                     const toDelete = Array.from(existingIds).filter(id => !currentIds.has(id));
                     if (toDelete.length > 0) {
-                        await supabase
+                        const { error: deleteError } = await supabase
                             .from('budget_items')
                             .delete()
                             .in('id', toDelete)
                             .eq('user_id', currentUser.id);
+                        
+                        if (deleteError) {
+                            console.error('Error deleting items from Supabase:', deleteError);
+                            console.error('Delete error details:', JSON.stringify(deleteError, null, 2));
+                        }
                     }
                     
                     // Upsert (insert or update) all current items
                     for (const item of items) {
-                        const dbItem = convertAppItemToDbItem(item);
-                        dbItem.user_id = currentUser.id;
-                        
-                        if (item.id && typeof item.id === 'number' && existingIds.has(item.id)) {
-                            // Update existing
-                            await supabase
-                                .from('budget_items')
-                                .update(dbItem)
-                                .eq('id', item.id)
-                                .eq('user_id', currentUser.id);
-                        } else {
-                            // Insert new
-                            const { data, error } = await supabase
-                                .from('budget_items')
-                                .insert([dbItem])
-                                .select()
-                                .single();
+                        try {
+                            const dbItem = convertAppItemToDbItem(item);
+                            dbItem.user_id = currentUser.id;
                             
-                            if (!error && data) {
-                                // Update the item ID in the local array
-                                item.id = data.id;
+                            // Convert item.id to number for comparison
+                            const itemIdNum = typeof item.id === 'string' && !isNaN(item.id) 
+                                ? parseFloat(item.id) 
+                                : (typeof item.id === 'number' ? item.id : null);
+                            
+                            // Check if item exists (by numeric ID)
+                            const itemExists = itemIdNum !== null && existingIds.has(itemIdNum);
+                            
+                            if (itemExists) {
+                                // Update existing
+                                const { error: updateError } = await supabase
+                                    .from('budget_items')
+                                    .update(dbItem)
+                                    .eq('id', itemIdNum)
+                                    .eq('user_id', currentUser.id);
+                                
+                                if (updateError) {
+                                    console.error('Error updating item in Supabase:', updateError);
+                                    console.error('Update error details:', JSON.stringify(updateError, null, 2));
+                                    console.error('Item being updated:', { id: itemIdNum, name: item.nameEn || item.nameEs });
+                                }
+                            } else {
+                                // Insert new
+                                const { data, error: insertError } = await supabase
+                                    .from('budget_items')
+                                    .insert([dbItem])
+                                    .select()
+                                    .single();
+                                
+                                if (insertError) {
+                                    console.error('Error inserting item to Supabase:', insertError);
+                                    console.error('Insert error details:', JSON.stringify(insertError, null, 2));
+                                    console.error('Item being inserted:', { name: item.nameEn || item.nameEs, dbItem });
+                                } else if (data) {
+                                    // Update the item ID in the local array
+                                    item.id = data.id;
+                                }
                             }
+                        } catch (itemError) {
+                            console.error('Error processing item in saveItems:', itemError);
+                            console.error('Item that caused error:', item);
                         }
                     }
                 } catch (error) {
@@ -4706,6 +4952,8 @@
             
             budgetItems.forEach(item => {
                 const row = document.createElement('tr');
+                // Store the actual item ID in a data attribute for reliable matching
+                row.setAttribute('data-item-id', String(item.id));
                 const categoryName = categories[item.category] ? (currentLanguage === 'en' ? categories[item.category].nameEn : categories[item.category].nameEs) : item.category;
                 const hasPhoto = item.invoicePhoto ? 'has-photo' : '';
                 
@@ -4775,7 +5023,7 @@
                                     💰 ${currentLanguage === 'en' ? 'Price Adjusted' : 'Precio Ajustado'}
                                 </div>
                             ` : ''}
-                            <button class="btn btn-sm btn-primary" onclick="updateItemPrice(${item.id}, document.getElementById('price_input_${item.id}').value)" 
+                            <button class="btn btn-sm btn-primary" onclick="updateItemPrice('${item.id}', document.getElementById('price_input_${item.id}').value)" 
                                     style="padding: 2px 8px; font-size: 0.7rem;" 
                                     data-en="Update" data-es="Actualizar">Update</button>
                         </div>
@@ -4786,7 +5034,7 @@
                                    id="qty_input_${item.id}"
                                    style="width: 80px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; text-align: center;"
                                    title="${currentLanguage === 'en' ? 'Click to edit quantity' : 'Haz clic para editar cantidad'}">
-                            <button class="btn btn-sm btn-primary" onclick="updateItemQuantity(${item.id}, document.getElementById('qty_input_${item.id}').value)" 
+                            <button class="btn btn-sm btn-primary" onclick="updateItemQuantity('${item.id}', document.getElementById('qty_input_${item.id}').value)" 
                                     style="padding: 2px 8px; font-size: 0.7rem;" 
                                     data-en="Update" data-es="Actualizar">Update</button>
                         </div>
@@ -4825,7 +5073,7 @@
                                     style="padding: 6px 10px; font-size: 0.75rem; width: 100%; ${item.approvalStatus === 'approved' ? 'opacity: 0.6; cursor: not-allowed;' : ''}" 
                                     ${item.approvalStatus === 'approved' ? 'disabled' : ''}
                                     data-en="Approve" data-es="Aprobar">Approve</button>
-                            <button class="btn btn-danger" onclick="removeItem(${item.id})" 
+                            <button class="btn btn-danger" onclick="removeItem(${item.id}, event)" 
                                     style="padding: 6px 10px; font-size: 0.75rem; width: 100%;" 
                                     data-en="Remove" data-es="Eliminar">Remove</button>
                             <button class="btn btn-info" onclick="pushItemToNextWeek(${item.id})" 
@@ -4838,35 +5086,51 @@
             });
         }
 
-        function updateItemPriority(id, newPriority) {
-            const item = items.find(i => i.id === id);
-            if (item) {
-                item.priority = newPriority;
-                saveItems();
-                renderBudgetItems();
+        async function updateItemPriority(id, newPriority) {
+            // Convert id to number if it's a string representation of a number
+            const itemId = typeof id === 'string' && !isNaN(id) ? parseFloat(id) : id;
+            
+            // Try to find item with flexible ID matching
+            let item = items.find(i => i.id === itemId || i.id == id || String(i.id) === String(id));
+            
+            if (!item) {
+                console.error('Item not found for priority update! Looking for id:', itemId);
+                return;
             }
+            
+            item.priority = newPriority;
+            await saveItems();
+            renderBudgetItems();
         }
 
-        function updateItemApproval(id, newStatus) {
-            const item = items.find(i => i.id === id);
-            if (item) {
-                const oldStatus = item.approvalStatus || 'pending';
-                item.approvalStatus = newStatus;
-                if (newStatus === 'approved') {
-                    item.approvalReason = '';
-                }
-                saveItems();
-                renderBudgetItems();
-                updateApprovalSummary();
-                
-                // Log change
-                const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
-                const changeType = newStatus === 'approved' ? 'approved' : newStatus === 'denied' ? 'denied' : 'updated';
-                logActivity(newStatus === 'approved' ? 'approve' : newStatus === 'denied' ? 'deny' : 'update', 
-                    `${currentLanguage === 'en' ? 'Changed approval status' : 'Estado de aprobación cambiado'}: ${itemName}`, id);
-                logChange(changeType, id, itemName, oldStatus, newStatus, 'approvalStatus');
-                updateMonitorDashboard();
+        async function updateItemApproval(id, newStatus) {
+            // Convert id to number if it's a string representation of a number
+            const itemId = typeof id === 'string' && !isNaN(id) ? parseFloat(id) : id;
+            
+            // Try to find item with flexible ID matching
+            let item = items.find(i => i.id === itemId || i.id == id || String(i.id) === String(id));
+            
+            if (!item) {
+                console.error('Item not found for approval update! Looking for id:', itemId);
+                return;
             }
+            
+            const oldStatus = item.approvalStatus || 'pending';
+            item.approvalStatus = newStatus;
+            if (newStatus === 'approved') {
+                item.approvalReason = '';
+            }
+            await saveItems();
+            renderBudgetItems();
+            updateApprovalSummary();
+            
+            // Log change
+            const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+            const changeType = newStatus === 'approved' ? 'approved' : newStatus === 'denied' ? 'denied' : 'updated';
+            logActivity(newStatus === 'approved' ? 'approve' : newStatus === 'denied' ? 'deny' : 'update', 
+                `${currentLanguage === 'en' ? 'Changed approval status' : 'Estado de aprobación cambiado'}: ${itemName}`, item.id);
+            logChange(changeType, item.id, itemName, oldStatus, newStatus, 'approvalStatus');
+            updateMonitorDashboard();
         }
 
         function updateItemApprovalReason(id, reason) {
@@ -4877,46 +5141,315 @@
             }
         }
 
-        function updateItemQuantity(id, newQuantity) {
-            const item = items.find(i => i.id === id);
-            if (item) {
-                const oldQuantity = item.quantity;
-                const quantity = parseInt(newQuantity) || 1;
-                item.quantity = quantity;
-                item.totalPrice = item.unitPrice * quantity;
-                item.lastEdited = new Date().toISOString();
-                saveItems();
+        async function updateItemQuantity(id, newQuantity) {
+            console.log('updateItemQuantity called with id:', id, 'type:', typeof id, 'newQuantity:', newQuantity);
+            
+            // Try to find item with flexible ID matching (handle both string and number IDs)
+            let item = items.find(i => {
+                // Try exact match
+                if (i.id === id) return true;
+                // Try loose equality
+                if (i.id == id) return true;
+                // Try string comparison
+                if (String(i.id) === String(id)) return true;
+                // Try number comparison if both are numbers
+                const iIdNum = typeof i.id === 'string' && !isNaN(i.id) ? parseFloat(i.id) : i.id;
+                const idNum = typeof id === 'string' && !isNaN(id) ? parseFloat(id) : id;
+                if (typeof iIdNum === 'number' && typeof idNum === 'number' && iIdNum === idNum) return true;
+                return false;
+            });
+            
+            // If not found by ID, try to find by the item name from the input element's row
+            if (!item) {
+                const inputElement = document.getElementById(`qty_input_${id}`);
+                if (inputElement) {
+                    const row = inputElement.closest('tr');
+                    if (row) {
+                        // First, try to get the item ID from the data attribute (most reliable)
+                        const rowItemId = row.getAttribute('data-item-id');
+                        if (rowItemId) {
+                            item = items.find(i => String(i.id) === String(rowItemId));
+                            if (item) {
+                                console.log('✅ Found item by data-item-id attribute:', rowItemId);
+                            }
+                        }
+                        
+                        // If still not found, try by name
+                        if (!item) {
+                            const nameCell = row.querySelector('td:first-child');
+                            if (nameCell) {
+                                const itemName = nameCell.textContent.trim();
+                                console.log('Quantity update: ID not found, trying to find by name:', itemName, 'Looking for ID:', id);
+                                
+                                // Try to find by name (exact match)
+                                let matchingItems = items.filter(i => {
+                                    const iName = currentLanguage === 'en' ? i.nameEn : i.nameEs;
+                                    return iName && iName.trim() === itemName;
+                                });
+                                
+                                // If multiple matches, try to match by category and quantity from the row
+                                if (matchingItems.length > 1) {
+                                    const categoryCell = row.querySelector('td:nth-child(3)');
+                                    const qtyCell = row.querySelector('td:nth-child(6)');
+                                    if (categoryCell && qtyCell) {
+                                        const categoryText = categoryCell.textContent.trim();
+                                        const qtyText = qtyCell.textContent.trim();
+                                        const currentQty = parseInt(qtyText) || 0;
+                                        
+                                        matchingItems = matchingItems.filter(i => {
+                                            const matchesCategory = !categoryText || i.category === categoryText || 
+                                                (i.category && i.category.toLowerCase() === categoryText.toLowerCase());
+                                            const matchesQty = i.quantity === currentQty;
+                                            return matchesCategory && matchesQty;
+                                        });
+                                    }
+                                }
+                                
+                                if (matchingItems.length > 0) {
+                                    item = matchingItems[0];
+                                    console.log('✅ Found item by name for quantity update:', itemName, 'Using ID:', item.id);
+                                } else {
+                                    console.warn('⚠️ No matching item found by name:', itemName, 'Available items:', items.map(i => ({
+                                        id: i.id,
+                                        name: currentLanguage === 'en' ? i.nameEn : i.nameEs,
+                                        category: i.category,
+                                        quantity: i.quantity
+                                    })));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (!item) {
+                console.error('❌ Item not found for quantity update! Looking for id:', id, 'Available IDs:', items.map(i => i.id));
+                // Re-render to fix any ID mismatches - this will regenerate HTML with correct IDs
+                await saveItems();
                 renderBudgetItems();
                 updateTotal();
-                updateApprovalSummary();
-                
-                // Log change
-                const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
-                logActivity('update', `${currentLanguage === 'en' ? 'Updated quantity' : 'Cantidad actualizada'}: ${itemName}`, id);
-                logChange('updated', id, itemName, oldQuantity, quantity, 'quantity');
-                updateMonitorDashboard();
+                alert(currentLanguage === 'en' 
+                    ? 'Item ID mismatch detected. Page refreshed. Please try updating the quantity again.' 
+                    : 'Se detectó un desajuste de ID. Página actualizada. Por favor intenta actualizar la cantidad nuevamente.');
+                return;
             }
+            
+            const oldQuantity = item.quantity;
+            const quantity = parseInt(newQuantity) || 1;
+            const unitPrice = parseFloat(item.unitPrice) || 0;
+            
+            console.log('Updating quantity:', {
+                itemName: item.nameEn || item.nameEs,
+                oldQuantity: oldQuantity,
+                newQuantity: quantity,
+                unitPrice: unitPrice,
+                oldTotalPrice: item.totalPrice
+            });
+            
+            // Update item properties
+            item.quantity = quantity;
+            item.totalPrice = unitPrice * quantity;
+            item.lastEdited = new Date().toISOString();
+            
+            console.log('After update:', {
+                quantity: item.quantity,
+                totalPrice: item.totalPrice
+            });
+            
+            // Save to localStorage and Supabase (this may update item.id if it's a new item)
+            try {
+                await saveItems();
+            } catch (saveError) {
+                console.error('Error saving items after quantity update:', saveError);
+                // Continue anyway - localStorage is already saved
+            }
+            
+            // Re-find the item in case its ID was updated by Supabase
+            const savedItemId = item.id; // Save the ID before we might lose the reference
+            item = items.find(i => {
+                // Try to match by ID first
+                if (i.id === savedItemId || i.id == id || String(i.id) === String(id)) return true;
+                // If ID doesn't match, try to match by other unique properties
+                return i.nameEn === item.nameEn && 
+                       i.nameEs === item.nameEs && 
+                       i.category === item.category && 
+                       i.unitPrice === item.unitPrice &&
+                       i.quantity === quantity; // Use the new quantity we just set
+            });
+            
+            if (!item) {
+                console.error('Item lost after save! This should not happen.');
+                // Re-render anyway to show current state
+                renderBudgetItems();
+                updateTotal();
+                return;
+            }
+            
+            // Re-render and update totals (this will regenerate HTML with correct IDs)
+            renderBudgetItems();
+            updateTotal();
+            updateApprovalSummary();
+            
+            // Verify the total was updated
+            const totalElement = document.getElementById('totalAmount');
+            if (totalElement) {
+                console.log('Total amount element updated to:', totalElement.textContent);
+            }
+            
+            // Log change (these might fail but shouldn't block the update)
+            const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+            try {
+                await logActivity('update', `${currentLanguage === 'en' ? 'Updated quantity' : 'Cantidad actualizada'}: ${itemName}`, item.id);
+            } catch (logError) {
+                console.error('Error logging activity:', logError);
+            }
+            try {
+                await logChange('updated', item.id, itemName, oldQuantity, quantity, 'quantity');
+            } catch (logError) {
+                console.error('Error logging change:', logError);
+            }
+            updateMonitorDashboard();
         }
 
-        function updateItemPrice(id, newPrice) {
-            const item = items.find(i => i.id === id);
-            if (item) {
-                const oldPrice = item.unitPrice;
-                const price = parseFloat(newPrice) || 0;
-                item.unitPrice = price;
-                item.totalPrice = price * item.quantity;
-                item.lastEdited = new Date().toISOString();
-                saveItems();
+        async function updateItemPrice(id, newPrice) {
+            console.log('updateItemPrice called with id:', id, 'type:', typeof id, 'newPrice:', newPrice);
+            
+            // Try to find item with flexible ID matching (handle both string and number IDs)
+            let item = items.find(i => {
+                // Try exact match
+                if (i.id === id) return true;
+                // Try loose equality
+                if (i.id == id) return true;
+                // Try string comparison
+                if (String(i.id) === String(id)) return true;
+                // Try number comparison if both are numbers
+                const iIdNum = typeof i.id === 'string' && !isNaN(i.id) ? parseFloat(i.id) : i.id;
+                const idNum = typeof id === 'string' && !isNaN(id) ? parseFloat(id) : id;
+                if (typeof iIdNum === 'number' && typeof idNum === 'number' && iIdNum === idNum) return true;
+                return false;
+            });
+            
+            // If not found by ID, try to find by the item name from the input element's row
+            if (!item) {
+                const priceInput = document.getElementById(`price_input_${id}`);
+                if (priceInput) {
+                    const row = priceInput.closest('tr');
+                    if (row) {
+                        // First, try to get the item ID from the data attribute (most reliable)
+                        const rowItemId = row.getAttribute('data-item-id');
+                        if (rowItemId) {
+                            item = items.find(i => String(i.id) === String(rowItemId));
+                            if (item) {
+                                console.log('✅ Found item by data-item-id attribute:', rowItemId);
+                            }
+                        }
+                        
+                        // If still not found, try by name
+                        if (!item) {
+                            const nameCell = row.querySelector('td:first-child');
+                            if (nameCell) {
+                                const itemName = nameCell.textContent.trim();
+                                console.log('Price update: ID not found, trying to find by name:', itemName, 'Looking for ID:', id);
+                                
+                                // Try to find by name (exact match)
+                                let matchingItems = items.filter(i => {
+                                    const iName = currentLanguage === 'en' ? i.nameEn : i.nameEs;
+                                    return iName && iName.trim() === itemName;
+                                });
+                                
+                                // If multiple matches, try to match by category and price from the row
+                                if (matchingItems.length > 1) {
+                                    const categoryCell = row.querySelector('td:nth-child(3)');
+                                    const priceCell = row.querySelector('td:nth-child(5)');
+                                    if (categoryCell && priceCell) {
+                                        const categoryText = categoryCell.textContent.trim();
+                                        const priceText = priceCell.textContent.trim().replace(/[^0-9.]/g, '');
+                                        const currentPrice = parseFloat(priceText) || 0;
+                                        
+                                        matchingItems = matchingItems.filter(i => {
+                                            const matchesCategory = !categoryText || i.category === categoryText || 
+                                                (i.category && i.category.toLowerCase() === categoryText.toLowerCase());
+                                            const matchesPrice = Math.abs((i.unitPrice || 0) - currentPrice) < 0.01;
+                                            return matchesCategory && matchesPrice;
+                                        });
+                                    }
+                                }
+                                
+                                if (matchingItems.length > 0) {
+                                    item = matchingItems[0];
+                                    console.log('✅ Found item by name for price update:', itemName, 'Using ID:', item.id);
+                                } else {
+                                    console.warn('⚠️ No matching item found by name:', itemName, 'Available items:', items.map(i => ({
+                                        id: i.id,
+                                        name: currentLanguage === 'en' ? i.nameEn : i.nameEs,
+                                        category: i.category
+                                    })));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (!item) {
+                console.error('❌ Item not found for price update! Looking for id:', id, 'Available IDs:', items.map(i => i.id));
+                // Re-render to fix any ID mismatches - this will regenerate HTML with correct IDs
+                await saveItems();
                 renderBudgetItems();
                 updateTotal();
-                updateApprovalSummary();
-                
-                // Log change
-                const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
-                logActivity('update', `${currentLanguage === 'en' ? 'Updated price' : 'Precio actualizado'}: ${itemName}`, id);
-                logChange('updated', id, itemName, oldPrice, price, 'unitPrice');
-                updateMonitorDashboard();
+                alert(currentLanguage === 'en' 
+                    ? 'Item ID mismatch detected. Page refreshed. Please try updating the price again.' 
+                    : 'Se detectó un desajuste de ID. Página actualizada. Por favor intenta actualizar el precio nuevamente.');
+                return;
             }
+            
+            const oldPrice = item.unitPrice;
+            // Parse the price - allow 0.01 and other small values
+            // Don't use || 0 because it would convert 0.01 to 0 (0.01 is truthy, but we want to be explicit)
+            const price = newPrice !== null && newPrice !== undefined && newPrice !== '' 
+                ? (isNaN(parseFloat(newPrice)) ? 0 : parseFloat(newPrice))
+                : 0;
+            // Ensure price is not negative
+            const finalPrice = Math.max(0, price);
+            
+            console.log('Price update:', {
+                itemId: item.id,
+                itemName: item.nameEn || item.nameEs,
+                oldPrice: oldPrice,
+                newPriceInput: newPrice,
+                parsedPrice: price,
+                finalPrice: finalPrice
+            });
+            
+            item.unitPrice = finalPrice;
+            item.totalPrice = finalPrice * item.quantity;
+            item.lastEdited = new Date().toISOString();
+            
+            // Save to localStorage and Supabase
+            try {
+                await saveItems();
+            } catch (saveError) {
+                console.error('Error saving items after price update:', saveError);
+                // Continue anyway - localStorage is already saved
+            }
+            
+            renderBudgetItems();
+            updateTotal();
+            updateApprovalSummary();
+            
+            // Log change (these might fail but shouldn't block the update)
+            const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+            try {
+                await logActivity('update', `${currentLanguage === 'en' ? 'Updated price' : 'Precio actualizado'}: ${itemName}`, item.id);
+            } catch (logError) {
+                console.error('Error logging activity:', logError);
+            }
+            try {
+                await logChange('updated', item.id, itemName, oldPrice, price, 'unitPrice');
+            } catch (logError) {
+                console.error('Error logging change:', logError);
+            }
+            updateMonitorDashboard();
         }
 
         function approveAllItems() {
@@ -5439,19 +5972,95 @@
             reader.readAsDataURL(file);
         }
 
-        function removeItem(id) {
+        async function removeItem(id) {
+            // Convert id to number if it's a string representation of a number
+            const itemId = typeof id === 'string' && !isNaN(id) ? parseFloat(id) : id;
+            
+            console.log('removeItem called with id:', id, 'converted to:', itemId, 'type:', typeof itemId);
+            console.log('Current items count:', items.length);
+            console.log('Items IDs:', items.map(i => ({ id: i.id, type: typeof i.id, name: i.nameEn || i.nameEs })));
+            
             if (confirm(currentLanguage === 'en' ? 'Are you sure you want to remove this item?' : '¿Estás seguro de que quieres eliminar este artículo?')) {
-                const item = items.find(i => i.id === id);
-                const itemName = item ? (currentLanguage === 'en' ? item.nameEn : item.nameEs) : 'Unknown';
+                // Try to find item with flexible ID matching
+                let item = items.find(i => i.id === itemId || i.id == id || String(i.id) === String(id));
                 
-                items = items.filter(item => item.id !== id);
-                saveItems();
+                // If not found by ID, try to find by the item name from the button's row
+                if (!item) {
+                    // Try to find by getting the name from the DOM
+                    const removeButtons = document.querySelectorAll(`button[onclick*="removeItem(${id})"]`);
+                    if (removeButtons.length > 0) {
+                        const removeButton = removeButtons[0];
+                        const row = removeButton.closest('tr');
+                        if (row) {
+                            const nameCell = row.querySelector('td:first-child');
+                            if (nameCell) {
+                                const itemName = nameCell.textContent.trim();
+                                // Try to find by name
+                                item = items.find(i => {
+                                    const iName = currentLanguage === 'en' ? i.nameEn : i.nameEs;
+                                    return iName === itemName;
+                                });
+                                if (item) {
+                                    console.log('Found item by name:', itemName);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                if (!item) {
+                    console.error('Item not found! Looking for id:', itemId, 'Available IDs:', items.map(i => i.id));
+                    // Re-render to fix any ID mismatches
+                    renderBudgetItems();
+                    return;
+                }
+                
+                const itemName = item ? (currentLanguage === 'en' ? item.nameEn : item.nameEs) : 'Unknown';
+                const itemDbId = item.id; // Store the actual ID from the item
+                
+                console.log('Removing item:', itemName, 'with ID:', itemDbId, 'type:', typeof itemDbId);
+                
+                // Remove from local array using flexible matching
+                const beforeCount = items.length;
+                items = items.filter(item => {
+                    // Keep items that DON'T match the ID we want to remove
+                    const itemMatches = item.id === itemId || item.id == id || String(item.id) === String(id);
+                    return !itemMatches; // Return true (keep) if it doesn't match
+                });
+                const afterCount = items.length;
+                console.log('Items filtered. Before:', beforeCount, 'After:', afterCount, 'Removed:', beforeCount - afterCount);
+                
+                // If using Supabase, delete directly from database
+                if (useSupabase && currentUser && itemDbId) {
+                    try {
+                        // Convert to number if it's a valid number
+                        const dbId = typeof itemDbId === 'string' && !isNaN(itemDbId) ? parseFloat(itemDbId) : itemDbId;
+                        console.log('Deleting from Supabase with ID:', dbId, 'type:', typeof dbId);
+                        
+                        const { error } = await supabase
+                            .from('budget_items')
+                            .delete()
+                            .eq('id', dbId)
+                            .eq('user_id', currentUser.id);
+                        
+                        if (error) {
+                            console.error('Error deleting item from Supabase:', error);
+                        } else {
+                            console.log('Successfully deleted from Supabase');
+                        }
+                    } catch (error) {
+                        console.error('Error deleting item from Supabase:', error);
+                    }
+                }
+                
+                // Save to localStorage and sync to Supabase (this will handle cleanup)
+                await saveItems();
                 renderBudgetItems();
                 updateTotal();
                 
                 // Log change
-                logActivity('delete', `${currentLanguage === 'en' ? 'Removed item' : 'Artículo eliminado'}: ${itemName}`, id);
-                logChange('deleted', id, itemName, item ? item.totalPrice : null, null, 'item');
+                logActivity('delete', `${currentLanguage === 'en' ? 'Removed item' : 'Artículo eliminado'}: ${itemName}`, itemDbId);
+                logChange('deleted', itemDbId, itemName, item ? item.totalPrice : null, null, 'item');
                 updateMonitorDashboard();
             }
         }
@@ -5459,7 +6068,12 @@
         function updateTotal() {
             // Include approved items and items without approval status (pending) in the total amount
             const includedItems = items.filter(item => item.approvalStatus === 'approved' || !item.approvalStatus || item.approvalStatus === 'pending');
-            const total = includedItems.reduce((sum, item) => sum + item.totalPrice, 0);
+            
+            // Ensure totalPrice is a number for each item
+            const total = includedItems.reduce((sum, item) => {
+                const price = parseFloat(item.totalPrice) || 0;
+                return sum + price;
+            }, 0);
             
             const totalItems = items.length;
             const approvedItems = items.filter(item => item.approvalStatus === 'approved').length;
@@ -5468,14 +6082,27 @@
             const needsEditItems = items.filter(item => item.approvalStatus === 'needs_edit').length;
             
             // Update total amount (only approved items)
-            document.getElementById('totalAmount').textContent = `$${total.toLocaleString('es-MX')} MXN`;
+            const totalElement = document.getElementById('totalAmount');
+            if (totalElement) {
+                totalElement.textContent = `$${total.toLocaleString('es-MX')} MXN`;
+                console.log('updateTotal: Updated total to', total, 'from', includedItems.length, 'items');
+            }
             
             // Update item counts
-            document.getElementById('totalItems').textContent = totalItems;
-            document.getElementById('approvedItems').textContent = approvedItems;
-            document.getElementById('pendingItems').textContent = pendingItems;
-            document.getElementById('deniedItems').textContent = deniedItems;
-            document.getElementById('needsEditItems').textContent = needsEditItems;
+            const totalItemsEl = document.getElementById('totalItems');
+            if (totalItemsEl) totalItemsEl.textContent = totalItems;
+            
+            const approvedItemsEl = document.getElementById('approvedItems');
+            if (approvedItemsEl) approvedItemsEl.textContent = approvedItems;
+            
+            const pendingItemsEl = document.getElementById('pendingItems');
+            if (pendingItemsEl) pendingItemsEl.textContent = pendingItems;
+            
+            const deniedItemsEl = document.getElementById('deniedItems');
+            if (deniedItemsEl) deniedItemsEl.textContent = deniedItems;
+            
+            const needsEditItemsEl = document.getElementById('needsEditItems');
+            if (needsEditItemsEl) needsEditItemsEl.textContent = needsEditItems;
             
             // Update approval summary if it exists
             updateApprovalSummary();
@@ -7464,6 +8091,23 @@ Budget Manager System`;
         }
 
         function printBudget() {
+            // Switch to Budget tab if not already there
+            const budgetTab = document.getElementById('budgetTab');
+            if (budgetTab && !budgetTab.classList.contains('active')) {
+                switchTab('budget');
+                // Wait a moment for tab to switch, then print
+                setTimeout(() => {
+                    window.print();
+                }, 100);
+            } else {
+                window.print();
+            }
+        }
+        
+        // Function to print saved budget (if needed)
+        function printSavedBudget(budgetId) {
+            // This function can be called from saved budgets view
+            // For now, just trigger print
             window.print();
         }
         
@@ -8032,14 +8676,47 @@ Budget Manager System`;
         }
 
         function addItemFromCategory(category, index, silent = false) {
-            const categoryItems = itemDatabase[category] || [];
-            const item = categoryItems[index];
+            // Get the displayed item name from the input element to find the correct item
             const qtyInput = document.getElementById(`qty_${category}_${index}`);
             const prioritySelect = document.getElementById(`priority_${category}_${index}`);
             const priceInput = document.getElementById(`price_${category}_${index}`);
             const notesInput = document.getElementById(`notes_${category}_${index}`);
             
-            if (!item || !qtyInput || !prioritySelect) return;
+            if (!qtyInput || !prioritySelect) {
+                console.error('Input elements not found for category:', category, 'index:', index);
+                return;
+            }
+            
+            // Find the item by getting the name from the DOM (more reliable than index)
+            const itemCard = qtyInput.closest('.item-card');
+            let item = null;
+            
+            if (itemCard) {
+                const itemNameElement = itemCard.querySelector('.item-name');
+                if (itemNameElement) {
+                    const displayedName = itemNameElement.textContent.trim();
+                    // Find the item in the original array by matching the displayed name
+                    const categoryItems = itemDatabase[category] || [];
+                    item = categoryItems.find(catItem => {
+                        const catItemName = currentLanguage === 'en' 
+                            ? (catItem.nameEn || catItem.nameEs || catItem.name || '')
+                            : (catItem.nameEs || catItem.nameEn || catItem.name || '');
+                        return catItemName === displayedName;
+                    });
+                }
+            }
+            
+            // Fallback to index-based lookup if name matching fails
+            if (!item) {
+                const categoryItems = itemDatabase[category] || [];
+                item = categoryItems[index];
+                console.warn('Could not find item by name, using index fallback. Category:', category, 'Index:', index);
+            }
+            
+            if (!item) {
+                console.error('Item not found! Category:', category, 'Index:', index);
+                return;
+            }
             
             const quantity = parseInt(qtyInput.value) || 1;
             const priority = prioritySelect.value;
@@ -10660,7 +11337,167 @@ Budget Manager System`;
             };
         }
 
-        async         function exportSavedBudget(budgetId) {
+        async function exportSavedBudget(budgetId) {
+            const savedBudgets = getAllSavedBudgetsSync();
+            const budget = savedBudgets.find(b => b.id === budgetId);
+            
+            if (!budget) {
+                alert(currentLanguage === 'en' ? 'Budget not found' : 'Presupuesto no encontrado');
+                return;
+            }
+            
+            // Show modal to choose export format
+            const modalHTML = `
+                <div id="exportFormatModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; border-radius: 10px; padding: 30px; max-width: 400px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                        <h3 style="margin-top: 0; color: #2c3e50; margin-bottom: 20px;" data-en="Export Budget" data-es="Exportar Presupuesto">Export Budget</h3>
+                        <p style="color: #7f8c8d; margin-bottom: 20px;" data-en="Choose export format:" data-es="Elige el formato de exportación:">Choose export format:</p>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <button class="btn btn-danger" onclick="exportSavedBudgetAsPDF(${budgetId}); closeExportFormatModal();" style="width: 100%; padding: 15px; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                <span style="font-size: 20px;">📄</span>
+                                <span data-en="Export as PDF" data-es="Exportar como PDF">Export as PDF</span>
+                            </button>
+                            <button class="btn btn-success" onclick="exportSavedBudgetAsExcel(${budgetId}); closeExportFormatModal();" style="width: 100%; padding: 15px; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                <span style="font-size: 20px;">📊</span>
+                                <span data-en="Export as Excel" data-es="Exportar como Excel">Export as Excel</span>
+                            </button>
+                            <button class="btn btn-secondary" onclick="closeExportFormatModal();" style="width: 100%; padding: 12px; font-size: 14px;" data-en="Cancel" data-es="Cancelar">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if any
+            const existingModal = document.getElementById('exportFormatModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            updateLanguage();
+        }
+        
+        function closeExportFormatModal() {
+            const modal = document.getElementById('exportFormatModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        function exportSavedBudgetAsPDF(budgetId) {
+            const savedBudgets = getAllSavedBudgetsSync();
+            const budget = savedBudgets.find(b => b.id === budgetId);
+            
+            if (!budget) {
+                alert(currentLanguage === 'en' ? 'Budget not found' : 'Presupuesto no encontrado');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Title
+            doc.setFontSize(18);
+            doc.text(currentLanguage === 'en' ? 'Budget Report' : 'Reporte de Presupuesto', 14, 20);
+            doc.setFontSize(12);
+            doc.text(budget.weekLabel || 'Saved Budget', 14, 30);
+            
+            if (budget.savedDate) {
+                const savedDate = new Date(budget.savedDate);
+                doc.text(savedDate.toLocaleDateString(), 14, 37);
+            }
+            
+            // Prepare table data from saved budget items
+            const tableData = (budget.items || []).map(item => {
+                const categoryName = categories[item.category] ? 
+                    (currentLanguage === 'en' ? categories[item.category].nameEn : categories[item.category].nameEs) : 
+                    item.category;
+                const supplierName = typeof item.supplier === 'string' ? item.supplier : (item.supplier?.name || '');
+                const priorityName = currentLanguage === 'en' ? 
+                    (item.priority === 'high' ? 'High' : item.priority === 'medium' ? 'Medium' : 'Low') :
+                    (item.priority === 'high' ? 'Alta' : item.priority === 'medium' ? 'Media' : 'Baja');
+                const approvalStatus = currentLanguage === 'en' ?
+                    (item.approvalStatus === 'approved' ? 'Approved' : item.approvalStatus === 'rejected' ? 'Rejected' : 'Pending') :
+                    (item.approvalStatus === 'approved' ? 'Aprobado' : item.approvalStatus === 'rejected' ? 'Rechazado' : 'Pendiente');
+                
+                // Display name: prefer current language, but fall back to other language if current is empty
+                const displayNameForPDF = currentLanguage === 'en' 
+                    ? (item.nameEn || item.nameEs || item.name || '') 
+                    : (item.nameEs || item.nameEn || item.name || '');
+                
+                // Get notes: prefer current language, but fall back to other language if current is empty
+                const displayNotes = currentLanguage === 'en' 
+                    ? (item.notesEn || item.notesEs || item.notes || '') 
+                    : (item.notesEs || item.notesEn || item.notes || '');
+                
+                // Truncate very long notes to prevent table overflow (keep first 100 chars)
+                const notesForPDF = displayNotes && displayNotes.length > 100 
+                    ? displayNotes.substring(0, 100) + '...' 
+                    : (displayNotes || '');
+                
+                return [
+                    displayNameForPDF,
+                    categoryName,
+                    supplierName,
+                    `$${(item.unitPrice || 0).toLocaleString('es-MX')}`,
+                    item.quantity || 1,
+                    `$${(item.totalPrice || 0).toLocaleString('es-MX')}`,
+                    priorityName,
+                    approvalStatus,
+                    notesForPDF
+                ];
+            });
+            
+            // Add table
+            doc.autoTable({
+                head: [[
+                    currentLanguage === 'en' ? 'Item' : 'Artículo',
+                    currentLanguage === 'en' ? 'Category' : 'Categoría',
+                    currentLanguage === 'en' ? 'Supplier' : 'Proveedor',
+                    currentLanguage === 'en' ? 'Unit Price' : 'Precio Unitario',
+                    currentLanguage === 'en' ? 'Qty' : 'Cant',
+                    currentLanguage === 'en' ? 'Total' : 'Total',
+                    currentLanguage === 'en' ? 'Priority' : 'Prioridad',
+                    currentLanguage === 'en' ? 'Status' : 'Estado',
+                    currentLanguage === 'en' ? 'Notes' : 'Notas'
+                ]],
+                body: tableData,
+                startY: 50,
+                styles: { 
+                    fontSize: 8,
+                    cellPadding: 2
+                },
+                headStyles: { 
+                    fillColor: [102, 126, 234],
+                    fontSize: 8
+                },
+                columnStyles: {
+                    8: { // Notes column (0-indexed, so 8 is the 9th column)
+                        fontSize: 6,
+                        cellWidth: 'wrap'
+                    }
+                }
+            });
+            
+            // Add summary
+            const total = budget.total || (budget.items || []).reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+            const finalY = doc.lastAutoTable.finalY + 10;
+            doc.setFontSize(12);
+            doc.text(currentLanguage === 'en' ? `Total Budget: $${total.toLocaleString('es-MX')} MXN` : 
+                `Presupuesto Total: $${total.toLocaleString('es-MX')} MXN`, 14, finalY);
+            doc.text(currentLanguage === 'en' ? `Total Items: ${(budget.items || []).length}` : 
+                `Total de Artículos: ${(budget.items || []).length}`, 14, finalY + 7);
+            
+            // Save PDF
+            const fileName = `budget-${(budget.weekLabel || 'saved-budget').replace(/\s+/g, '-')}.pdf`;
+            doc.save(fileName);
+            
+            // Log activity
+            logActivity('export', `${currentLanguage === 'en' ? 'Exported saved budget as PDF' : 'Presupuesto guardado exportado como PDF'}: ${budget.weekLabel}`, null);
+        }
+        
+        function exportSavedBudgetAsExcel(budgetId) {
             const savedBudgets = getAllSavedBudgetsSync();
             const budget = savedBudgets.find(b => b.id === budgetId);
             
@@ -10671,7 +11508,7 @@ Budget Manager System`;
             
             // Temporarily set items to saved budget items for export
             const originalItems = items;
-            items = budget.items;
+            items = budget.items || [];
             
             // Export using existing Excel export function
             exportToExcel();
@@ -10680,7 +11517,7 @@ Budget Manager System`;
             items = originalItems;
             
             // Log activity
-            logActivity('export', `${currentLanguage === 'en' ? 'Exported saved budget' : 'Presupuesto guardado exportado'}: ${budget.weekLabel}`, null);
+            logActivity('export', `${currentLanguage === 'en' ? 'Exported saved budget as Excel' : 'Presupuesto guardado exportado como Excel'}: ${budget.weekLabel}`, null);
         }
 
         async function deleteSavedBudget(budgetId) {
@@ -11705,16 +12542,34 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 
                 categoryItems.forEach(item => {
                     // Check if item is recurring weekly (skip if skipRecurring is true)
-                    // Only add on Monday (start of the week)
-                    if (item.recurringWeekly && !skipRecurring && isMonday && isCurrentWeekMonday) {
+                    // Add items for the current week if they haven't been added yet (regardless of day)
+                    if (item.recurringWeekly && !skipRecurring) {
                         // Check if this item already exists in current budget for target week
-                        const existingItemsInBudget = items.filter(existingItem => 
-                            existingItem.category === categoryKey && 
-                            existingItem.nameEn === item.nameEn &&
-                            existingItem.nameEs === item.nameEs &&
-                            existingItem.unitPrice === item.unitPrice &&
-                            existingItem.weeklyAddedWeek === targetWeekStart.toISOString()
-                        );
+                        // Use flexible matching: check by weeklyAddedWeek OR by dateAdded being in the target week
+                        const existingItemsInBudget = items.filter(existingItem => {
+                            // Must match category, name, and price
+                            if (existingItem.category !== categoryKey || 
+                                existingItem.nameEn !== item.nameEn ||
+                                existingItem.nameEs !== item.nameEs ||
+                                existingItem.unitPrice !== item.unitPrice) {
+                                return false;
+                            }
+                            
+                            // Check if weeklyAddedWeek matches (if it exists)
+                            if (existingItem.weeklyAddedWeek) {
+                                return existingItem.weeklyAddedWeek === targetWeekStart.toISOString();
+                            }
+                            
+                            // Fallback: check if dateAdded is within the target week
+                            if (existingItem.dateAdded) {
+                                const itemDate = new Date(existingItem.dateAdded);
+                                const itemWeekStart = getWeekStart(itemDate);
+                                return itemWeekStart.getTime() === targetWeekStart.getTime();
+                            }
+                            
+                            // If no date info, assume it's not a match (safer to not add duplicate)
+                            return false;
+                        });
                         
                         if (existingItemsInBudget.length === 0) {
                             const newItem = {
@@ -12014,14 +12869,26 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             // If using Supabase and user is logged in, save to database
             if (useSupabase && currentUser) {
                 try {
-                    await supabase.from('activity_log').insert([{
+                    // Convert itemId to number (BIGINT) or null
+                    let itemIdNum = null;
+                    if (itemId !== null && itemId !== undefined) {
+                        const parsed = typeof itemId === 'string' ? parseFloat(itemId) : itemId;
+                        itemIdNum = !isNaN(parsed) && isFinite(parsed) ? Math.floor(parsed) : null;
+                    }
+                    
+                    const { error } = await supabase.from('activity_log').insert([{
                         user_id: currentUser.id,
                         type: type,
                         description: description,
-                        item_id: itemId
+                        item_id: itemIdNum
                     }]);
+                    
+                    if (error) {
+                        console.error('Error logging activity to Supabase:', error);
+                        console.error('Error details:', JSON.stringify(error, null, 2));
+                    }
                 } catch (error) {
-                    console.error('Error logging activity to Supabase:', error);
+                    console.error('Error logging activity to Supabase (catch):', error);
                 }
             }
             
@@ -12048,17 +12915,34 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             // If using Supabase and user is logged in, save to database
             if (useSupabase && currentUser) {
                 try {
-                    await supabase.from('change_history').insert([{
+                    // Convert itemId to number (BIGINT) or null
+                    let itemIdNum = null;
+                    if (itemId !== null && itemId !== undefined) {
+                        const parsed = typeof itemId === 'string' ? parseFloat(itemId) : itemId;
+                        itemIdNum = !isNaN(parsed) && isFinite(parsed) ? Math.floor(parsed) : null;
+                    }
+                    
+                    // Convert oldValue and newValue to JSONB format (wrap in JSON)
+                    const oldValueJsonb = oldValue !== null && oldValue !== undefined ? oldValue : null;
+                    const newValueJsonb = newValue !== null && newValue !== undefined ? newValue : null;
+                    
+                    const { error } = await supabase.from('change_history').insert([{
                         user_id: currentUser.id,
                         type: type,
-                        item_id: itemId,
+                        item_id: itemIdNum,
                         item_name: itemName,
-                        old_value: oldValue,
-                        new_value: newValue,
+                        old_value: oldValueJsonb, // Supabase will automatically convert to JSONB
+                        new_value: newValueJsonb, // Supabase will automatically convert to JSONB
                         field: field
                     }]);
+                    
+                    if (error) {
+                        console.error('Error logging change to Supabase:', error);
+                        console.error('Error details:', JSON.stringify(error, null, 2));
+                        console.error('Attempted values:', { itemIdNum, itemName, oldValueJsonb, newValueJsonb, field });
+                    }
                 } catch (error) {
-                    console.error('Error logging change to Supabase:', error);
+                    console.error('Error logging change to Supabase (catch):', error);
                 }
             }
             
@@ -12898,12 +13782,20 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                             </div>
                         </div>
                         ${!hasAdjustment && Math.abs(comp.difference) > 0.01 ? `
-                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e1e8ed;">
+                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e1e8ed; display: flex; gap: 8px; flex-wrap: wrap;">
+                                ${comp.difference > 0 ? `
+                                    <button class="btn btn-sm" onclick="applySurplusCreditToCurrentBudget(${comp.difference}, '${(comp.item.nameEn || '').replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${(comp.item.nameEs || '').replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${(comp.item.weekLabel || '').replace(/'/g, "\\'").replace(/"/g, '&quot;')}')" 
+                                            style="background: #27ae60; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;"
+                                            data-en="Apply credit to current budget" 
+                                            data-es="Aplicar crédito al presupuesto actual">
+                                        💰 ${currentLanguage === 'en' ? 'Apply Credit to Current Budget' : 'Aplicar Crédito al Presupuesto Actual'}
+                                    </button>
+                                ` : ''}
                                 <button class="btn btn-sm" onclick="applyDifferenceToNextBudget(${comp.difference}, '${(comp.item.category || '').replace(/'/g, "\\'")}', '${(comp.item.nameEn || '').replace(/'/g, "\\'")}', '${(comp.item.nameEs || '').replace(/'/g, "\\'")}', ${comp.item.quantity || 1})" 
-                                        style="background: ${comp.difference >= 0 ? '#27ae60' : '#e74c3c'}; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;"
-                                        data-en="${comp.difference >= 0 ? 'Add' : 'Subtract'} ${Math.abs(comp.difference).toFixed(2)} MXN to next budget" 
-                                        data-es="${comp.difference >= 0 ? 'Agregar' : 'Restar'} ${Math.abs(comp.difference).toFixed(2)} MXN al siguiente presupuesto">
-                                    ${comp.difference >= 0 ? '➕' : '➖'} ${currentLanguage === 'en' ? (comp.difference >= 0 ? 'Add' : 'Subtract') : (comp.difference >= 0 ? 'Agregar' : 'Restar')} ${Math.abs(comp.difference).toFixed(2)} MXN ${currentLanguage === 'en' ? 'to next budget' : 'al siguiente presupuesto'}
+                                        style="background: ${comp.difference >= 0 ? '#3498db' : '#e74c3c'}; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;"
+                                        data-en="${comp.difference >= 0 ? 'Adjust price for next budget' : 'Subtract'} ${Math.abs(comp.difference).toFixed(2)} MXN to next budget" 
+                                        data-es="${comp.difference >= 0 ? 'Ajustar precio para el siguiente presupuesto' : 'Restar'} ${Math.abs(comp.difference).toFixed(2)} MXN al siguiente presupuesto">
+                                    ${comp.difference >= 0 ? '📝' : '➖'} ${currentLanguage === 'en' ? (comp.difference >= 0 ? 'Adjust Price for Next Budget' : 'Subtract') : (comp.difference >= 0 ? 'Ajustar Precio para el Siguiente Presupuesto' : 'Restar')} ${comp.difference < 0 ? Math.abs(comp.difference).toFixed(2) + ' MXN ' + (currentLanguage === 'en' ? 'to next budget' : 'al siguiente presupuesto') : ''}
                                 </button>
                             </div>
                         ` : ''}
@@ -12998,6 +13890,217 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             showApprovalStatus('success', currentLanguage === 'en' 
                 ? `Price adjusted! Next time "${nameEn}" is added, it will use the new price of $${item.unitPrice.toFixed(2)} MXN per unit.`
                 : `¡Precio ajustado! La próxima vez que se agregue "${nameEs}", usará el nuevo precio de $${item.unitPrice.toFixed(2)} MXN por unidad.`);
+        }
+        
+        // Function to apply surplus credit to current budget
+        function applySurplusCreditToCurrentBudget(surplusAmount, sourceItemNameEn, sourceItemNameEs, weekLabel) {
+            // Create modal for selecting item and amount
+            const modal = document.createElement('div');
+            modal.id = 'surplusCreditModal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;';
+            
+            // Clean weekLabel for display
+            const cleanWeekLabel = weekLabel ? weekLabel.replace(' (Partial Payment)', '').replace(/'/g, "\\'").replace(/"/g, '&quot;') : '';
+            const weekInfo = cleanWeekLabel ? ` (${cleanWeekLabel})` : '';
+            const sourceItemName = currentLanguage === 'en' ? sourceItemNameEn : sourceItemNameEs;
+            const safeSourceItemName = sourceItemName.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 10px; padding: 25px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                    <h3 style="margin-top: 0; color: #2c3e50;" data-en="Apply Surplus Credit to Current Budget" data-es="Aplicar Crédito de Excedente al Presupuesto Actual">Apply Surplus Credit to Current Budget</h3>
+                    <p style="color: #7f8c8d; margin-bottom: 20px;">
+                        <span data-en="Apply credit from overpayment on &quot;${safeSourceItemName}&quot;${weekInfo} to an item in your current budget." data-es="Aplicar crédito del sobrepago en &quot;${safeSourceItemName}&quot;${weekInfo} a un artículo en su presupuesto actual.">
+                            Apply credit from overpayment on "${safeSourceItemName}"${weekInfo} to an item in your current budget.
+                        </span>
+                    </p>
+                    
+                    <div style="margin-bottom: 20px; padding: 15px; background: #e8f5e9; border-radius: 5px; border-left: 4px solid #27ae60;">
+                        <div style="font-weight: 600; color: #2c3e50; margin-bottom: 5px;" data-en="Available Surplus" data-es="Excedente Disponible">Available Surplus:</div>
+                        <div style="font-size: 1.3rem; font-weight: 700; color: #27ae60;">$${surplusAmount.toFixed(2)} MXN</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50;" data-en="Select Item to Apply Credit To" data-es="Seleccionar Artículo para Aplicar Crédito">Select Item to Apply Credit To:</label>
+                        <select id="surplusCreditItemSelect" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;">
+                            <option value="" data-en="-- Select an item --" data-es="-- Seleccionar un artículo --">-- Select an item --</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50;" data-en="Credit Amount (MXN)" data-es="Monto del Crédito (MXN)">Credit Amount (MXN):</label>
+                        <input type="number" id="surplusCreditAmount" value="${surplusAmount.toFixed(2)}" step="0.01" min="0.01" max="${surplusAmount.toFixed(2)}" 
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;"
+                               onchange="updateSurplusCreditPreview()">
+                        <small style="color: #7f8c8d; display: block; margin-top: 5px;" data-en="Maximum: $${surplusAmount.toFixed(2)} MXN" data-es="Máximo: $${surplusAmount.toFixed(2)} MXN">Maximum: $${surplusAmount.toFixed(2)} MXN</small>
+                    </div>
+                    
+                    <div id="surplusCreditPreview" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; display: none;">
+                        <div style="font-size: 0.9rem; color: #7f8c8d;" data-en="Preview:" data-es="Vista previa:">Preview:</div>
+                        <div id="surplusCreditPreviewText" style="margin-top: 5px; font-weight: 600; color: #2c3e50;"></div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button onclick="closeSurplusCreditModal()" style="padding: 10px 20px; background: #95a5a6; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem;" data-en="Cancel" data-es="Cancelar">Cancel</button>
+                        <button onclick="confirmSurplusCredit('${sourceItemNameEn.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${sourceItemNameEs.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${cleanWeekLabel}', ${surplusAmount})" 
+                                style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; font-weight: 600;" 
+                                data-en="Apply Credit" data-es="Aplicar Crédito">Apply Credit</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            updateLanguage();
+            
+            // Populate item select with current budget items
+            const itemSelect = document.getElementById('surplusCreditItemSelect');
+            items.forEach((item, index) => {
+                const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+                const currentTotal = item.totalPrice || 0;
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${itemName} - Current: $${currentTotal.toFixed(2)} MXN`;
+                itemSelect.appendChild(option);
+            });
+            
+            // Update preview when selection changes
+            itemSelect.addEventListener('change', updateSurplusCreditPreview);
+            document.getElementById('surplusCreditAmount').addEventListener('input', updateSurplusCreditPreview);
+            
+            // Close on outside click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeSurplusCreditModal();
+                }
+            });
+        }
+        
+        function updateSurplusCreditPreview() {
+            const itemSelect = document.getElementById('surplusCreditItemSelect');
+            const amountInput = document.getElementById('surplusCreditAmount');
+            const preview = document.getElementById('surplusCreditPreview');
+            const previewText = document.getElementById('surplusCreditPreviewText');
+            
+            if (!itemSelect || !amountInput || !preview || !previewText) return;
+            
+            const selectedIndex = itemSelect.value;
+            const creditAmount = parseFloat(amountInput.value) || 0;
+            
+            if (selectedIndex && creditAmount > 0) {
+                const item = items[parseInt(selectedIndex)];
+                if (item) {
+                    const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+                    const currentTotal = item.totalPrice || 0;
+                    const newTotal = Math.max(0, currentTotal - creditAmount);
+                    
+                    preview.style.display = 'block';
+                    previewText.innerHTML = currentLanguage === 'en'
+                        ? `"${itemName}" will be reduced from $${currentTotal.toFixed(2)} MXN to $${newTotal.toFixed(2)} MXN`
+                        : `"${itemName}" se reducirá de $${currentTotal.toFixed(2)} MXN a $${newTotal.toFixed(2)} MXN`;
+                }
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+        
+        function closeSurplusCreditModal() {
+            const modal = document.getElementById('surplusCreditModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        async function confirmSurplusCredit(sourceItemNameEn, sourceItemNameEs, weekLabel, maxSurplus) {
+            const itemSelect = document.getElementById('surplusCreditItemSelect');
+            const amountInput = document.getElementById('surplusCreditAmount');
+            
+            if (!itemSelect || !itemSelect.value) {
+                alert(currentLanguage === 'en' 
+                    ? 'Please select an item to apply the credit to.' 
+                    : 'Por favor seleccione un artículo para aplicar el crédito.');
+                return;
+            }
+            
+            const creditAmount = parseFloat(amountInput.value) || 0;
+            if (creditAmount <= 0 || creditAmount > maxSurplus) {
+                alert(currentLanguage === 'en' 
+                    ? `Please enter a valid credit amount between $0.01 and $${maxSurplus.toFixed(2)} MXN.` 
+                    : `Por favor ingrese un monto de crédito válido entre $0.01 y $${maxSurplus.toFixed(2)} MXN.`);
+                return;
+            }
+            
+            const selectedIndex = parseInt(itemSelect.value);
+            const item = items[selectedIndex];
+            
+            if (!item) {
+                alert(currentLanguage === 'en' 
+                    ? 'Selected item not found.' 
+                    : 'Artículo seleccionado no encontrado.');
+                return;
+            }
+            
+            const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+            const currentTotal = item.totalPrice || 0;
+            const newTotal = Math.max(0, currentTotal - creditAmount);
+            
+            // Confirm action
+            const weekInfo = weekLabel ? ` from ${weekLabel.replace(' (Partial Payment)', '')}` : '';
+            const confirmMsg = currentLanguage === 'en'
+                ? `Apply $${creditAmount.toFixed(2)} MXN credit to "${itemName}"?\n\nCurrent total: $${currentTotal.toFixed(2)} MXN\nNew total: $${newTotal.toFixed(2)} MXN\n\nThis credit is from overpayment on "${currentLanguage === 'en' ? sourceItemNameEn : sourceItemNameEs}"${weekInfo}.`
+                : `¿Aplicar crédito de $${creditAmount.toFixed(2)} MXN a "${itemName}"?\n\nTotal actual: $${currentTotal.toFixed(2)} MXN\nNuevo total: $${newTotal.toFixed(2)} MXN\n\nEste crédito es del sobrepago en "${currentLanguage === 'en' ? sourceItemNameEn : sourceItemNameEs}"${weekInfo}.`;
+            
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+            
+            // Apply credit
+            const oldTotal = item.totalPrice || 0;
+            item.totalPrice = newTotal;
+            
+            // Recalculate unit price if quantity exists
+            if (item.quantity && item.quantity > 0) {
+                item.unitPrice = newTotal / item.quantity;
+            }
+            
+            // Add note about overpayment
+            const weekNote = weekLabel ? ` (${weekLabel.replace(' (Partial Payment)', '')})` : '';
+            const creditNoteEn = `Overpayment credit applied: -$${creditAmount.toFixed(2)} MXN from overpayment on "${sourceItemNameEn}"${weekNote}`;
+            const creditNoteEs = `Crédito de sobrepago aplicado: -$${creditAmount.toFixed(2)} MXN del sobrepago en "${sourceItemNameEs}"${weekNote}`;
+            
+            // Add or update notes
+            if (!item.notes || item.notes === '(none)') {
+                item.notes = currentLanguage === 'en' ? creditNoteEn : creditNoteEs;
+            } else {
+                item.notes = item.notes + '\n' + (currentLanguage === 'en' ? creditNoteEn : creditNoteEs);
+            }
+            
+            // Also update notesEn and notesEs
+            if (!item.notesEn || item.notesEn === '(none)') {
+                item.notesEn = creditNoteEn;
+            } else {
+                item.notesEn = item.notesEn + '\n' + creditNoteEn;
+            }
+            
+            if (!item.notesEs || item.notesEs === '(none)') {
+                item.notesEs = creditNoteEs;
+            } else {
+                item.notesEs = item.notesEs + '\n' + creditNoteEs;
+            }
+            
+            // Save items
+            await saveItems();
+            
+            // Refresh displays
+            renderBudgetItems();
+            updateTotal();
+            calculateBudgetVsActual();
+            
+            // Close modal
+            closeSurplusCreditModal();
+            
+            // Show success message
+            showApprovalStatus('success', currentLanguage === 'en' 
+                ? `Credit of $${creditAmount.toFixed(2)} MXN applied to "${itemName}". New total: $${newTotal.toFixed(2)} MXN.`
+                : `Crédito de $${creditAmount.toFixed(2)} MXN aplicado a "${itemName}". Nuevo total: $${newTotal.toFixed(2)} MXN.`);
         }
 
         // Canada Request Functions
@@ -15371,8 +16474,8 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         }, 2000); // Wait 2 seconds for data to load
         loadCanadaEmailJSSettings(); // Load saved Canada EmailJS settings
         
-        // Check and add due items on page load
-        checkAndAddDueItems();
+        // Note: checkAndAddDueItems() is now called from loadUserData() after data is loaded
+        // This prevents items from being cleared when Supabase data loads
         
         // Check for duties/taxes alerts on page load
         checkForDutiesAlerts();
