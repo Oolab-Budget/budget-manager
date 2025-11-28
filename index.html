@@ -24,20 +24,31 @@
                     const originalObserve = MutationObserver.prototype.observe;
                     if (originalObserve) {
                         MutationObserver.prototype.observe = function(target, options) {
-                            // Only observe if target is a valid DOM Node
-                            if (target && (target.nodeType === 1 || target.nodeType === 11)) {
+                            // Check if target is a valid DOM Node
+                            // nodeType 1 = Element, 11 = DocumentFragment, 9 = Document
+                            if (!target || typeof target !== 'object' || typeof target.nodeType !== 'number') {
+                                // Silently ignore invalid targets (null, undefined, or non-Node objects)
+                                console.warn('MutationObserver.observe called with invalid target:', target);
+                                return;
+                            }
+                            
+                            // Only observe if target is a valid DOM Node type
+                            if (target.nodeType === 1 || target.nodeType === 9 || target.nodeType === 11) {
                                 try {
                                     return originalObserve.call(this, target, options);
                                 } catch (e) {
                                     // Silently ignore observation errors
-                                    if (e && (e.message && (e.message.includes('observe') || e.message.includes('Node')) || e.name === 'TypeError')) {
+                                    if (e && (e.message && (e.message.includes('observe') || e.message.includes('Node') || e.message.includes('not of type')) || e.name === 'TypeError')) {
+                                        console.warn('MutationObserver.observe error (ignored):', e.message);
                                         return;
                                     }
                                     throw e;
                                 }
+                            } else {
+                                // Invalid nodeType
+                                console.warn('MutationObserver.observe called with invalid nodeType:', target.nodeType);
+                                return;
                             }
-                            // Silently ignore invalid targets
-                            return;
                         };
                     }
                 }
@@ -50,6 +61,14 @@
             if (typeof MutationObserver === 'undefined') {
                 setTimeout(patchMutationObserver, 0);
                 setTimeout(patchMutationObserver, 10);
+                setTimeout(patchMutationObserver, 50);
+            }
+            
+            // Also patch when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', patchMutationObserver);
+            } else {
+                setTimeout(patchMutationObserver, 0);
             }
         })();
     </script>
@@ -2564,6 +2583,92 @@
                     }
                 }
                 
+                // Check if budget items in localStorage are missing from Supabase and migrate them
+                const localBudgetItems = JSON.parse(localStorage.getItem('budgetItems') || '[]');
+                if (localBudgetItems.length > 0 && items.length === 0) {
+                    console.log(`Found ${localBudgetItems.length} items in localStorage but 0 in Supabase. Migrating...`);
+                    // Migrate items from localStorage to Supabase
+                    for (const item of localBudgetItems) {
+                        try {
+                            const dbItem = convertAppItemToDbItem(item);
+                            dbItem.user_id = currentUser.id;
+                            // Try to insert, ignore if it already exists
+                            const { error: insertError } = await supabase
+                                .from('budget_items')
+                                .insert([dbItem]);
+                            
+                            if (insertError) {
+                                // If error is not a duplicate key error, log it
+                                if (insertError.code !== '23505') {
+                                    console.error('Error migrating item to Supabase:', insertError);
+                                }
+                            }
+                        } catch (err) {
+                            console.error('Error converting/migrating item:', err, item);
+                        }
+                    }
+                    // Reload items from Supabase after migration
+                    const { data: migratedItems, error: reloadError } = await supabase
+                        .from('budget_items')
+                        .select('*')
+                        .eq('user_id', currentUser.id)
+                        .order('date_added', { ascending: false });
+                    
+                    if (!reloadError && migratedItems) {
+                        items = migratedItems.map(convertDbItemToAppItem);
+                    }
+                } else if (localBudgetItems.length > items.length) {
+                    // If localStorage has more items than Supabase, check which ones are missing
+                    console.log(`Found ${localBudgetItems.length} items in localStorage but only ${items.length} in Supabase. Checking for missing items...`);
+                    const supabaseItemIds = new Set(items.map(item => String(item.id)));
+                    const itemsToMigrate = localBudgetItems.filter(item => {
+                        const itemId = String(item.id);
+                        // Check if item exists in Supabase by ID
+                        if (supabaseItemIds.has(itemId)) {
+                            return false;
+                        }
+                        // Also check by name and date to avoid duplicates
+                        const exists = items.some(existing => 
+                            existing.nameEn === item.nameEn && 
+                            existing.dateAdded === item.dateAdded
+                        );
+                        return !exists;
+                    });
+                    
+                    if (itemsToMigrate.length > 0) {
+                        console.log(`Migrating ${itemsToMigrate.length} missing items to Supabase...`);
+                        for (const item of itemsToMigrate) {
+                            try {
+                                const dbItem = convertAppItemToDbItem(item);
+                                dbItem.user_id = currentUser.id;
+                                // Remove the ID so Supabase generates a new one
+                                delete dbItem.id;
+                                const { error: insertError } = await supabase
+                                    .from('budget_items')
+                                    .insert([dbItem]);
+                                
+                                if (insertError) {
+                                    if (insertError.code !== '23505') {
+                                        console.error('Error migrating item to Supabase:', insertError);
+                                    }
+                                }
+                            } catch (err) {
+                                console.error('Error converting/migrating item:', err, item);
+                            }
+                        }
+                        // Reload items from Supabase after migration
+                        const { data: migratedItems, error: reloadError } = await supabase
+                            .from('budget_items')
+                            .select('*')
+                            .eq('user_id', currentUser.id)
+                            .order('date_added', { ascending: false });
+                        
+                        if (!reloadError && migratedItems) {
+                            items = migratedItems.map(convertDbItemToAppItem);
+                        }
+                    }
+                }
+                
                 // Load activity log
                 const { data: activityData, error: activityError } = await supabase
                     .from('activity_log')
@@ -2636,6 +2741,115 @@
                 }
             }
         }
+        
+        // Function to force migration of budget items from localStorage to Supabase
+        // This can be called from the browser console: forceMigrateBudgetItems()
+        async function forceMigrateBudgetItems() {
+            if (!currentUser || !useSupabase) {
+                console.error('Please log in first to migrate items to Supabase');
+                alert('Please log in first to migrate items to Supabase');
+                return;
+            }
+            
+            const localBudgetItems = JSON.parse(localStorage.getItem('budgetItems') || '[]');
+            if (localBudgetItems.length === 0) {
+                console.log('No items found in localStorage to migrate');
+                alert('No items found in localStorage to migrate');
+                return;
+            }
+            
+            console.log(`Found ${localBudgetItems.length} items in localStorage. Starting migration...`);
+            
+            try {
+                // Get current items from Supabase
+                const { data: existingItems, error: fetchError } = await supabase
+                    .from('budget_items')
+                    .select('id, name_en, date_added')
+                    .eq('user_id', currentUser.id);
+                
+                if (fetchError) {
+                    console.error('Error fetching existing items:', fetchError);
+                    alert('Error fetching existing items: ' + fetchError.message);
+                    return;
+                }
+                
+                const existingItemKeys = new Set();
+                if (existingItems) {
+                    existingItems.forEach(item => {
+                        // Create a unique key for each item
+                        const key = `${item.name_en}_${item.date_added}`;
+                        existingItemKeys.add(key);
+                    });
+                }
+                
+                let migratedCount = 0;
+                let skippedCount = 0;
+                let errorCount = 0;
+                
+                // Migrate items that don't exist in Supabase
+                for (const item of localBudgetItems) {
+                    try {
+                        const itemKey = `${item.nameEn || item.name}_${item.dateAdded}`;
+                        
+                        // Check if item already exists
+                        if (existingItemKeys.has(itemKey)) {
+                            skippedCount++;
+                            continue;
+                        }
+                        
+                        const dbItem = convertAppItemToDbItem(item);
+                        dbItem.user_id = currentUser.id;
+                        // Remove ID so Supabase generates a new one
+                        delete dbItem.id;
+                        
+                        const { error: insertError } = await supabase
+                            .from('budget_items')
+                            .insert([dbItem]);
+                        
+                        if (insertError) {
+                            if (insertError.code === '23505') {
+                                // Duplicate key, skip
+                                skippedCount++;
+                            } else {
+                                console.error('Error migrating item:', insertError, item);
+                                errorCount++;
+                            }
+                        } else {
+                            migratedCount++;
+                            existingItemKeys.add(itemKey); // Add to set to avoid duplicates
+                        }
+                    } catch (err) {
+                        console.error('Error processing item:', err, item);
+                        errorCount++;
+                    }
+                }
+                
+                console.log(`Migration complete! Migrated: ${migratedCount}, Skipped: ${skippedCount}, Errors: ${errorCount}`);
+                alert(`Migration complete!\nMigrated: ${migratedCount} items\nSkipped: ${skippedCount} items (already exist)\nErrors: ${errorCount} items`);
+                
+                // Reload items from Supabase
+                const { data: allItems, error: reloadError } = await supabase
+                    .from('budget_items')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('date_added', { ascending: false });
+                
+                if (!reloadError && allItems) {
+                    items = allItems.map(convertDbItemToAppItem);
+                    renderBudgetItems();
+                    updateTotal();
+                    console.log(`Loaded ${items.length} items from Supabase`);
+                } else {
+                    console.error('Error reloading items:', reloadError);
+                }
+            } catch (error) {
+                console.error('Migration error:', error);
+                alert('Migration failed: ' + error.message);
+            }
+        }
+        
+        // Make function available globally for console access
+        window.forceMigrateBudgetItems = forceMigrateBudgetItems;
         
         // Function to migrate localStorage data to Supabase
         async function migrateLocalStorageToSupabase(localCategories, localItems, localBudgetItems, localSavedBudgets = []) {
@@ -3435,7 +3649,7 @@
         
         // Helper function to convert app item to database format
         function convertAppItemToDbItem(appItem) {
-            return {
+            const dbItem = {
                 name_en: appItem.nameEn,
                 name_es: appItem.nameEs,
                 description_en: appItem.descriptionEn,
@@ -3462,9 +3676,6 @@
                 has_due_date: appItem.hasDueDate || false,
                 due_date: appItem.dueDate,
                 for_canada: appItem.forCanada || false,
-                weekly_added_week: appItem.weeklyAddedWeek,
-                monthly_added_month: appItem.monthlyAddedMonth,
-                monthly_added_year: appItem.monthlyAddedYear,
                 supplier_name: appItem.supplier?.name || '',
                 supplier_phone: appItem.supplier?.phone || '',
                 supplier_email: appItem.supplier?.email || '',
@@ -3473,6 +3684,20 @@
                 has_price_adjustment: appItem.hasPriceAdjustment || false,
                 adjustment_applied: appItem.adjustmentApplied || false
             };
+            
+            // Only include these fields if they exist (to avoid schema cache errors)
+            // These columns may not exist in older databases until schema cache refreshes
+            if (appItem.weeklyAddedWeek !== undefined && appItem.weeklyAddedWeek !== null) {
+                dbItem.weekly_added_week = appItem.weeklyAddedWeek;
+            }
+            if (appItem.monthlyAddedMonth !== undefined && appItem.monthlyAddedMonth !== null) {
+                dbItem.monthly_added_month = appItem.monthlyAddedMonth;
+            }
+            if (appItem.monthlyAddedYear !== undefined && appItem.monthlyAddedYear !== null) {
+                dbItem.monthly_added_year = appItem.monthlyAddedYear;
+            }
+            
+            return dbItem;
         }
         
         function convertDbActivityToApp(dbActivity) {
@@ -4903,29 +5128,85 @@
                             
                             if (itemExists) {
                                 // Update existing
+                                let dbItemToUpdate = { ...dbItem };
+                                
                                 const { error: updateError } = await supabase
                                     .from('budget_items')
-                                    .update(dbItem)
+                                    .update(dbItemToUpdate)
                                     .eq('id', itemIdNum)
                                     .eq('user_id', currentUser.id);
                                 
                                 if (updateError) {
-                                    console.error('Error updating item in Supabase:', updateError);
-                                    console.error('Update error details:', JSON.stringify(updateError, null, 2));
-                                    console.error('Item being updated:', { id: itemIdNum, name: item.nameEn || item.nameEs });
+                                    // If error is schema cache related (PGRST204), try without new columns
+                                    if (updateError.code === 'PGRST204' && (
+                                        updateError.message?.includes('weekly_added_week') ||
+                                        updateError.message?.includes('monthly_added_month') ||
+                                        updateError.message?.includes('monthly_added_year')
+                                    )) {
+                                        console.warn('Schema cache not refreshed yet. Retrying update without new columns...');
+                                        // Remove the new columns and retry
+                                        delete dbItemToUpdate.weekly_added_week;
+                                        delete dbItemToUpdate.monthly_added_month;
+                                        delete dbItemToUpdate.monthly_added_year;
+                                        
+                                        const { error: retryError } = await supabase
+                                            .from('budget_items')
+                                            .update(dbItemToUpdate)
+                                            .eq('id', itemIdNum)
+                                            .eq('user_id', currentUser.id);
+                                        
+                                        if (retryError) {
+                                            console.error('Error updating item in Supabase (retry):', retryError);
+                                            console.error('Item being updated:', { id: itemIdNum, name: item.nameEn || item.nameEs });
+                                        }
+                                    } else {
+                                        console.error('Error updating item in Supabase:', updateError);
+                                        console.error('Update error details:', JSON.stringify(updateError, null, 2));
+                                        console.error('Item being updated:', { id: itemIdNum, name: item.nameEn || item.nameEs });
+                                    }
                                 }
                             } else {
                                 // Insert new
+                                let dbItemToInsert = { ...dbItem };
+                                
+                                // If schema cache error (PGRST204), remove the new columns and retry
                                 const { data, error: insertError } = await supabase
                                     .from('budget_items')
-                                    .insert([dbItem])
+                                    .insert([dbItemToInsert])
                                     .select()
                                     .single();
                                 
                                 if (insertError) {
-                                    console.error('Error inserting item to Supabase:', insertError);
-                                    console.error('Insert error details:', JSON.stringify(insertError, null, 2));
-                                    console.error('Item being inserted:', { name: item.nameEn || item.nameEs, dbItem });
+                                    // If error is schema cache related (PGRST204), try without new columns
+                                    if (insertError.code === 'PGRST204' && (
+                                        insertError.message?.includes('weekly_added_week') ||
+                                        insertError.message?.includes('monthly_added_month') ||
+                                        insertError.message?.includes('monthly_added_year')
+                                    )) {
+                                        console.warn('Schema cache not refreshed yet. Retrying without new columns...');
+                                        // Remove the new columns and retry
+                                        delete dbItemToInsert.weekly_added_week;
+                                        delete dbItemToInsert.monthly_added_month;
+                                        delete dbItemToInsert.monthly_added_year;
+                                        
+                                        const { data: retryData, error: retryError } = await supabase
+                                            .from('budget_items')
+                                            .insert([dbItemToInsert])
+                                            .select()
+                                            .single();
+                                        
+                                        if (retryError) {
+                                            console.error('Error inserting item to Supabase (retry):', retryError);
+                                            console.error('Item being inserted:', { name: item.nameEn || item.nameEs });
+                                        } else if (retryData) {
+                                            // Update the item ID in the local array
+                                            item.id = retryData.id;
+                                        }
+                                    } else {
+                                        console.error('Error inserting item to Supabase:', insertError);
+                                        console.error('Insert error details:', JSON.stringify(insertError, null, 2));
+                                        console.error('Item being inserted:', { name: item.nameEn || item.nameEs });
+                                    }
                                 } else if (data) {
                                     // Update the item ID in the local array
                                     item.id = data.id;
