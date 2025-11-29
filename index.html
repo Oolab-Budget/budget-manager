@@ -9552,7 +9552,7 @@ Budget Manager System`;
                 if ('showSaveFilePicker' in window) {
                     try {
                         const fileHandle = await window.showSaveFilePicker({
-                            suggestedName: `budget-complete-backup-${new Date().toISOString().split('T')[0]}.json`,
+                            suggestedName: `budget-full-backup-with-supabase-${new Date().toISOString().split('T')[0]}.json`,
                             types: [{
                                 description: 'JSON Backup File',
                                 accept: { 'application/json': ['.json'] }
@@ -9588,7 +9588,7 @@ Budget Manager System`;
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `budget-complete-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.download = `budget-full-backup-with-supabase-${new Date().toISOString().split('T')[0]}.json`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
