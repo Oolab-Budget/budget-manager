@@ -158,7 +158,14 @@ app.post('/api/ups/track', async (req, res) => {
             console.log('Step 7a: Error text length:', errorText.length);
             console.log('Step 7b: Request body sent to UPS:', JSON.stringify(requestBody, null, 2));
             console.log('Step 7c: Headers sent to UPS:', JSON.stringify(headers, null, 2));
-            return res.status(response.status).json({ error: errorText || 'UPS API returned an error' });
+            // Return 502 (Bad Gateway) instead of forwarding UPS API status codes
+            // This makes it clear the proxy is working but UPS API failed
+            return res.status(502).json({ 
+                error: 'UPS API returned an error',
+                upsStatus: response.status,
+                upsError: errorText || 'Unknown error from UPS API',
+                message: `UPS API returned status ${response.status}. Check upsError for details.`
+            });
         }
         
         console.log('Step 8: Parsing UPS API response...');
