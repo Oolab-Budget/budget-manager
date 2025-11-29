@@ -100,12 +100,16 @@ app.post('/api/ups/track', async (req, res) => {
     console.log('Request URL:', req.url);
     console.log('Body:', JSON.stringify(req.body, null, 2));
     try {
+        console.log('Step 1: Extracting request body...');
         const { trackingNumber, accessToken, clientId } = req.body;
+        console.log('Step 2: Extracted - trackingNumber:', trackingNumber, 'accessToken exists:', !!accessToken, 'clientId:', clientId);
         
         if (!trackingNumber || !accessToken) {
+            console.log('Step 3: Missing required fields - returning 400');
             return res.status(400).json({ error: 'Tracking number and access token are required' });
         }
         
+        console.log('Step 4: Building request to UPS API...');
         const transId = 'tracking-' + Date.now();
         const headers = {
             'Authorization': `Bearer ${accessToken}`,
@@ -124,27 +128,41 @@ app.post('/api/ups/track', async (req, res) => {
                     RequestOption: '1',
                     TransactionReference: {
                         CustomerContext: transId
-                    }
+                    },
+                    Locale: 'en_US'
                 },
                 InquiryNumber: trackingNumber
             }
         };
         
+        console.log('Step 5: Calling UPS API...', 'URL: https://onlinetools.ups.com/api/track/v1/details');
+        console.log('Step 5a: Request body being sent:', JSON.stringify(requestBody, null, 2));
         const response = await fetch('https://onlinetools.ups.com/api/track/v1/details', {
             method: 'POST',
             headers: headers,
             body: JSON.stringify(requestBody)
         });
         
+        console.log('Step 6: UPS API response received - Status:', response.status, 'OK:', response.ok);
+        console.log('Step 6a: Response headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
+        
         if (!response.ok) {
             const errorText = await response.text();
-            return res.status(response.status).json({ error: errorText });
+            console.log('Step 7: UPS API error - Status:', response.status, 'Error:', errorText);
+            console.log('Step 7a: Error text length:', errorText.length);
+            console.log('Step 7b: Request body sent to UPS:', JSON.stringify(requestBody, null, 2));
+            console.log('Step 7c: Headers sent to UPS:', JSON.stringify(headers, null, 2));
+            return res.status(response.status).json({ error: errorText || 'UPS API returned an error' });
         }
         
+        console.log('Step 8: Parsing UPS API response...');
         const data = await response.json();
+        console.log('Step 9: Sending response to client...');
         res.json(data);
+        console.log('Step 10: Response sent successfully');
     } catch (error) {
         console.error('UPS Tracking error:', error);
+        console.error('Error stack:', error.stack);
         res.status(500).json({ error: error.message });
     }
 });

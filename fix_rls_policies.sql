@@ -61,3 +61,4 @@ FROM pg_policies
 WHERE tablename IN ('canada_tracking_shipments', 'canada_backorders')
 ORDER BY tablename, policyname;
 
+

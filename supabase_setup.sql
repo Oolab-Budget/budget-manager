@@ -41,6 +41,9 @@ CREATE TABLE IF NOT EXISTS budget_items (
     price_adjustment_note TEXT,
     has_price_adjustment BOOLEAN DEFAULT FALSE,
     adjustment_applied BOOLEAN DEFAULT FALSE,
+    weekly_added_week TIMESTAMPTZ,
+    monthly_added_month INTEGER,
+    monthly_added_year INTEGER,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
