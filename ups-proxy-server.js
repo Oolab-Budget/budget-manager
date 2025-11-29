@@ -95,6 +95,8 @@ app.post('/api/ups/token', async (req, res) => {
         
         const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
         
+        // UPS OAuth requires scope parameter for Tracking API
+        // Scope format: space-separated list of scopes
         const response = await fetch(`${baseUrl}/security/v1/oauth/token`, {
             method: 'POST',
             headers: {
@@ -102,7 +104,7 @@ app.post('/api/ups/token', async (req, res) => {
                 'Authorization': `Basic ${credentials}`,
                 'x-merchant-id': clientId
             },
-            body: 'grant_type=client_credentials'
+            body: 'grant_type=client_credentials&scope=tracking'
         });
         
         if (!response.ok) {
@@ -157,11 +159,11 @@ app.post('/api/ups/track', async (req, res) => {
         const baseUrl = isTest ? 'https://wwwcie.ups.com' : 'https://onlinetools.ups.com';
         console.log('Step 4a: Using environment:', isTest ? 'TEST' : 'PRODUCTION', 'Base URL:', baseUrl);
         
-        // UPS API endpoint: /track/v1/details/{trackingNumber} (not /api/track/v1/details)
-        // Use GET method as per UPS API documentation
-        const upsTrackUrl = `${baseUrl}/track/v1/details/${trackingNumber}`;
+        // UPS API endpoint: /api/track/v1/details/{trackingNumber}
+        // Use GET method with query parameters as per UPS API documentation
+        const upsTrackUrl = `${baseUrl}/api/track/v1/details/${trackingNumber}?locale=en_US&returnSignature=false`;
         console.log('Step 5: Calling UPS API...', 'URL:', upsTrackUrl);
-        console.log('Step 5a: Using GET method with tracking number in URL path');
+        console.log('Step 5a: Using GET method with tracking number in URL path and query parameters');
         const response = await fetch(upsTrackUrl, {
             method: 'GET',
             headers: headers
