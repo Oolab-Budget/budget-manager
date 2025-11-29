@@ -1477,9 +1477,29 @@
                         <small style="display: block; margin-top: 5px;" data-en="Download a complete backup file including: categories, items, Canada requests, saved budgets, activity logs, and all settings" data-es="Descargar un archivo de respaldo completo que incluye: categorías, artículos, solicitudes de Canadá, presupuestos guardados, registros de actividad y todas las configuraciones">Download a complete backup file including: categories, items, Canada requests, saved budgets, activity logs, and all settings</small>
                     </div>
                     <div class="form-group">
+                        <button class="btn btn-success" onclick="exportCompleteBackupWithSupabase()" style="font-size: 1rem; padding: 12px 20px;" data-en="Export Full Backup (with Supabase)" data-es="Exportar Respaldo Completo (con Supabase)">Export Full Backup (with Supabase)</button>
+                        <small style="display: block; margin-top: 5px;" data-en="Export ALL data including Supabase: requests, tracking shipments, items, budgets, and settings. You can choose to save to Desktop/Budget manager folder." data-es="Exporta TODOS los datos incluyendo Supabase: solicitudes, envíos de seguimiento, artículos, presupuestos y configuraciones. Puedes elegir guardar en la carpeta Escritorio/Budget manager.">Export ALL data including Supabase: requests, tracking shipments, items, budgets, and settings. You can choose to save to Desktop/Budget manager folder.</small>
+                    </div>
+                    <div class="form-group">
                         <label style="font-weight: 600; margin-bottom: 5px; display: block;" data-en="Import Backup" data-es="Importar Respaldo">Import Backup</label>
                         <input type="file" id="importCategoriesFile" accept=".json" onchange="importCategoriesAndItems(event)" style="padding: 8px; width: 100%;">
                         <small style="display: block; margin-top: 5px;" data-en="Select a previously exported JSON file to restore" data-es="Selecciona un archivo JSON exportado previamente para restaurar">Select a previously exported JSON file to restore</small>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px; padding: 15px; background: #e7f3ff; border-radius: 5px; border-left: 4px solid #2196F3;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="autoBackupEnabled" onchange="toggleAutoBackup()" style="width: 18px; height: 18px;">
+                        <span style="font-weight: 600;" data-en="Enable Automatic Backup" data-es="Habilitar Respaldo Automático">Enable Automatic Backup</span>
+                    </label>
+                    <div style="margin-top: 10px; margin-left: 28px;">
+                        <label style="display: block; margin-bottom: 5px;" data-en="Backup Frequency:" data-es="Frecuencia de Respaldo:">Backup Frequency:</label>
+                        <select id="backupFrequency" onchange="updateAutoBackupSchedule()" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="daily" data-en="Daily" data-es="Diario">Daily</option>
+                            <option value="weekly" data-en="Weekly" data-es="Semanal">Weekly</option>
+                            <option value="monthly" data-en="Monthly" data-es="Mensual">Monthly</option>
+                        </select>
+                        <small style="display: block; margin-top: 5px; color: #666;" data-en="Automatic backups will download to your default download folder. You can move them to Desktop/Budget manager folder." data-es="Los respaldos automáticos se descargarán en tu carpeta de descargas predeterminada. Puedes moverlos a la carpeta Escritorio/Budget manager.">Automatic backups will download to your default download folder. You can move them to Desktop/Budget manager folder.</small>
                     </div>
                 </div>
                 
@@ -9367,6 +9387,331 @@ Budget Manager System`;
             statusDiv.style.border = '1px solid #c3e6cb';
             statusDiv.style.color = '#155724';
             statusDiv.style.display = 'block';
+        }
+
+        // Comprehensive backup function that includes all Supabase data
+        async function exportCompleteBackupWithSupabase() {
+            const statusDiv = document.getElementById('backupStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#d1ecf1';
+            statusDiv.style.border = '1px solid #bee5eb';
+            statusDiv.style.color = '#0c5460';
+            statusDiv.innerHTML = '<strong>⏳ Exporting complete backup with Supabase data... This may take a moment.</strong>';
+            
+            try {
+                const backupData = {
+                    exportDate: new Date().toISOString(),
+                    version: '2.0', // Version 2.0 includes Supabase data
+                    exportSource: 'complete_with_supabase'
+                };
+                
+                // 1. Get localStorage data (same as existing backup)
+                backupData.categories = categories;
+                backupData.items = itemDatabase;
+                backupData.settings = {
+                    deeplApiKey: localStorage.getItem('deeplApiKey') || '',
+                    emailjsPublicKey: localStorage.getItem('emailjsPublicKey') || '',
+                    emailjsServiceId: localStorage.getItem('emailjsServiceId') || '',
+                    emailjsTemplateId: localStorage.getItem('emailjsTemplateId') || '',
+                    canadaEmailjsPublicKey: localStorage.getItem('canadaEmailjsPublicKey') || '',
+                    canadaEmailjsServiceId: localStorage.getItem('canadaEmailjsServiceId') || '',
+                    canadaEmailjsTemplateId: localStorage.getItem('canadaEmailjsTemplateId') || '',
+                    upsClientId: localStorage.getItem('upsClientId') || '',
+                    upsClientSecret: localStorage.getItem('upsClientSecret') || '',
+                    upsCheckInterval: localStorage.getItem('upsCheckInterval') || '6',
+                    upsProxyUrl: localStorage.getItem('upsProxyUrl') || ''
+                };
+                backupData.canadaRequestHistory = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+                backupData.savedBudgets = JSON.parse(localStorage.getItem('savedBudgets') || '[]');
+                backupData.budgetItems = JSON.parse(localStorage.getItem('budgetItems') || '[]');
+                backupData.activityLog = JSON.parse(localStorage.getItem('activityLog') || '[]');
+                backupData.changeHistory = JSON.parse(localStorage.getItem('changeHistory') || '[]');
+                backupData.canadaSelectedItems = JSON.parse(localStorage.getItem('canadaSelectedItems') || '{}');
+                backupData.dismissedBackorders = JSON.parse(localStorage.getItem('dismissedBackorders') || '{}');
+                backupData.canadaRequestCounter = localStorage.getItem('canadaRequestCounter') || '0';
+                
+                // 2. Get Supabase data if user is logged in
+                if (useSupabase && currentUser) {
+                    if (!silent && statusDiv) {
+                        statusDiv.innerHTML = '<strong>⏳ Fetching data from Supabase...</strong>';
+                    }
+                    
+                    try {
+                        // Get all Canada requests
+                        const { data: requests, error: requestsError } = await supabase
+                            .from('canada_requests')
+                            .select('*')
+                            .eq('user_id', currentUser.id)
+                            .order('created_at', { ascending: false });
+                        
+                        if (requestsError) throw requestsError;
+                        backupData.supabaseRequests = requests || [];
+                        
+                        // Get all tracking shipments
+                        const requestIds = (requests || []).map(r => r.id);
+                        if (requestIds.length > 0) {
+                            const { data: tracking, error: trackingError } = await supabase
+                                .from('canada_tracking_shipments')
+                                .select('*')
+                                .in('request_id', requestIds);
+                            
+                            if (trackingError) throw trackingError;
+                            backupData.supabaseTrackingShipments = tracking || [];
+                            
+                            // Get request items
+                            const { data: requestItems, error: itemsError } = await supabase
+                                .from('canada_request_items')
+                                .select('*')
+                                .in('request_id', requestIds);
+                            
+                            if (itemsError) throw itemsError;
+                            backupData.supabaseRequestItems = requestItems || [];
+                            
+                            // Get backorders
+                            const { data: backorders, error: backordersError } = await supabase
+                                .from('canada_backorders')
+                                .select('*')
+                                .in('request_id', requestIds);
+                            
+                            if (backordersError) throw backordersError;
+                            backupData.supabaseBackorders = backorders || [];
+                        }
+                        
+                        // Get budget items from Supabase
+                        const { data: budgetItems, error: budgetError } = await supabase
+                            .from('budget_items')
+                            .select('*')
+                            .eq('user_id', currentUser.id);
+                        
+                        if (budgetError) throw budgetError;
+                        backupData.supabaseBudgetItems = budgetItems || [];
+                        
+                        // Get saved budgets
+                        const { data: savedBudgets, error: savedError } = await supabase
+                            .from('saved_budget_items')
+                            .select('*')
+                            .eq('user_id', currentUser.id)
+                            .order('created_at', { ascending: false });
+                        
+                        if (savedError) throw savedError;
+                        backupData.supabaseSavedBudgets = savedBudgets || [];
+                        
+                        // Get request counter
+                        const { data: counter, error: counterError } = await supabase
+                            .from('canada_request_counters')
+                            .select('*')
+                            .eq('user_id', currentUser.id)
+                            .single();
+                        
+                        if (!counterError && counter) {
+                            backupData.supabaseRequestCounter = counter;
+                        }
+                        
+                        backupData.supabaseDataIncluded = true;
+                        backupData.supabaseUserEmail = currentUser.email;
+                    } catch (supabaseError) {
+                        console.error('Error fetching Supabase data:', supabaseError);
+                        backupData.supabaseDataIncluded = false;
+                        backupData.supabaseError = supabaseError.message;
+                        // Continue with localStorage data even if Supabase fails
+                    }
+                } else {
+                    backupData.supabaseDataIncluded = false;
+                    backupData.supabaseNote = 'User not logged in - only localStorage data included';
+                }
+                
+                // 3. Create and download backup file
+                const jsonStr = JSON.stringify(backupData, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                
+                // Try to use File System Access API to save to a specific folder (modern browsers)
+                if ('showSaveFilePicker' in window) {
+                    try {
+                        const fileHandle = await window.showSaveFilePicker({
+                            suggestedName: `budget-complete-backup-${new Date().toISOString().split('T')[0]}.json`,
+                            types: [{
+                                description: 'JSON Backup File',
+                                accept: { 'application/json': ['.json'] }
+                            }]
+                        });
+                        
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(blob);
+                        await writable.close();
+                        
+                        if (!silent && statusDiv) {
+                            statusDiv.style.background = '#d4edda';
+                            statusDiv.style.border = '1px solid #c3e6cb';
+                            statusDiv.style.color = '#155724';
+                            statusDiv.innerHTML = `<strong>✓ Complete backup saved successfully!</strong><br>
+                                ${backupData.supabaseDataIncluded ? 
+                                    `Included: localStorage data + Supabase data (${backupData.supabaseRequests?.length || 0} requests, ${backupData.supabaseTrackingShipments?.length || 0} tracking shipments)` :
+                                    'Included: localStorage data (Supabase data not available - user not logged in)'}`;
+                        }
+                        return;
+                    } catch (saveError) {
+                        // User cancelled or error - fall back to download
+                        console.log('File System Access API not available or cancelled, using download:', saveError);
+                    }
+                }
+                
+                // Fallback: Download file
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `budget-complete-backup-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                if (!silent && statusDiv) {
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.border = '1px solid #c3e6cb';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.innerHTML = `<strong>✓ Complete backup downloaded successfully!</strong><br>
+                        ${backupData.supabaseDataIncluded ? 
+                            `Included: localStorage data + Supabase data (${backupData.supabaseRequests?.length || 0} requests, ${backupData.supabaseTrackingShipments?.length || 0} tracking shipments).<br>
+                            <small>You can move this file to Desktop/Budget manager folder.</small>` :
+                            'Included: localStorage data (Supabase data not available - user not logged in).<br>
+                            <small>You can move this file to Desktop/Budget manager folder.</small>'}`;
+                }
+                        
+            } catch (error) {
+                console.error('Error creating backup:', error);
+                if (!silent && statusDiv) {
+                    statusDiv.style.background = '#f8d7da';
+                    statusDiv.style.border = '1px solid #f5c6cb';
+                    statusDiv.style.color = '#721c24';
+                    statusDiv.innerHTML = `<strong>✗ Error creating backup:</strong> ${error.message}`;
+                }
+            }
+        }
+
+        // Automatic backup functionality
+        let autoBackupInterval = null;
+        let lastBackupDate = null;
+
+        function toggleAutoBackup() {
+            const enabled = document.getElementById('autoBackupEnabled').checked;
+            const frequency = document.getElementById('backupFrequency').value;
+            
+            localStorage.setItem('autoBackupEnabled', enabled ? 'true' : 'false');
+            localStorage.setItem('backupFrequency', frequency);
+            
+            if (enabled) {
+                startAutoBackup(frequency);
+                showApprovalStatus('success', currentLanguage === 'en' ? 
+                    `Automatic backup enabled (${frequency})` : 
+                    `Respaldo automático habilitado (${frequency})`);
+            } else {
+                stopAutoBackup();
+                showApprovalStatus('info', currentLanguage === 'en' ? 
+                    'Automatic backup disabled' : 
+                    'Respaldo automático deshabilitado');
+            }
+        }
+
+        function updateAutoBackupSchedule() {
+            const enabled = document.getElementById('autoBackupEnabled').checked;
+            if (enabled) {
+                const frequency = document.getElementById('backupFrequency').value;
+                localStorage.setItem('backupFrequency', frequency);
+                stopAutoBackup();
+                startAutoBackup(frequency);
+            }
+        }
+
+        function startAutoBackup(frequency) {
+            stopAutoBackup(); // Clear any existing interval
+            
+            let intervalMs;
+            switch(frequency) {
+                case 'daily':
+                    intervalMs = 24 * 60 * 60 * 1000; // 24 hours
+                    break;
+                case 'weekly':
+                    intervalMs = 7 * 24 * 60 * 60 * 1000; // 7 days
+                    break;
+                case 'monthly':
+                    intervalMs = 30 * 24 * 60 * 60 * 1000; // 30 days
+                    break;
+                default:
+                    intervalMs = 24 * 60 * 60 * 1000;
+            }
+            
+            // Check if backup is needed on load
+            checkAndRunAutoBackup();
+            
+            // Set up interval
+            autoBackupInterval = setInterval(() => {
+                checkAndRunAutoBackup();
+            }, intervalMs);
+            
+            console.log(`Automatic backup scheduled: ${frequency} (every ${intervalMs / 1000 / 60 / 60} hours)`);
+        }
+
+        function stopAutoBackup() {
+            if (autoBackupInterval) {
+                clearInterval(autoBackupInterval);
+                autoBackupInterval = null;
+            }
+        }
+
+        async function checkAndRunAutoBackup() {
+            const lastBackup = localStorage.getItem('lastAutoBackupDate');
+            const frequency = localStorage.getItem('backupFrequency') || 'daily';
+            const now = new Date();
+            
+            let shouldBackup = false;
+            
+            if (!lastBackup) {
+                shouldBackup = true;
+            } else {
+                const lastBackupDate = new Date(lastBackup);
+                const hoursSinceBackup = (now - lastBackupDate) / (1000 * 60 * 60);
+                
+                switch(frequency) {
+                    case 'daily':
+                        shouldBackup = hoursSinceBackup >= 24;
+                        break;
+                    case 'weekly':
+                        shouldBackup = hoursSinceBackup >= 168; // 7 days
+                        break;
+                    case 'monthly':
+                        shouldBackup = hoursSinceBackup >= 720; // 30 days
+                        break;
+                }
+            }
+            
+            if (shouldBackup) {
+                console.log('Running automatic backup...');
+                try {
+                    // Run backup silently (don't show status messages)
+                    await exportCompleteBackupWithSupabase(true);
+                    localStorage.setItem('lastAutoBackupDate', now.toISOString());
+                    console.log('Automatic backup completed successfully');
+                } catch (error) {
+                    console.error('Automatic backup failed:', error);
+                }
+            }
+        }
+
+        // Initialize auto-backup on page load
+        function initializeAutoBackup() {
+            const enabled = localStorage.getItem('autoBackupEnabled') === 'true';
+            const frequency = localStorage.getItem('backupFrequency') || 'daily';
+            
+            if (document.getElementById('autoBackupEnabled')) {
+                document.getElementById('autoBackupEnabled').checked = enabled;
+            }
+            if (document.getElementById('backupFrequency')) {
+                document.getElementById('backupFrequency').value = frequency;
+            }
+            
+            if (enabled) {
+                startAutoBackup(frequency);
+            }
         }
 
         function importCategoriesAndItems(event) {
@@ -17667,6 +18012,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         loadEmailJSSettings(); // Load saved EmailJS settings
         loadDeepLSettings(); // Load saved DeepL API key
         loadUPSSettings(); // Load saved UPS settings and start polling
+        initializeAutoBackup(); // Initialize automatic backup if enabled
         
         // Check for duties alerts on page load (after data is loaded)
         setTimeout(() => {
