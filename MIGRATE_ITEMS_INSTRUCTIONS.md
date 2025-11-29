@@ -97,3 +97,4 @@ If automatic migration doesn't work, you can manually copy items:
 **Note:** After migration, items will be synced automatically between localStorage and Supabase. You should see your items in both the local app and the live app.
 
 
+

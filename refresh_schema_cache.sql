@@ -23,3 +23,4 @@ AND column_name IN ('weekly_added_week', 'monthly_added_month', 'monthly_added_y
 -- ADD COLUMN IF NOT EXISTS monthly_added_year INTEGER;
 
 
+

@@ -2930,6 +2930,11 @@
         async function forceReloadItems() {
             if (!currentUser || !useSupabase) {
                 console.error('Please log in first');
+                // If not logged in, reload from localStorage
+                items = JSON.parse(localStorage.getItem('budgetItems')) || [];
+                renderBudgetItems();
+                updateTotal();
+                alert(`Reloaded ${items.length} items from localStorage`);
                 return;
             }
             
@@ -2942,22 +2947,97 @@
             
             if (error) {
                 console.error('Error reloading items:', error);
-                alert('Error reloading items: ' + error.message);
+                // Fallback to localStorage
+                items = JSON.parse(localStorage.getItem('budgetItems')) || [];
+                renderBudgetItems();
+                updateTotal();
+                alert('Error reloading from Supabase. Loaded ' + items.length + ' items from localStorage instead.');
                 return;
             }
             
-            if (allItems) {
+            if (allItems && allItems.length > 0) {
                 items = allItems.map(convertDbItemToAppItem);
+                // Also update localStorage
+                localStorage.setItem('budgetItems', JSON.stringify(items));
                 renderBudgetItems();
                 updateTotal();
                 console.log(`Successfully reloaded ${items.length} items from Supabase`);
-                alert(`Successfully reloaded ${items.length} items!`);
+                alert(`Successfully reloaded ${items.length} items from Supabase!`);
             } else {
-                console.log('No items found in Supabase');
-                alert('No items found in Supabase');
+                // Check localStorage as fallback
+                const localItems = JSON.parse(localStorage.getItem('budgetItems')) || [];
+                if (localItems.length > 0) {
+                    items = localItems;
+                    renderBudgetItems();
+                    updateTotal();
+                    alert(`No items in Supabase. Loaded ${items.length} items from localStorage.`);
+                } else {
+                    console.log('No items found in Supabase or localStorage');
+                    alert('No items found in Supabase or localStorage');
+                }
             }
         }
         window.forceReloadItems = forceReloadItems;
+        
+        // Recover missing items from localStorage to Supabase
+        async function recoverMissingItems() {
+            if (!currentUser || !useSupabase) {
+                alert('Please log in first to recover items to Supabase');
+                return;
+            }
+            
+            const localItems = JSON.parse(localStorage.getItem('budgetItems')) || [];
+            if (localItems.length === 0) {
+                alert('No items found in localStorage to recover');
+                return;
+            }
+            
+            // Get items from Supabase
+            const { data: supabaseItems } = await supabase
+                .from('budget_items')
+                .select('id')
+                .eq('user_id', currentUser.id);
+            
+            const supabaseIds = new Set((supabaseItems || []).map(item => String(item.id)));
+            
+            // Find items in localStorage that aren't in Supabase
+            const itemsToRecover = localItems.filter(item => {
+                const itemId = String(item.id);
+                return !supabaseIds.has(itemId);
+            });
+            
+            if (itemsToRecover.length === 0) {
+                alert('All items are already in Supabase');
+                return;
+            }
+            
+            if (!confirm(`Found ${itemsToRecover.length} items in localStorage that are not in Supabase. Recover them?`)) {
+                return;
+            }
+            
+            let recovered = 0;
+            for (const item of itemsToRecover) {
+                try {
+                    const dbItem = convertAppItemToDbItem(item);
+                    dbItem.user_id = currentUser.id;
+                    const { error } = await supabase
+                        .from('budget_items')
+                        .insert([dbItem]);
+                    
+                    if (!error) {
+                        recovered++;
+                    }
+                } catch (err) {
+                    console.error('Error recovering item:', err, item);
+                }
+            }
+            
+            alert(`Recovered ${recovered} of ${itemsToRecover.length} items to Supabase`);
+            
+            // Reload items
+            await forceReloadItems();
+        }
+        window.recoverMissingItems = recoverMissingItems;
         
         // Diagnostic function to check category item counts - call from console: checkCategoryItemCounts()
         async function checkCategoryItemCounts() {
@@ -5356,7 +5436,20 @@
             applyAutomaticCreditIfInAlerts(newItem);
             
             items.push(newItem);
-            await saveItems();
+            
+            // Save to Supabase and localStorage
+            try {
+                await saveItems();
+                console.log('Item saved successfully:', newItem.nameEn || newItem.nameEs);
+            } catch (error) {
+                console.error('Error saving item:', error);
+                // Still show the item even if Supabase save fails (it's in localStorage)
+                alert(currentLanguage === 'en' 
+                    ? 'Item added but there was an error saving to database. It has been saved locally.' 
+                    : 'Artículo agregado pero hubo un error al guardar en la base de datos. Se ha guardado localmente.');
+            }
+            
+            // Always render items immediately after adding
             renderBudgetItems();
             updateTotal();
             
@@ -9394,7 +9487,7 @@ Budget Manager System`;
                 `¡${itemsAdded} artículo(s) agregado(s) al presupuesto exitosamente!`);
         }
 
-        function addItemFromCategory(category, index, silent = false) {
+        async function addItemFromCategory(category, index, silent = false) {
             // Get the displayed item name from the input element to find the correct item
             const qtyInput = document.getElementById(`qty_${category}_${index}`);
             const prioritySelect = document.getElementById(`priority_${category}_${index}`);
@@ -10147,9 +10240,19 @@ Budget Manager System`;
             
             // Save to Supabase if logged in
             if (useSupabase && currentUser) {
-                await saveCategoryItems();
+                try {
+                    await saveCategoryItems();
+                    console.log('Category saved successfully:', categoryKey);
+                } catch (error) {
+                    console.error('Error saving category:', error);
+                    // Still show the category even if Supabase save fails (it's in localStorage)
+                    alert(currentLanguage === 'en' 
+                        ? 'Category added but there was an error saving to database. It has been saved locally.' 
+                        : 'Categoría agregada pero hubo un error al guardar en la base de datos. Se ha guardado localmente.');
+                }
             }
             
+            // Always display categories immediately after adding
             loadCategoriesList();
             populateCategoryDropdowns();
             

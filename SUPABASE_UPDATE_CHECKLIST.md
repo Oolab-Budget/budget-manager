@@ -108,3 +108,4 @@ Your Supabase database will be fully up-to-date and compatible with your local c
 - ✅ All CRUD operations
 
 
+
