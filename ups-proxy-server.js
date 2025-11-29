@@ -145,9 +145,12 @@ app.post('/api/ups/track', async (req, res) => {
             'transactionSrc': 'budget-manager'
         };
         
-        if (clientId) {
-            headers['x-merchant-id'] = clientId;
-        }
+        // Note: x-merchant-id may not be required for Tracking API v1
+        // Only include if explicitly needed (some APIs require it, others don't)
+        // Commenting out to test if it's causing the 401 error
+        // if (clientId) {
+        //     headers['x-merchant-id'] = clientId;
+        // }
         
         // Determine if using test or production environment (default to production)
         const isTest = (environment === 'test' || process.env.UPS_ENV === 'test');
