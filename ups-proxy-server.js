@@ -10,6 +10,17 @@ const fetch = require('node-fetch');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Request logging middleware - MUST be first to catch all requests
+app.use((req, res, next) => {
+    console.log(`\n=== INCOMING REQUEST ===`);
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    console.log(`Request URL: ${req.url}`);
+    console.log(`Request originalUrl: ${req.originalUrl}`);
+    console.log(`Request headers:`, JSON.stringify(req.headers, null, 2));
+    console.log(`=== END REQUEST LOG ===\n`);
+    next();
+});
+
 // Enable CORS for your frontend domain
 app.use(cors({
     origin: function (origin, callback) {
@@ -33,19 +44,10 @@ app.use(cors({
     },
     credentials: true,
     methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-merchant-id', 'transId', 'transactionSrc']
 }));
 
 app.use(express.json());
-
-// Request logging middleware - Enhanced with detailed headers
-app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-    console.log(`Request URL: ${req.url}`);
-    console.log(`Request originalUrl: ${req.originalUrl}`);
-    console.log(`Request headers:`, JSON.stringify(req.headers, null, 2));
-    next();
-});
 
 // Root endpoint - list available endpoints
 app.get('/', (req, res) => {
