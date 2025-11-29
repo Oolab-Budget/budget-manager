@@ -1204,7 +1204,7 @@
                 <button class="btn btn-info" onclick="requestReview()" style="background: #17a2b8; border-color: #17a2b8;" data-en="Request Review" data-es="Solicitar Revisión">Request Review</button>
                 <button class="btn btn-success" onclick="saveAndClearBudget()" data-en="Save & Clear for Next Week" data-es="Guardar y Limpiar para la Próxima Semana">Save & Clear for Next Week</button>
                 <button class="btn btn-warning" onclick="printBudget()" data-en="Print Budget" data-es="Imprimir Presupuesto">Print Budget</button>
-                <button class="btn btn-danger" onclick="clearBudget()" data-en="Clear All Items" data-es="Limpiar Todos los Artículos">Clear All Items</button>
+                <button class="btn btn-danger" onclick="clearBudget().catch(err => console.error('Error clearing budget:', err))" data-en="Clear All Items" data-es="Limpiar Todos los Artículos">Clear All Items</button>
             </div>
         </div>
 
@@ -7035,28 +7035,29 @@
                 const itemCount = items.length;
                 
                 // Delete from Supabase if logged in
-                if (useSupabase && currentUser && items.length > 0) {
+                if (useSupabase && currentUser) {
                     try {
-                        // Get all item IDs to delete
-                        const itemIds = items.map(item => item.id).filter(id => id != null);
+                        // Delete ALL budget items for this user from Supabase
+                        // This ensures we clear everything, even if IDs don't match
+                        const { error } = await supabase
+                            .from('budget_items')
+                            .delete()
+                            .eq('user_id', currentUser.id);
                         
-                        if (itemIds.length > 0) {
-                            // Delete all budget items from Supabase
-                            const { error } = await supabase
-                                .from('budget_items')
-                                .delete()
-                                .eq('user_id', currentUser.id)
-                                .in('id', itemIds);
-                            
-                            if (error) {
-                                console.error('Error deleting items from Supabase:', error);
-                                // Continue with localStorage clear even if Supabase delete fails
-                            } else {
-                                console.log(`Deleted ${itemIds.length} items from Supabase`);
-                            }
+                        if (error) {
+                            console.error('Error deleting items from Supabase:', error);
+                            showApprovalStatus('error', currentLanguage === 'en' 
+                                ? `Error clearing items from database: ${error.message}` 
+                                : `Error al limpiar artículos de la base de datos: ${error.message}`);
+                            // Continue with localStorage clear even if Supabase delete fails
+                        } else {
+                            console.log(`Cleared all items from Supabase for user ${currentUser.id}`);
                         }
                     } catch (error) {
                         console.error('Error clearing items from Supabase:', error);
+                        showApprovalStatus('error', currentLanguage === 'en' 
+                            ? `Error clearing items: ${error.message}` 
+                            : `Error al limpiar artículos: ${error.message}`);
                         // Continue with localStorage clear even if Supabase delete fails
                     }
                 }
@@ -16950,7 +16951,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                     </div>
                                 ` : ''}
                             </div>
-                            <div style="display: flex; gap: 10px; align-items: center;">
+                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                                 <span style="padding: 5px 12px; background: ${statusColor}; color: white; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
                                     ${statusText}
                                 </span>
@@ -16959,11 +16960,6 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                             style="background: #27ae60; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
                                         ${currentLanguage === 'en' ? 'Mark as Sent' : 'Marcar como Enviada'}
                                     </button>
-                                    <button class="btn btn-sm" onclick="deleteCanadaRequest(${request.id})" 
-                                            style="background: #e74c3c; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;"
-                                            title="${currentLanguage === 'en' ? 'Delete this request' : 'Eliminar esta solicitud'}">
-                                        ${currentLanguage === 'en' ? 'Delete' : 'Eliminar'}
-                                    </button>
                                 ` : request.status === 'sent' ? `
                                     <button class="btn btn-sm" onclick="editCanadaRequestTracking(${request.id})" 
                                             style="background: #3498db; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;"
@@ -16971,6 +16967,11 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                         ${currentLanguage === 'en' ? 'Edit Items & Tracking' : 'Editar Artículos y Seguimiento'}
                                     </button>
                                 ` : ''}
+                                <button class="btn btn-sm" onclick="deleteCanadaRequest(${request.id})" 
+                                        style="background: #e74c3c; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;"
+                                        title="${currentLanguage === 'en' ? 'Delete this request (removes from all reports)' : 'Eliminar esta solicitud (elimina de todos los reportes)'}">
+                                    ${currentLanguage === 'en' ? 'Delete' : 'Eliminar'}
+                                </button>
                             </div>
                         </div>
                         ${(() => {
