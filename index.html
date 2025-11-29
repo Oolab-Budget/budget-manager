@@ -9543,10 +9543,13 @@ Budget Manager System`;
                             statusDiv.style.background = '#d4edda';
                             statusDiv.style.border = '1px solid #c3e6cb';
                             statusDiv.style.color = '#155724';
-                            statusDiv.innerHTML = `<strong>✓ Complete backup saved successfully!</strong><br>
-                                ${backupData.supabaseDataIncluded ? 
-                                    `Included: localStorage data + Supabase data (${backupData.supabaseRequests?.length || 0} requests, ${backupData.supabaseTrackingShipments?.length || 0} tracking shipments)` :
-                                    'Included: localStorage data (Supabase data not available - user not logged in)'}`;
+                            let message = '<strong>✓ Complete backup saved successfully!</strong><br>';
+                            if (backupData.supabaseDataIncluded) {
+                                message += `Included: localStorage data + Supabase data (${backupData.supabaseRequests?.length || 0} requests, ${backupData.supabaseTrackingShipments?.length || 0} tracking shipments)`;
+                            } else {
+                                message += 'Included: localStorage data (Supabase data not available - user not logged in)';
+                            }
+                            statusDiv.innerHTML = message;
                         }
                         return;
                     } catch (saveError) {
@@ -9569,12 +9572,14 @@ Budget Manager System`;
                     statusDiv.style.background = '#d4edda';
                     statusDiv.style.border = '1px solid #c3e6cb';
                     statusDiv.style.color = '#155724';
-                    statusDiv.innerHTML = `<strong>✓ Complete backup downloaded successfully!</strong><br>
-                        ${backupData.supabaseDataIncluded ? 
-                            `Included: localStorage data + Supabase data (${backupData.supabaseRequests?.length || 0} requests, ${backupData.supabaseTrackingShipments?.length || 0} tracking shipments).<br>
-                            <small>You can move this file to Desktop/Budget manager folder.</small>` :
-                            'Included: localStorage data (Supabase data not available - user not logged in).<br>
-                            <small>You can move this file to Desktop/Budget manager folder.</small>'}`;
+                    let message = '<strong>✓ Complete backup downloaded successfully!</strong><br>';
+                    if (backupData.supabaseDataIncluded) {
+                        message += `Included: localStorage data + Supabase data (${backupData.supabaseRequests?.length || 0} requests, ${backupData.supabaseTrackingShipments?.length || 0} tracking shipments).<br>`;
+                    } else {
+                        message += 'Included: localStorage data (Supabase data not available - user not logged in).<br>';
+                    }
+                    message += '<small>You can move this file to Desktop/Budget manager folder.</small>';
+                    statusDiv.innerHTML = message;
                 }
                         
             } catch (error) {
