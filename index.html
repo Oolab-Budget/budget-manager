@@ -1328,7 +1328,14 @@
                                 <input type="checkbox" id="itemForCanada" onchange="toggleItemForCanada()">
                                 <span data-en="Available for Canada Requests" data-es="Disponible para Solicitudes de Canadá">Available for Canada Requests</span>
                             </label>
-                            <small data-en="This item will appear in the Canada tab for material requests" data-es="Este artículo aparecerá en la pestaña de Canadá para solicitudes de materiales">This item will appear in the Canada tab for material requests</small>
+                            <small data-en="This item will appear in the Can/Mex tab (Canada requesting from Mexico)" data-es="Este artículo aparecerá en la pestaña Can/Mex (Canadá solicitando de México)">This item will appear in the Can/Mex tab (Canada requesting from Mexico)</small>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="itemForMexico" onchange="toggleItemForMexico()">
+                                <span data-en="Available for Mexico Requests" data-es="Disponible para Solicitudes de México">Available for Mexico Requests</span>
+                            </label>
+                            <small data-en="This item will appear in the Mex/Can tab (Mexico requesting from Canada)" data-es="Este artículo aparecerá en la pestaña Mex/Can (México solicitando de Canadá)">This item will appear in the Mex/Can tab (Mexico requesting from Canada)</small>
                         </div>
                     </div>
 
@@ -1743,8 +1750,8 @@
         <!-- Canada Tab -->
         <div id="canadaTab" class="tab-content">
             <div class="form-section">
-                <h2 data-en="Canada Material Requests" data-es="Solicitudes de Materiales de Canadá">Canada Material Requests</h2>
-                <p data-en="Select materials needed from Canada. Items marked as 'Available for Canada' will appear here." data-es="Selecciona los materiales necesarios de Canadá. Los artículos marcados como 'Disponible para Canadá' aparecerán aquí.">Select materials needed from Canada. Items marked as 'Available for Canada' will appear here.</p>
+                <h2 data-en="Can/Mex Material Requests" data-es="Solicitudes de Materiales Can/Mex">Can/Mex Material Requests</h2>
+                <p data-en="Canada requesting materials from Mexico. Items marked as 'Available for Canada Requests' will appear here." data-es="Canadá solicitando materiales de México. Los artículos marcados como 'Disponible para Solicitudes de Canadá' aparecerán aquí.">Canada requesting materials from Mexico. Items marked as 'Available for Canada Requests' will appear here.</p>
             </div>
 
             <!-- Current Request -->
@@ -1836,6 +1843,107 @@
                     </select>
                 </div>
                 <div id="canadaRequestHistory" style="margin-top: 15px;">
+                    <!-- Request history will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Mex/Can Tab (Mexico requesting from Canada) -->
+        <div id="mexcanTab" class="tab-content">
+            <div class="form-section">
+                <h2 data-en="Mex/Can Material Requests" data-es="Solicitudes de Materiales Mex/Can">Mex/Can Material Requests</h2>
+                <p data-en="Mexico requesting materials from Canada. Items marked as 'Available for Mexico Requests' will appear here." data-es="México solicitando materiales de Canadá. Los artículos marcados como 'Disponible para Solicitudes de México' aparecerán aquí.">Mexico requesting materials from Canada. Items marked as 'Available for Mexico Requests' will appear here.</p>
+            </div>
+
+            <!-- Current Request -->
+            <div class="form-section" style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h3 data-en="Select Materials" data-es="Seleccionar Materiales">Select Materials</h3>
+                <div id="mexcanItemsList" style="margin-top: 15px;">
+                    <!-- Mexico items will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Request Summary -->
+            <div class="form-section" style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h3 data-en="Request Summary" data-es="Resumen de Solicitud">Request Summary</h3>
+                <div id="mexcanRequestSummary" style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <p style="color: #7f8c8d; text-align: center;" data-en="No items selected yet" data-es="Aún no se han seleccionado artículos">No items selected yet</p>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                    <button class="btn btn-success" onclick="generateMexcanRequest()" data-en="Generate Request" data-es="Generar Solicitud">Generate Request</button>
+                    <button class="btn btn-primary" onclick="exportMexcanRequest()" data-en="Export Request List" data-es="Exportar Lista de Solicitud">Export Request List</button>
+                    <button class="btn btn-warning" onclick="clearMexcanSelection()" data-en="Clear Selection" data-es="Limpiar Selección">Clear Selection</button>
+                </div>
+            </div>
+
+            <!-- Mex/Can EmailJS Configuration -->
+            <div class="form-section" style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 data-en="Email Configuration for Mex/Can Requests" data-es="Configuración de Correo para Solicitudes Mex/Can">Email Configuration for Mex/Can Requests</h3>
+                    <button class="btn btn-sm" onclick="toggleMexcanEmailConfig()" id="mexcanEmailConfigToggle" style="background: #6c757d; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer;" data-en="Show Configuration" data-es="Mostrar Configuración">Show Configuration</button>
+                </div>
+                <div id="mexcanEmailConfigDetails" style="display: none;">
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                        <small style="color: #666; display: block; margin-bottom: 10px;" data-en="Configure EmailJS to automatically email Mex/Can requests. Uses the same EmailJS account but can use a different template." data-es="Configura EmailJS para enviar automáticamente solicitudes Mex/Can. Usa la misma cuenta de EmailJS pero puede usar una plantilla diferente.">Configure EmailJS to automatically email Mex/Can requests. Uses the same EmailJS account but can use a different template.</small>
+                    </div>
+                    <div class="form-group">
+                        <label data-en="EmailJS Service ID (for Mex/Can requests)" data-es="ID de Servicio de EmailJS (para solicitudes Mex/Can)">EmailJS Service ID (for Mex/Can requests)</label>
+                        <input type="text" id="mexcanEmailjsServiceId" placeholder="service_xxxxx"
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: monospace;"
+                                onchange="saveMexcanEmailJSSettings()">
+                        <small style="color: #666; display: block; margin-top: 5px;" data-en="Leave empty to use main EmailJS service ID" data-es="Deja vacío para usar el ID de servicio principal de EmailJS">Leave empty to use main EmailJS service ID</small>
+                    </div>
+                    <div class="form-group">
+                        <label data-en="EmailJS Template ID (for Mex/Can requests)" data-es="ID de Plantilla de EmailJS (para solicitudes Mex/Can)">EmailJS Template ID (for Mex/Can requests)</label>
+                        <input type="text" id="mexcanEmailjsTemplateId" placeholder="template_xxxxx"
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: monospace;"
+                                onchange="saveMexcanEmailJSSettings()">
+                        <small style="color: #666; display: block; margin-top: 5px;" data-en="Template should include {{pdf_attachment}} and {{pdf_filename}} variables for PDF attachment" data-es="La plantilla debe incluir las variables {{pdf_attachment}} y {{pdf_filename}} para el adjunto PDF">Template should include <code>{{pdf_attachment}}</code> and <code>{{pdf_filename}}</code> variables for PDF attachment</small>
+                    </div>
+                    <div class="form-group">
+                        <label data-en="Recipient Emails (comma-separated)" data-es="Correos Destinatarios (separados por comas)">Recipient Emails (comma-separated)</label>
+                        <input type="text" id="mexcanRecipientEmails" 
+                                placeholder="mexico@oolab.com, shipping@oolab.com"
+                                value=""
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
+                                onchange="saveMexcanEmailJSSettings()">
+                        <small style="color: #666; display: block; margin-top: 5px;" data-en="Emails that will receive Mex/Can material requests" data-es="Correos que recibirán solicitudes de materiales Mex/Can">Emails that will receive Mex/Can material requests</small>
+                    </div>
+                    <button class="btn btn-success" onclick="testMexcanEmailJS()" style="margin-top: 10px;" data-en="Test Mex/Can Request Email" data-es="Probar Correo de Solicitud Mex/Can">Test Mex/Can Request Email</button>
+                </div>
+            </div>
+
+            <!-- Backorders Summary -->
+            <div class="form-section" style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-left: 4px solid #f39c12;">
+                <h3 style="color: #d68910; margin-bottom: 15px;" data-en="Backorders Summary" data-es="Resumen de Pedidos Pendientes">Backorders Summary</h3>
+                <div id="mexcanBackordersSummary" style="min-height: 50px;">
+                    <!-- Backorders will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Request History -->
+            <div class="form-section" style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0;" data-en="Request History" data-es="Historial de Solicitudes">Request History</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="migrateMexcanRequestsBtn" class="btn btn-warning" onclick="migrateMexcanRequestsFromLocalStorage()" style="padding: 8px 15px; font-size: 0.9rem; display: none;" data-en="Migrate to Supabase" data-es="Migrar a Supabase" title="Migrate requests from localStorage to Supabase">Migrate to Supabase</button>
+                        <button class="btn btn-primary" onclick="checkAllMexcanTrackingNumbers()" style="padding: 8px 15px; font-size: 0.9rem;" data-en="Refresh Tracking Status" data-es="Actualizar Estado de Seguimiento">Refresh Tracking Status</button>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <select id="mexcanHistoryFilter" onchange="loadMexcanHistory().catch(err => console.error('Error:', err))" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 100%; max-width: 300px;">
+                        <option value="all" data-en="All Requests" data-es="Todas las Solicitudes" selected>All Requests</option>
+                        <option value="pending" data-en="Pending" data-es="Pendientes">Pending</option>
+                        <option value="sent" data-en="Sent" data-es="Enviadas">Sent</option>
+                        <option value="received" data-en="Received" data-es="Recibidas">Received</option>
+                        <option value="backorders" data-en="With Backorders" data-es="Con Pedidos Pendientes">With Backorders</option>
+                        <option value="duties" data-en="Duties/Taxes Due" data-es="Impuestos/Aranceles Pendientes">Duties/Taxes Due</option>
+                        <option value="delays" data-en="With Delays/Exceptions" data-es="Con Retrasos/Excepciones">With Delays/Exceptions</option>
+                        <option value="in_transit" data-en="In Transit" data-es="En Tránsito">In Transit</option>
+                        <option value="delivered" data-en="Delivered" data-es="Entregado">Delivered</option>
+                    </select>
+                </div>
+                <div id="mexcanRequestHistory" style="margin-top: 15px;">
                     <!-- Request history will be loaded here -->
                 </div>
             </div>
@@ -2171,6 +2279,23 @@
                             <label data-en="Due Date" data-es="Fecha de Vencimiento">Due Date</label>
                             <input type="date" id="editDueDate">
                             <small data-en="Item will be auto-added one week before this date" data-es="El artículo se agregará automáticamente una semana antes de esta fecha">Item will be auto-added one week before this date</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="editItemForCanada">
+                                <span data-en="Available for Canada Requests" data-es="Disponible para Solicitudes de Canadá">Available for Canada Requests</span>
+                            </label>
+                            <small data-en="This item will appear in the Can/Mex tab (Canada requesting from Mexico)" data-es="Este artículo aparecerá en la pestaña Can/Mex (Canadá solicitando de México)">This item will appear in the Can/Mex tab (Canada requesting from Mexico)</small>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="editItemForMexico">
+                                <span data-en="Available for Mexico Requests" data-es="Disponible para Solicitudes de México">Available for Mexico Requests</span>
+                            </label>
+                            <small data-en="This item will appear in the Mex/Can tab (Mexico requesting from Canada)" data-es="Este artículo aparecerá en la pestaña Mex/Can (México solicitando de Canadá)">This item will appear in the Mex/Can tab (Mexico requesting from Canada)</small>
                         </div>
                     </div>
 
@@ -5130,11 +5255,18 @@
                     loadWeeklyBudgetsVsActual();
                 }
                 
-                // Refresh Canada tab when switching to it
+                // Refresh Can/Mex tab when switching to it
                 if (tabName === 'canada') {
                     loadCanadaItems();
                     updateCanadaRequestSummary();
                     loadCanadaHistory(); // Always refresh history to show latest tracking status
+                }
+                
+                // Refresh Mex/Can tab when switching to it
+                if (tabName === 'mexcan') {
+                    loadMexcanItems();
+                    updateMexcanRequestSummary();
+                    loadMexcanHistory(); // Always refresh history to show latest tracking status
                 }
                 
                 // Load Canada report when switching to canadaReports tab
@@ -5273,15 +5405,57 @@
             } else {
                 // Restore normal validation
                 unitPriceInput.removeAttribute('data-canada');
-                // Check if category is flexible cost
-                const category = document.getElementById('category').value;
-                const isFlexibleCost = categories[category] && categories[category].pricingType === 'flexible';
-                if (!isFlexibleCost) {
-                    unitPriceInput.required = true;
-                    unitPriceInput.setAttribute('required', 'required');
-                } else {
-                    unitPriceInput.required = false;
-                    unitPriceInput.removeAttribute('required');
+                // Check if category is flexible cost or Mexico
+                const mexicoCheckbox = document.getElementById('itemForMexico');
+                if (!mexicoCheckbox || !mexicoCheckbox.checked) {
+                    // Only restore required if Mexico is also not checked
+                    const category = document.getElementById('category').value;
+                    const isFlexibleCost = categories[category] && categories[category].pricingType === 'flexible';
+                    if (!isFlexibleCost) {
+                        unitPriceInput.required = true;
+                        unitPriceInput.setAttribute('required', 'required');
+                    } else {
+                        unitPriceInput.required = false;
+                        unitPriceInput.removeAttribute('required');
+                    }
+                }
+                // Update the field based on category
+                updateUnitPriceField();
+            }
+        }
+
+        function toggleItemForMexico() {
+            const checkbox = document.getElementById('itemForMexico');
+            const unitPriceInput = document.getElementById('unitPrice');
+            
+            if (checkbox.checked) {
+                // For Mexico items, make price field optional (not required)
+                unitPriceInput.required = false;
+                unitPriceInput.removeAttribute('required');
+                // Add a note that it's optional for Mexico
+                const unitPriceHelp = document.getElementById('unitPriceHelp');
+                if (unitPriceHelp) {
+                    unitPriceHelp.textContent = currentLanguage === 'en' 
+                        ? 'Optional for Mexico requests (enter any value)' 
+                        : 'Opcional para solicitudes de México (ingresa cualquier valor)';
+                    unitPriceHelp.style.display = 'block';
+                }
+            } else {
+                // Restore normal validation
+                unitPriceInput.removeAttribute('data-mexico');
+                // Check if category is flexible cost or Canada
+                const canadaCheckbox = document.getElementById('itemForCanada');
+                if (!canadaCheckbox || !canadaCheckbox.checked) {
+                    // Only restore required if Canada is also not checked
+                    const category = document.getElementById('category').value;
+                    const isFlexibleCost = categories[category] && categories[category].pricingType === 'flexible';
+                    if (!isFlexibleCost) {
+                        unitPriceInput.required = true;
+                        unitPriceInput.setAttribute('required', 'required');
+                    } else {
+                        unitPriceInput.required = false;
+                        unitPriceInput.removeAttribute('required');
+                    }
                 }
                 // Update the field based on category
                 updateUnitPriceField();
@@ -5541,6 +5715,7 @@
                 hasDueDate: itemHasDueDate,
                 dueDate: itemDueDate,
                 forCanada: itemForCanada,
+                forMexico: document.getElementById('itemForMexico') ? document.getElementById('itemForMexico').checked : false,
                 supplier: {
                     name: supplier,
                     phone: supplierPhone,
@@ -5595,10 +5770,29 @@
                 }
             }
             
-            // Refresh Canada tab if it's currently open
+            // If item is for Mexico (either by checkbox or Mexico category), don't add it to budget items
+            if (itemForMexico || isMexicoCategory) {
+                // Ensure forMexico flag is set
+                newItem.forMexico = true;
+                const index = items.findIndex(i => i.id === newItem.id);
+                if (index !== -1) {
+                    items.splice(index, 1);
+                    saveItems();
+                    renderBudgetItems();
+                    updateTotal();
+                }
+            }
+            
+            // Refresh Can/Mex tab if it's currently open
             if (document.getElementById('canadaTab') && document.getElementById('canadaTab').classList.contains('active')) {
                 loadCanadaItems();
                 updateCanadaRequestSummary();
+            }
+            
+            // Refresh Mex/Can tab if it's currently open
+            if (document.getElementById('mexcanTab') && document.getElementById('mexcanTab').classList.contains('active')) {
+                loadMexcanItems();
+                updateMexcanRequestSummary();
             }
             
             // Log activity and change
@@ -5624,6 +5818,9 @@
             document.getElementById('receiptAmount').value = '';
             document.getElementById('receiptAmountRow').style.display = 'none';
             document.getElementById('itemForCanada').checked = false;
+            if (document.getElementById('itemForMexico')) {
+                document.getElementById('itemForMexico').checked = false;
+            }
             
             // Switch to budget tab
             switchTab('budget');
@@ -5877,7 +6074,7 @@
             tbody.innerHTML = '';
             
             // Filter out Canada-only items from budget display
-            const budgetItems = items.filter(item => !item.forCanada);
+            const budgetItems = items.filter(item => !item.forCanada && !item.forMexico);
             
             budgetItems.forEach(item => {
                 const row = document.createElement('tr');
@@ -10630,6 +10827,14 @@ Budget Manager System`;
             document.getElementById('editRecurringMonthly').checked = item.recurringMonthly || false;
             document.getElementById('editHasDueDate').checked = item.hasDueDate || false;
             
+            // Handle forCanada and forMexico checkboxes
+            if (document.getElementById('editItemForCanada')) {
+                document.getElementById('editItemForCanada').checked = item.forCanada || false;
+            }
+            if (document.getElementById('editItemForMexico')) {
+                document.getElementById('editItemForMexico').checked = item.forMexico || false;
+            }
+            
             // Populate monthly day dropdown if not already populated
             const editMonthlyDaySelect = document.getElementById('editMonthlyDay');
             if (editMonthlyDaySelect.options.length <= 1) {
@@ -10740,6 +10945,14 @@ Budget Manager System`;
                 document.getElementById('editDueDateRow').style.display = 'none';
             }
             
+            // Handle forCanada and forMexico checkboxes
+            if (document.getElementById('editItemForCanada')) {
+                document.getElementById('editItemForCanada').checked = item.forCanada || false;
+            }
+            if (document.getElementById('editItemForMexico')) {
+                document.getElementById('editItemForMexico').checked = item.forMexico || false;
+            }
+            
             // Show modal
             document.getElementById('editModal').style.display = 'block';
         }
@@ -10806,6 +11019,10 @@ Budget Manager System`;
                 item.hasDueDate = document.getElementById('editHasDueDate').checked;
                 item.dueDate = item.hasDueDate ? document.getElementById('editDueDate').value : null;
                 
+                // Update forCanada and forMexico flags
+                item.forCanada = document.getElementById('editItemForCanada') ? document.getElementById('editItemForCanada').checked : false;
+                item.forMexico = document.getElementById('editItemForMexico') ? document.getElementById('editItemForMexico').checked : false;
+                
                 // Recalculate total price
                 item.totalPrice = item.unitPrice * item.quantity;
                 
@@ -10859,6 +11076,10 @@ Budget Manager System`;
             item.recurringMonthly = document.getElementById('editRecurringMonthly').checked;
             item.monthlyDay = item.recurringMonthly ? parseInt(document.getElementById('editMonthlyDay').value) : null;
             item.hasDueDate = document.getElementById('editHasDueDate').checked;
+            
+            // Update forCanada and forMexico flags
+            item.forCanada = document.getElementById('editItemForCanada') ? document.getElementById('editItemForCanada').checked : false;
+            item.forMexico = document.getElementById('editItemForMexico') ? document.getElementById('editItemForMexico').checked : false;
             item.dueDate = item.hasDueDate ? document.getElementById('editDueDate').value : null;
             
             // If category changed, move item to new category
@@ -18094,6 +18315,703 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             trackingShipments = [];
         }
 
+        // Mex/Can Request Functions (Mexico requesting from Canada)
+        let mexcanSelectedItems = JSON.parse(localStorage.getItem('mexcanSelectedItems')) || {};
+        let mexcanRequestCounter = parseInt(localStorage.getItem('mexcanRequestCounter') || '0');
+        
+        function loadMexcanItems() {
+            const mexcanItemsList = document.getElementById('mexcanItemsList');
+            if (!mexcanItemsList) return;
+            
+            // Get all items marked forMexico
+            const mexcanItems = [];
+            
+            // Reload categories and itemDatabase to ensure we have latest data
+            const savedCategories = JSON.parse(localStorage.getItem('customCategories')) || {};
+            const savedItemDatabase = JSON.parse(localStorage.getItem('categoryItems')) || {};
+            
+            // Find Mexico category (case-insensitive search)
+            let mexicoCategoryKey = null;
+            Object.keys(savedCategories).forEach(key => {
+                const catNameEn = savedCategories[key].nameEn || '';
+                const catNameEs = savedCategories[key].nameEs || '';
+                if (catNameEn.toLowerCase() === 'mexico' || catNameEs.toLowerCase() === 'méxico' || key.toLowerCase() === 'mexico') {
+                    mexicoCategoryKey = key;
+                }
+            });
+            
+            // Get items from Mexico category
+            if (mexicoCategoryKey && savedItemDatabase[mexicoCategoryKey] && Array.isArray(savedItemDatabase[mexicoCategoryKey])) {
+                savedItemDatabase[mexicoCategoryKey].forEach(item => {
+                    mexcanItems.push({...item, source: 'category', category: mexicoCategoryKey});
+                });
+            }
+            
+            // Also get items marked forMexico from other categories
+            Object.keys(savedItemDatabase).forEach(category => {
+                if (category === mexicoCategoryKey) return; // Skip Mexico category (already added)
+                if (Array.isArray(savedItemDatabase[category])) {
+                    savedItemDatabase[category].forEach(item => {
+                        if (item.forMexico) {
+                            const exists = mexcanItems.find(mi => 
+                                mi.nameEn === item.nameEn && 
+                                mi.nameEs === item.nameEs && 
+                                mi.category === category
+                            );
+                            if (!exists) {
+                                mexcanItems.push({...item, source: 'category', category: category});
+                            }
+                        }
+                    });
+                }
+            });
+            
+            if (mexcanItems.length === 0) {
+                mexcanItemsList.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #7f8c8d; background: #ecf0f1; border-radius: 8px;">
+                        <strong>${currentLanguage === 'en' ? 'No items available for Mexico requests yet.' : 'Aún no hay artículos disponibles para solicitudes de México.'}</strong>
+                        <div style="margin-top: 10px; font-size: 0.9rem;">
+                            ${currentLanguage === 'en' ? 'Mark items as "Available for Mexico Requests" when adding them.' : 'Marca los artículos como "Disponible para Solicitudes de México" al agregarlos.'}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+            mexcanItems.forEach(item => {
+                const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+                const itemDescription = currentLanguage === 'en' ? item.descriptionEn : item.descriptionEs;
+                const categoryName = categories[item.category] ? 
+                    (currentLanguage === 'en' ? categories[item.category].nameEn : categories[item.category].nameEs) : 
+                    item.category;
+                const itemId = item.id || `mexcan_${item.nameEn}_${item.category}`;
+                const selected = mexcanSelectedItems[itemId] || {selected: false, quantity: 1, unit: 'sheet'};
+                
+                html += `
+                    <div style="padding: 15px; background: white; border: 2px solid ${selected.selected ? '#3498db' : '#e1e8ed'}; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="mexcan_${itemId}" 
+                                       ${selected.selected ? 'checked' : ''} 
+                                       onchange="toggleMexcanItem('${itemId}')"
+                                       style="width: 20px; height: 20px; cursor: pointer;">
+                                <div>
+                                    <strong style="color: #2c3e50; font-size: 1.1rem;">${itemName}</strong>
+                                    ${itemDescription ? `<div style="color: #7f8c8d; font-size: 0.9rem; margin-top: 3px;">${itemDescription}</div>` : ''}
+                                    <div style="color: #95a5a6; font-size: 0.85rem; margin-top: 5px;">
+                                        ${currentLanguage === 'en' ? 'Category' : 'Categoría'}: ${categoryName}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <span style="font-size: 0.9rem; color: #7f8c8d;">${currentLanguage === 'en' ? 'Qty:' : 'Cant:'}</span>
+                                <input type="number" id="mexcan_qty_${itemId}" 
+                                       value="${selected.quantity}" 
+                                       min="1" 
+                                       style="width: 60px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; text-align: center;"
+                                       onchange="updateMexcanQuantity('${itemId}', this.value)"
+                                       ${!selected.selected ? 'disabled' : ''}>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <select id="mexcan_unit_${itemId}" 
+                                        style="width: 80px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem;"
+                                        onchange="updateMexcanUnit('${itemId}', this.value)"
+                                        ${!selected.selected ? 'disabled' : ''}>
+                                    <option value="roll" ${(selected.unit || 'sheet') === 'roll' ? 'selected' : ''}>${currentLanguage === 'en' ? 'Roll' : 'Rollo'}</option>
+                                    <option value="sheet" ${(selected.unit || 'sheet') === 'sheet' ? 'selected' : ''}>${currentLanguage === 'en' ? 'Sheet' : 'Hoja'}</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            mexcanItemsList.innerHTML = html;
+        }
+        
+        function toggleMexcanItem(itemId) {
+            const checkbox = document.getElementById(`mexcan_${itemId}`);
+            const quantityInput = document.getElementById(`mexcan_qty_${itemId}`);
+            
+            if (!mexcanSelectedItems[itemId]) {
+                mexcanSelectedItems[itemId] = {selected: false, quantity: 1, unit: 'sheet'};
+            }
+            
+            mexcanSelectedItems[itemId].selected = checkbox.checked;
+            quantityInput.disabled = !checkbox.checked;
+            const unitSelect = document.getElementById(`mexcan_unit_${itemId}`);
+            if (unitSelect) {
+                unitSelect.disabled = !checkbox.checked;
+            }
+            
+            if (!checkbox.checked) {
+                mexcanSelectedItems[itemId].quantity = 1;
+                mexcanSelectedItems[itemId].unit = 'sheet';
+                quantityInput.value = 1;
+                if (unitSelect) {
+                    unitSelect.value = 'sheet';
+                }
+            }
+            
+            localStorage.setItem('mexcanSelectedItems', JSON.stringify(mexcanSelectedItems));
+            updateMexcanRequestSummary();
+        }
+        
+        function updateMexcanQuantity(itemId, quantity) {
+            if (!mexcanSelectedItems[itemId]) {
+                mexcanSelectedItems[itemId] = {selected: true, quantity: 1, unit: 'sheet'};
+            }
+            mexcanSelectedItems[itemId].quantity = parseInt(quantity) || 1;
+            localStorage.setItem('mexcanSelectedItems', JSON.stringify(mexcanSelectedItems));
+            updateMexcanRequestSummary();
+        }
+        
+        function updateMexcanUnit(itemId, unit) {
+            if (!mexcanSelectedItems[itemId]) {
+                mexcanSelectedItems[itemId] = {selected: true, quantity: 1, unit: 'sheet'};
+            }
+            mexcanSelectedItems[itemId].unit = unit || 'sheet';
+            localStorage.setItem('mexcanSelectedItems', JSON.stringify(mexcanSelectedItems));
+            updateMexcanRequestSummary();
+        }
+        
+        function updateMexcanRequestSummary() {
+            const summaryDiv = document.getElementById('mexcanRequestSummary');
+            if (!summaryDiv) return;
+            
+            const selected = Object.keys(mexcanSelectedItems).filter(id => mexcanSelectedItems[id].selected);
+            
+            if (selected.length === 0) {
+                summaryDiv.innerHTML = `
+                    <p style="color: #7f8c8d; text-align: center;" data-en="No items selected yet" data-es="Aún no se han seleccionado artículos">No items selected yet</p>
+                `;
+                return;
+            }
+            
+            let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+            selected.forEach(itemId => {
+                const selection = mexcanSelectedItems[itemId];
+                // Find the item
+                let item = items.find(i => (i.id || `mexcan_${i.nameEn}_${i.category}`) == itemId);
+                if (!item) {
+                    // Search in category database
+                    Object.keys(itemDatabase).forEach(category => {
+                        const found = itemDatabase[category].find(i => (i.id || `mexcan_${i.nameEn}_${category}`) == itemId);
+                        if (found) item = {...found, category: category};
+                    });
+                }
+                
+                if (item) {
+                    const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+                    const unit = selection.unit || 'sheet';
+                    const unitLabels = {
+                        'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
+                        'sheet': currentLanguage === 'en' ? 'Sheet' : 'Hoja'
+                    };
+                    const unitLabel = unitLabels[unit] || unitLabels['sheet'];
+                    html += `
+                        <div style="padding: 10px; background: white; border-left: 4px solid #3498db; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                            <span><strong>${itemName}</strong></span>
+                            <span style="color: #7f8c8d;">${currentLanguage === 'en' ? 'Quantity' : 'Cantidad'}: ${selection.quantity} ${unitLabel}</span>
+                        </div>
+                    `;
+                }
+            });
+            html += '</div>';
+            summaryDiv.innerHTML = html;
+        }
+        
+        function clearMexcanSelection() {
+            if (confirm(currentLanguage === 'en' ? 'Clear all selected items?' : '¿Limpiar todos los artículos seleccionados?')) {
+                Object.keys(mexcanSelectedItems).forEach(id => {
+                    mexcanSelectedItems[id].selected = false;
+                });
+                localStorage.setItem('mexcanSelectedItems', JSON.stringify(mexcanSelectedItems));
+                loadMexcanItems();
+                updateMexcanRequestSummary();
+            }
+        }
+        
+        function toggleMexcanEmailConfig() {
+            const details = document.getElementById('mexcanEmailConfigDetails');
+            const toggle = document.getElementById('mexcanEmailConfigToggle');
+            
+            if (details.style.display === 'none' || !details.style.display) {
+                details.style.display = 'block';
+                toggle.textContent = currentLanguage === 'en' ? 'Hide Configuration' : 'Ocultar Configuración';
+            } else {
+                details.style.display = 'none';
+                toggle.textContent = currentLanguage === 'en' ? 'Show Configuration' : 'Mostrar Configuración';
+            }
+        }
+        
+        function saveMexcanEmailJSSettings() {
+            const serviceId = document.getElementById('mexcanEmailjsServiceId').value.trim();
+            const templateId = document.getElementById('mexcanEmailjsTemplateId').value.trim();
+            const recipientEmails = document.getElementById('mexcanRecipientEmails').value.trim();
+            
+            if (serviceId) {
+                localStorage.setItem('mexcanEmailjsServiceId', serviceId);
+            } else {
+                localStorage.removeItem('mexcanEmailjsServiceId');
+            }
+            
+            if (templateId) {
+                localStorage.setItem('mexcanEmailjsTemplateId', templateId);
+            } else {
+                localStorage.removeItem('mexcanEmailjsTemplateId');
+            }
+            
+            if (recipientEmails) {
+                localStorage.setItem('mexcanRecipientEmails', recipientEmails);
+            }
+        }
+        
+        function loadMexcanEmailJSSettings() {
+            const serviceId = localStorage.getItem('mexcanEmailjsServiceId');
+            const templateId = localStorage.getItem('mexcanEmailjsTemplateId');
+            const recipientEmails = localStorage.getItem('mexcanRecipientEmails') || '';
+            
+            if (document.getElementById('mexcanEmailjsServiceId')) {
+                document.getElementById('mexcanEmailjsServiceId').value = serviceId || '';
+            }
+            if (document.getElementById('mexcanEmailjsTemplateId')) {
+                document.getElementById('mexcanEmailjsTemplateId').value = templateId || '';
+            }
+            if (document.getElementById('mexcanRecipientEmails')) {
+                document.getElementById('mexcanRecipientEmails').value = recipientEmails;
+            }
+        }
+        
+        async function testMexcanEmailJS() {
+            const mexcanEmailjsServiceId = localStorage.getItem('mexcanEmailjsServiceId') || localStorage.getItem('emailjsServiceId');
+            const mexcanEmailjsTemplateId = localStorage.getItem('mexcanEmailjsTemplateId');
+            const emailjsPublicKey = localStorage.getItem('emailjsPublicKey');
+            const recipientEmails = localStorage.getItem('mexcanRecipientEmails') || '';
+            
+            if (!mexcanEmailjsTemplateId || !emailjsPublicKey) {
+                alert(currentLanguage === 'en' ? 
+                    'Please configure EmailJS Template ID and Public Key first' : 
+                    'Por favor configura el ID de Plantilla de EmailJS y la Clave Pública primero');
+                return;
+            }
+            
+            try {
+                // Create a test request
+                const testRequest = {
+                    id: 'TEST',
+                    date: new Date().toISOString(),
+                    items: [
+                        {
+                            nameEn: 'Test Item',
+                            nameEs: 'Artículo de Prueba',
+                            descriptionEn: 'This is a test request',
+                            descriptionEs: 'Esta es una solicitud de prueba',
+                            category: 'Test',
+                            quantity: 1
+                        }
+                    ],
+                    status: 'pending'
+                };
+                
+                // Generate test PDF and send
+                await generateMexcanRequestPDF(testRequest);
+                alert(currentLanguage === 'en' ? 
+                    'Test email sent successfully!' : 
+                    '¡Correo de prueba enviado exitosamente!');
+            } catch (error) {
+                console.error('Test email error:', error);
+                alert(currentLanguage === 'en' ? 
+                    `Error sending test email: ${error.message}` : 
+                    `Error al enviar correo de prueba: ${error.message}`);
+            }
+        }
+        
+        async function generateMexcanRequest() {
+            const selected = Object.keys(mexcanSelectedItems).filter(id => mexcanSelectedItems[id].selected);
+            
+            if (selected.length === 0) {
+                alert(currentLanguage === 'en' ? 'Please select at least one item' : 'Por favor selecciona al menos un artículo');
+                return;
+            }
+            
+            const requestItems = [];
+            selected.forEach(itemId => {
+                const selection = mexcanSelectedItems[itemId];
+                let item = items.find(i => (i.id || `mexcan_${i.nameEn}_${i.category}`) == itemId);
+                if (!item) {
+                    Object.keys(itemDatabase).forEach(category => {
+                        const found = itemDatabase[category].find(i => (i.id || `mexcan_${i.nameEn}_${category}`) == itemId);
+                        if (found) item = {...found, category: category};
+                    });
+                }
+                
+                if (item) {
+                    requestItems.push({
+                        nameEn: item.nameEn,
+                        nameEs: item.nameEs,
+                        descriptionEn: item.descriptionEn || '',
+                        descriptionEs: item.descriptionEs || '',
+                        category: item.category,
+                        quantity: selection.quantity,
+                        unit: selection.unit || 'sheet'
+                    });
+                }
+            });
+            
+            const request = {
+                id: mexcanRequestCounter,
+                date: new Date().toISOString(),
+                items: requestItems,
+                status: 'pending',
+                direction: 'mexcan' // Mark as Mex/Can request
+            };
+            
+            // Increment counter for next request
+            mexcanRequestCounter++;
+            localStorage.setItem('mexcanRequestCounter', mexcanRequestCounter.toString());
+            
+            // Save to history (localStorage) - using separate key for now
+            const history = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+            history.unshift(request);
+            localStorage.setItem('mexcanRequestHistory', JSON.stringify(history));
+            
+            // TODO: Save to Supabase if logged in (will need separate tables or direction flag)
+            // For now, just save to localStorage
+            
+            // Clear selection
+            Object.keys(mexcanSelectedItems).forEach(id => {
+                mexcanSelectedItems[id].selected = false;
+            });
+            localStorage.setItem('mexcanSelectedItems', JSON.stringify(mexcanSelectedItems));
+            
+            loadMexcanItems();
+            updateMexcanRequestSummary();
+            await loadMexcanHistory();
+            
+            // Generate PDF and send email
+            generateMexcanRequestPDF(request).then(() => {
+                alert(currentLanguage === 'en' ? 
+                    `Request generated successfully! ${requestItems.length} item(s) added to history. Email sent with PDF.` : 
+                    `¡Solicitud generada exitosamente! ${requestItems.length} artículo(s) agregado(s) al historial. Correo enviado con PDF.`);
+            }).catch(error => {
+                console.error('Error sending email:', error);
+                const errorMsg = error.message || error.toString();
+                alert(currentLanguage === 'en' ? 
+                    `Request generated successfully! ${requestItems.length} item(s) added to history.\n\nEmail Error: ${errorMsg}\n\nPlease check EmailJS configuration.` : 
+                    `¡Solicitud generada exitosamente! ${requestItems.length} artículo(s) agregado(s) al historial.\n\nError de Correo: ${errorMsg}\n\nPor favor verifica la configuración de EmailJS.`);
+            });
+        }
+        
+        function generateMexcanRequestPDF(request) {
+            return new Promise((resolve, reject) => {
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    
+                    // Title
+                    doc.setFontSize(18);
+                    doc.text(currentLanguage === 'en' ? 'Mex/Can Material Request' : 'Solicitud de Materiales Mex/Can', 14, 20);
+                    doc.setFontSize(12);
+                    doc.text(currentLanguage === 'en' ? `Request Date: ${new Date(request.date).toLocaleDateString()}` : `Fecha de Solicitud: ${new Date(request.date).toLocaleDateString()}`, 14, 30);
+                    doc.text(currentLanguage === 'en' ? `Request ID: #${request.id}` : `ID de Solicitud: #${request.id}`, 14, 37);
+                    
+                    // Prepare table data
+                    const tableData = request.items.map((item, index) => {
+                        const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+                        const itemDescription = currentLanguage === 'en' ? item.descriptionEn : item.descriptionEs;
+                        const categoryName = categories[item.category] ? 
+                            (currentLanguage === 'en' ? categories[item.category].nameEn : categories[item.category].nameEs) : 
+                            item.category;
+                        
+                        const unit = item.unit || 'sheet';
+                        const unitLabels = {
+                            'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
+                            'sheet': currentLanguage === 'en' ? 'Sheet' : 'Hoja'
+                        };
+                        const unitLabel = unitLabels[unit] || unitLabels['sheet'];
+                        return [
+                            index + 1,
+                            itemName,
+                            itemDescription || '',
+                            categoryName,
+                            `${item.quantity} ${unitLabel}`
+                        ];
+                    });
+                    
+                    // Add table
+                    doc.autoTable({
+                        startY: 45,
+                        head: [[
+                            currentLanguage === 'en' ? '#' : '#',
+                            currentLanguage === 'en' ? 'Item Name' : 'Nombre del Artículo',
+                            currentLanguage === 'en' ? 'Description' : 'Descripción',
+                            currentLanguage === 'en' ? 'Category' : 'Categoría',
+                            currentLanguage === 'en' ? 'Quantity' : 'Cantidad'
+                        ]],
+                        body: tableData,
+                        theme: 'striped',
+                        headStyles: { fillColor: [102, 126, 234] },
+                        styles: { fontSize: 9 },
+                        columnStyles: {
+                            0: { cellWidth: 15 },
+                            1: { cellWidth: 60 },
+                            2: { cellWidth: 50 },
+                            3: { cellWidth: 40 },
+                            4: { cellWidth: 25 }
+                        }
+                    });
+                    
+                    // Get PDF as base64
+                    const pdfOutput = doc.output('arraybuffer');
+                    const pdfData = new Uint8Array(pdfOutput);
+                    
+                    // More efficient base64 conversion for large files
+                    const chunkSize = 8192;
+                    let pdfBase64 = '';
+                    for (let i = 0; i < pdfData.length; i += chunkSize) {
+                        const chunk = pdfData.slice(i, i + chunkSize);
+                        pdfBase64 += String.fromCharCode.apply(null, chunk);
+                    }
+                    pdfBase64 = btoa(pdfBase64);
+                    
+                    const pdfFileName = `Mexcan_Request_${request.id}_${new Date().toISOString().split('T')[0]}.pdf`;
+                    
+                    // Send email
+                    sendMexcanRequestEmail(request, pdfBase64, pdfFileName).then(resolve).catch(reject);
+                } catch (error) {
+                    console.error('Error generating PDF:', error);
+                    reject(error);
+                }
+            });
+        }
+        
+        async function sendMexcanRequestEmail(request, pdfBase64, pdfFileName) {
+            const mexcanEmailjsServiceId = localStorage.getItem('mexcanEmailjsServiceId') || localStorage.getItem('emailjsServiceId');
+            const mexcanEmailjsTemplateId = localStorage.getItem('mexcanEmailjsTemplateId');
+            const emailjsPublicKey = localStorage.getItem('emailjsPublicKey');
+            let recipientEmails = localStorage.getItem('mexcanRecipientEmails') || '';
+            
+            // Normalize email separators
+            recipientEmails = recipientEmails.replace(/;/g, ',');
+            const emailList = recipientEmails.split(',').map(email => email.trim()).filter(email => email.length > 0);
+            
+            if (emailList.length === 0) {
+                throw new Error('No recipient emails configured. Please add emails in the Mex/Can Email Configuration section.');
+            }
+            
+            if (!mexcanEmailjsTemplateId) {
+                throw new Error('EmailJS Template ID not configured for Mex/Can requests. Please configure it in the Mex/Can tab.');
+            }
+            
+            if (!emailjsPublicKey) {
+                throw new Error('EmailJS Public Key not configured. Please configure it in the main EmailJS settings.');
+            }
+            
+            if (!mexcanEmailjsServiceId && !localStorage.getItem('emailjsServiceId')) {
+                throw new Error('EmailJS Service ID not configured. Please configure it in the main EmailJS settings or Mex/Can settings.');
+            }
+            
+            // Initialize EmailJS
+            if (typeof emailjs === 'undefined') {
+                throw new Error('EmailJS library not loaded');
+            }
+            
+            emailjs.init(emailjsPublicKey);
+            
+            const requestDate = new Date(request.date).toLocaleDateString();
+            const itemCount = request.items.length;
+            const totalQuantity = request.items.reduce((sum, item) => sum + item.quantity, 0);
+            
+            const subject = currentLanguage === 'en' ? `Mex/Can Material Request #${request.id}` : `Solicitud de Materiales Mex/Can #${request.id}`;
+            const message = currentLanguage === 'en' ? 
+                `Please find the Mex/Can material request attached.\n\nRequest Details:\n- Request ID: #${request.id}\n- Date: ${requestDate}\n- Items: ${itemCount}\n- Total Quantity: ${totalQuantity}\n\nThe PDF file is attached to this email.\n\nThank you,\nBudget Manager System` :
+                `Por favor encuentra la solicitud de materiales Mex/Can adjunta.\n\nDetalles de la Solicitud:\n- ID de Solicitud: #${request.id}\n- Fecha: ${requestDate}\n- Artículos: ${itemCount}\n- Cantidad Total: ${totalQuantity}\n\nEl archivo PDF está adjunto a este correo.\n\nGracias,\nSistema de Gestión de Presupuesto`;
+            
+            // Send email to each recipient
+            let successCount = 0;
+            let errorCount = 0;
+            const errors = [];
+            
+            for (const email of emailList) {
+                try {
+                    const cleanBase64 = pdfBase64.startsWith('data:') ? pdfBase64.split(',')[1] : pdfBase64;
+                    
+                    const emailParams = {
+                        email: email,
+                        to_email: email,
+                        subject: subject,
+                        message: message,
+                        pdf_attachment: cleanBase64,
+                        pdf_filename: pdfFileName
+                    };
+                    
+                    await emailjs.send(mexcanEmailjsServiceId, mexcanEmailjsTemplateId, emailParams);
+                    successCount++;
+                    console.log(`Mex/Can request email sent successfully to ${email}`);
+                } catch (error) {
+                    errorCount++;
+                    console.error(`Error sending email to ${email}:`, error);
+                    const errorMsg = error.text || error.message || error.toString();
+                    errors.push(`${email}: ${errorMsg}`);
+                }
+            }
+            
+            if (errorCount > 0) {
+                throw new Error(`Failed to send to ${errorCount} recipient(s). ${successCount} sent successfully. Errors: ${errors.join('; ')}`);
+            }
+            
+            if (successCount === 0) {
+                throw new Error('Failed to send email to any recipients');
+            }
+        }
+        
+        function exportMexcanRequest() {
+            const selected = Object.keys(mexcanSelectedItems).filter(id => mexcanSelectedItems[id].selected);
+            
+            if (selected.length === 0) {
+                alert(currentLanguage === 'en' ? 'Please select at least one item to export' : 'Por favor selecciona al menos un artículo para exportar');
+                return;
+            }
+            
+            // Similar to exportCanadaRequest - create Excel export
+            // Implementation similar to Canada export
+            alert(currentLanguage === 'en' ? 'Export functionality coming soon' : 'Funcionalidad de exportación próximamente');
+        }
+        
+        async function loadMexcanHistory() {
+            const historyDiv = document.getElementById('mexcanRequestHistory');
+            if (!historyDiv) return;
+            
+            // Load from localStorage (for now - can add Supabase later)
+            let history = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+            
+            const filterSelect = document.getElementById('mexcanHistoryFilter');
+            const filter = filterSelect?.value || 'all';
+            
+            if (filterSelect && !filterSelect.value) {
+                filterSelect.value = 'all';
+            }
+            
+            let filteredHistory = history;
+            if (filter === 'all') {
+                filteredHistory = [...history];
+                filteredHistory.sort((a, b) => {
+                    const dateA = new Date(a.date || a.created_at || 0);
+                    const dateB = new Date(b.date || b.created_at || 0);
+                    return dateB - dateA;
+                });
+            } else if (filter === 'pending' || filter === 'sent' || filter === 'received') {
+                filteredHistory = history.filter(req => req.status === filter);
+            } else if (filter === 'backorders') {
+                filteredHistory = history.filter(req => req.backorders && req.backorders.length > 0);
+            }
+            
+            if (filteredHistory.length === 0) {
+                historyDiv.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #7f8c8d; background: #ecf0f1; border-radius: 8px;">
+                        ${currentLanguage === 'en' ? 'No requests found.' : 'No se encontraron solicitudes.'}
+                    </div>
+                `;
+                return;
+            }
+            
+            // Render history similar to Canada history
+            let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
+            filteredHistory.forEach(request => {
+                const date = new Date(request.date).toLocaleDateString();
+                const statusColor = request.status === 'received' ? '#27ae60' : (request.status === 'sent' ? '#3498db' : '#f39c12');
+                const statusText = request.status === 'received' ? 
+                    (currentLanguage === 'en' ? 'Received' : 'Recibido') :
+                    (request.status === 'sent' ? 
+                    (currentLanguage === 'en' ? 'Sent' : 'Enviada') : 
+                    (currentLanguage === 'en' ? 'Pending' : 'Pendiente'));
+                
+                html += `
+                    <div style="padding: 15px; background: white; border-left: 4px solid ${statusColor}; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <strong style="font-size: 1.1rem;">${currentLanguage === 'en' ? 'Request' : 'Solicitud'} #${request.id}</strong>
+                                <div style="color: #7f8c8d; font-size: 0.9rem; margin-top: 3px;">${date}</div>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <span style="padding: 5px 12px; background: ${statusColor}; color: white; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
+                                    ${statusText}
+                                </span>
+                                <button class="btn btn-sm" onclick="deleteMexcanRequest(${request.id})" 
+                                        style="background: #e74c3c; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;"
+                                        title="${currentLanguage === 'en' ? 'Delete this request' : 'Eliminar esta solicitud'}">
+                                    ${currentLanguage === 'en' ? 'Delete' : 'Eliminar'}
+                                </button>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <div style="color: #2c3e50; font-weight: 600; margin-bottom: 5px;">
+                                ${currentLanguage === 'en' ? 'Items' : 'Artículos'} (${request.items.length}):
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                                ${request.items.map(item => {
+                                    const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+                                    const unit = item.unit || 'sheet';
+                                    const unitLabels = {
+                                        'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
+                                        'sheet': currentLanguage === 'en' ? 'Sheet' : 'Hoja'
+                                    };
+                                    const unitLabel = unitLabels[unit] || unitLabels['sheet'];
+                                    return `<div style="padding: 5px; background: #f8f9fa; border-radius: 4px; font-size: 0.85rem;">
+                                        • ${itemName}: ${item.quantity} ${unitLabel}
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            historyDiv.innerHTML = html;
+        }
+        
+        async function deleteMexcanRequest(requestId) {
+            if (!confirm(currentLanguage === 'en' 
+                ? `Are you sure you want to delete Request #${requestId}? This action cannot be undone.` 
+                : `¿Estás seguro de que deseas eliminar la Solicitud #${requestId}? Esta acción no se puede deshacer.`)) {
+                return;
+            }
+            
+            try {
+                // Delete from localStorage
+                const history = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+                const filteredHistory = history.filter(req => req.id != requestId);
+                localStorage.setItem('mexcanRequestHistory', JSON.stringify(filteredHistory));
+                
+                // Reload history
+                await loadMexcanHistory();
+                
+                // Show confirmation message
+                showApprovalStatus('success', currentLanguage === 'en' 
+                    ? `Request #${requestId} has been deleted.` 
+                    : `La Solicitud #${requestId} ha sido eliminada.`);
+            } catch (error) {
+                console.error('Error deleting Mex/Can request:', error);
+                showApprovalStatus('error', currentLanguage === 'en' 
+                    ? `Error deleting request: ${error.message}` 
+                    : `Error al eliminar solicitud: ${error.message}`);
+            }
+        }
+        
+        function checkAllMexcanTrackingNumbers() {
+            // TODO: Implement tracking for Mex/Can requests if needed
+            alert(currentLanguage === 'en' ? 'Tracking functionality for Mex/Can requests coming soon' : 'Funcionalidad de seguimiento para solicitudes Mex/Can próximamente');
+        }
+        
+        function migrateMexcanRequestsFromLocalStorage() {
+            // TODO: Implement Supabase migration for Mex/Can requests
+            alert(currentLanguage === 'en' ? 'Migration functionality coming soon' : 'Funcionalidad de migración próximamente');
+        }
+
         updateTotal();
         renderBudgetItems();
         loadReport();
@@ -18112,6 +19030,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             checkForDutiesAlerts();
         }, 2000); // Wait 2 seconds for data to load
         loadCanadaEmailJSSettings(); // Load saved Canada EmailJS settings
+        loadMexcanEmailJSSettings(); // Load saved Mex/Can EmailJS settings
         
         // Note: checkAndAddDueItems() is now called from loadUserData() after data is loaded
         // This prevents items from being cleared when Supabase data loads
