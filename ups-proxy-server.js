@@ -153,18 +153,46 @@ app.post('/api/ups/track', async (req, res) => {
         console.log('Step 6a: Response headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
         
         if (!response.ok) {
-            const errorText = await response.text();
-            console.log('Step 7: UPS API error - Status:', response.status, 'Error:', errorText);
-            console.log('Step 7a: Error text length:', errorText.length);
-            console.log('Step 7b: Request body sent to UPS:', JSON.stringify(requestBody, null, 2));
-            console.log('Step 7c: Headers sent to UPS:', JSON.stringify(headers, null, 2));
+            // Try to read error response - could be text or JSON
+            let errorText = '';
+            let errorJson = null;
+            const contentType = response.headers.get('content-type') || '';
+            
+            try {
+                if (contentType.includes('application/json')) {
+                    errorJson = await response.json();
+                    errorText = JSON.stringify(errorJson, null, 2);
+                } else {
+                    errorText = await response.text();
+                }
+            } catch (readError) {
+                console.log('Step 7: Failed to read error response:', readError);
+                errorText = `Failed to read error response: ${readError.message}`;
+            }
+            
+            console.log('Step 7: UPS API error - Status:', response.status);
+            console.log('Step 7a: Content-Type:', contentType);
+            console.log('Step 7b: Error text:', errorText);
+            console.log('Step 7c: Error JSON:', errorJson);
+            console.log('Step 7d: Error text length:', errorText ? errorText.length : 0);
+            console.log('Step 7e: Request body sent to UPS:', JSON.stringify(requestBody, null, 2));
+            console.log('Step 7f: Headers sent to UPS:', JSON.stringify(headers, null, 2));
+            console.log('Step 7g: UPS API URL:', 'https://onlinetools.ups.com/api/track/v1/details');
+            
             // Return 502 (Bad Gateway) instead of forwarding UPS API status codes
             // This makes it clear the proxy is working but UPS API failed
             return res.status(502).json({ 
                 error: 'UPS API returned an error',
                 upsStatus: response.status,
-                upsError: errorText || 'Unknown error from UPS API',
-                message: `UPS API returned status ${response.status}. Check upsError for details.`
+                upsError: errorText || 'Empty response from UPS API',
+                upsErrorJson: errorJson,
+                message: `UPS API returned status ${response.status}. Check upsError for details.`,
+                debug: {
+                    contentType: contentType,
+                    trackingNumber: trackingNumber,
+                    hasAccessToken: !!accessToken,
+                    hasClientId: !!clientId
+                }
             });
         }
         
