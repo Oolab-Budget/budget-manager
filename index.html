@@ -1965,12 +1965,15 @@
                     <small style="color: #666; display: block; margin-top: 5px;" data-en="Found in UPS Developer Portal → Apps → Your App → Client Secret" data-es="Se encuentra en UPS Developer Portal → Apps → Your App → Client Secret">Found in UPS Developer Portal → Apps → Your App → Client Secret</small>
                 </div>
                 <div class="form-group">
-                    <label data-en="Proxy Server URL (Required for CORS)" data-es="URL del Servidor Proxy (Requerido para CORS)">Proxy Server URL (Required for CORS)</label>
-                    <input type="text" id="upsProxyUrl" placeholder="https://your-app.railway.app" 
-                           value="${localStorage.getItem('upsProxyUrl') || ''}"
-                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: monospace;"
-                           onchange="saveUPSSettings()">
-                    <small style="color: #666; display: block; margin-top: 5px;" data-en="Enter your deployed proxy server URL. See DEPLOYMENT_GUIDE.md for setup instructions. Required to bypass CORS restrictions." data-es="Ingresa la URL de tu servidor proxy desplegado. Ver DEPLOYMENT_GUIDE.md para instrucciones. Requerido para evitar restricciones CORS.">Enter your deployed proxy server URL. See DEPLOYMENT_GUIDE.md for setup instructions. Required to bypass CORS restrictions.</small>
+                    <label data-en="Proxy Server URL (Required)" data-es="URL del Servidor Proxy (Requerido)">Proxy Server URL (Required)</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="upsProxyUrl" placeholder="https://your-app.railway.app" 
+                               value="${localStorage.getItem('upsProxyUrl') || ''}"
+                               style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: monospace;"
+                               onchange="saveUPSSettings()">
+                        <button type="button" onclick="clearProxyUrl()" class="btn btn-secondary" style="white-space: nowrap;" data-en="Clear" data-es="Limpiar">Clear</button>
+                    </div>
+                    <small style="color: #666; display: block; margin-top: 5px;" data-en="⚠️ REQUIRED: The UPS API requires a proxy server due to CORS restrictions. Enter your deployed proxy server URL (e.g., Railway, Render, Heroku). If your proxy returns 404, check that it's deployed and the endpoints are correct. See DEPLOYMENT_GUIDE.md for setup instructions." data-es="⚠️ REQUERIDO: La API de UPS requiere un servidor proxy debido a restricciones CORS. Ingresa la URL de tu servidor proxy desplegado (ej: Railway, Render, Heroku). Si tu proxy devuelve 404, verifica que esté desplegado y que los endpoints sean correctos. Ver DEPLOYMENT_GUIDE.md para instrucciones.">⚠️ <strong>REQUIRED:</strong> The UPS API requires a proxy server due to CORS restrictions. Enter your deployed proxy server URL (e.g., Railway, Render, Heroku). If your proxy returns 404, check that it's deployed and the endpoints are correct. See DEPLOYMENT_GUIDE.md for setup instructions.</small>
                 </div>
                 <div class="form-group">
                     <label data-en="Check Tracking Interval (hours)" data-es="Intervalo de Verificación de Seguimiento (horas)">Check Tracking Interval (hours)</label>
@@ -7538,8 +7541,17 @@
         function saveUPSSettings() {
             const clientId = document.getElementById('upsClientId').value.trim();
             const clientSecret = document.getElementById('upsClientSecret').value.trim();
-            const proxyUrl = document.getElementById('upsProxyUrl') ? document.getElementById('upsProxyUrl').value.trim() : '';
+            let proxyUrl = document.getElementById('upsProxyUrl') ? document.getElementById('upsProxyUrl').value.trim() : '';
             const checkInterval = parseInt(document.getElementById('upsCheckInterval').value) || 6;
+            
+            // Normalize proxy URL: ensure it starts with https:// or http://
+            if (proxyUrl && !proxyUrl.match(/^https?:\/\//i)) {
+                proxyUrl = 'https://' + proxyUrl;
+                // Update the input field to show the corrected URL
+                if (document.getElementById('upsProxyUrl')) {
+                    document.getElementById('upsProxyUrl').value = proxyUrl;
+                }
+            }
             
             if (clientId) localStorage.setItem('upsClientId', clientId);
             if (clientSecret) localStorage.setItem('upsClientSecret', clientSecret);
@@ -7585,6 +7597,18 @@
             }
         }
         
+        // Clear proxy URL (useful if proxy is not working)
+        function clearProxyUrl() {
+            if (document.getElementById('upsProxyUrl')) {
+                document.getElementById('upsProxyUrl').value = '';
+                localStorage.removeItem('upsProxyUrl');
+                saveUPSSettings();
+                showApprovalStatus('info', currentLanguage === 'en' ? 
+                    'Proxy URL cleared. System will use direct API calls with CORS proxy.' : 
+                    'URL del proxy eliminada. El sistema usará llamadas API directas con proxy CORS.');
+            }
+        }
+        
         // Get UPS OAuth token
         async function getUPSToken() {
             const clientId = localStorage.getItem('upsClientId');
@@ -7596,10 +7620,16 @@
             
             // Get proxy server URL from settings, or use direct (will fail due to CORS)
             let PROXY_URL = localStorage.getItem('upsProxyUrl') || '';
+            // Normalize proxy URL: ensure it starts with https:// or http://
+            if (PROXY_URL && !PROXY_URL.match(/^https?:\/\//i)) {
+                PROXY_URL = 'https://' + PROXY_URL;
+            }
             // Remove trailing slash if present to avoid double slashes
             PROXY_URL = PROXY_URL.replace(/\/+$/, '');
             
-            // If proxy URL is configured, use it
+            let useDirectCall = false;
+            
+            // If proxy URL is configured, try it first
             if (PROXY_URL) {
                 try {
                     const response = await fetch(`${PROXY_URL}/api/ups/token`, {
@@ -7610,51 +7640,62 @@
                         body: JSON.stringify({ clientId, clientSecret })
                     });
                     
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data.access_token;
+                    } else {
+                        // Proxy failed (404, 500, etc.) - fall back to direct call
+                        console.warn(`Proxy returned ${response.status} for token, falling back to direct API call`);
+                        useDirectCall = true;
+                    }
+                } catch (proxyError) {
+                    // Proxy request failed (network error, CORS, etc.) - fall back to direct call
+                    console.warn('Proxy request failed for token, falling back to direct API call:', proxyError);
+                    useDirectCall = true;
+                }
+            } else {
+                // No proxy configured, use direct call
+                useDirectCall = true;
+            }
+            
+            // Fallback: Try direct (with CORS proxy for web-based calls)
+            if (useDirectCall) {
+                const isLocalFile = window.location.protocol === 'file:';
+                
+                if (isLocalFile) {
+                    throw new Error('UPS API cannot be called directly from local files due to CORS restrictions. Please either:\n1. Deploy your proxy server and enter its URL in Settings\n2. Deploy the app to GitHub Pages\n3. Use a local development server (not file://)');
+                }
+                
+                let tokenUrl = 'https://onlinetools.ups.com/security/v1/oauth/token';
+                
+                // Try using allorigins.win for OAuth token (may not work due to custom headers)
+                const upsOAuthUrl = 'https://onlinetools.ups.com/security/v1/oauth/token';
+                tokenUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(upsOAuthUrl)}`;
+                
+                const credentials = btoa(`${clientId}:${clientSecret}`);
+                
+                try {
+                    const response = await fetch(tokenUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Authorization': `Basic ${credentials}`,
+                            'x-merchant-id': clientId
+                        },
+                        body: 'grant_type=client_credentials'
+                    });
+                    
                     if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.error || `UPS OAuth error: ${response.status}`);
+                        const errorText = await response.text();
+                        throw new Error(`UPS OAuth error: ${response.status} - ${errorText}`);
                     }
                     
                     const data = await response.json();
                     return data.access_token;
                 } catch (error) {
-                    console.error('UPS OAuth error (via proxy):', error);
-                    throw error;
+                    console.error('UPS OAuth error (direct call):', error);
+                    throw new Error(`UPS OAuth failed. This is likely due to CORS restrictions. Please configure a working proxy server URL in Settings. Error: ${error.message}`);
                 }
-            }
-            
-            // Fallback: Try direct (will fail due to CORS, but useful for testing)
-            const isLocalFile = window.location.protocol === 'file:';
-            let tokenUrl = 'https://onlinetools.ups.com/security/v1/oauth/token';
-            
-            if (isLocalFile) {
-                // Use CORS proxy for local files
-                tokenUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://onlinetools.ups.com/security/v1/oauth/token');
-            }
-            
-            const credentials = btoa(`${clientId}:${clientSecret}`);
-            
-            try {
-                const response = await fetch(tokenUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'Authorization': `Basic ${credentials}`,
-                        'x-merchant-id': clientId
-                    },
-                    body: 'grant_type=client_credentials'
-                });
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`UPS OAuth error: ${response.status} - ${errorText}`);
-                }
-                
-                const data = await response.json();
-                return data.access_token;
-            } catch (error) {
-                console.error('UPS OAuth error:', error);
-                throw error;
             }
         }
         
@@ -7666,39 +7707,68 @@
                 
                 // Get proxy server URL from settings
                 let PROXY_URL = localStorage.getItem('upsProxyUrl') || '';
+                // Normalize proxy URL: ensure it starts with https:// or http://
+                if (PROXY_URL && !PROXY_URL.match(/^https?:\/\//i)) {
+                    PROXY_URL = 'https://' + PROXY_URL;
+                }
                 // Remove trailing slash if present to avoid double slashes
                 PROXY_URL = PROXY_URL.replace(/\/+$/, '');
                 
                 let data; // Declare data variable outside if/else
+                let useDirectCall = false;
                 
-                // If proxy URL is configured, use it
+                // If proxy URL is configured, try it first
                 if (PROXY_URL) {
-                    const response = await fetch(`${PROXY_URL}/api/ups/track`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            trackingNumber,
-                            accessToken: token,
-                            clientId
-                        })
-                    });
-                    
-                    if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.error || `UPS Tracking error: ${response.status}`);
+                    try {
+                        const response = await fetch(`${PROXY_URL}/api/ups/track`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                trackingNumber,
+                                accessToken: token,
+                                clientId
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            data = await response.json();
+                        } else {
+                            // Proxy failed (404, 500, etc.) - fall back to direct call
+                            console.warn(`Proxy returned ${response.status}, falling back to direct API call`);
+                            useDirectCall = true;
+                        }
+                    } catch (proxyError) {
+                        // Proxy request failed (network error, CORS, etc.) - fall back to direct call
+                        console.warn('Proxy request failed, falling back to direct API call:', proxyError);
+                        useDirectCall = true;
                     }
-                    
-                    data = await response.json();
                 } else {
-                    // Fallback: Try direct (will fail due to CORS)
+                    // No proxy configured, use direct call
+                    useDirectCall = true;
+                }
+                
+                // Use direct API call (either as fallback or primary method)
+                if (useDirectCall) {
+                    // Note: Direct API calls from browser will fail due to CORS
+                    // The UPS API requires custom headers that CORS proxies typically don't support
+                    // A working proxy server is required for this to work
                     const isLocalFile = window.location.protocol === 'file:';
-                    let trackUrl = 'https://onlinetools.ups.com/api/track/v1/details';
                     
                     if (isLocalFile) {
-                        trackUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://onlinetools.ups.com/api/track/v1/details');
+                        throw new Error('UPS API cannot be called directly from local files due to CORS restrictions. Please either:\n1. Deploy your proxy server and enter its URL in Settings\n2. Deploy the app to GitHub Pages\n3. Use a local development server (not file://)');
                     }
+                    
+                    // For web-based calls, try using a CORS proxy
+                    // Note: Most CORS proxies don't support POST with custom headers, so this may still fail
+                    // The proxy server is the recommended solution
+                    let trackUrl = 'https://onlinetools.ups.com/api/track/v1/details';
+                    
+                    // Try using allorigins.win which can proxy POST requests
+                    // Format: https://api.allorigins.win/raw?url=ENCODED_URL
+                    const upsApiUrl = 'https://onlinetools.ups.com/api/track/v1/details';
+                    trackUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(upsApiUrl)}`;
                     
                     const transId = 'tracking-' + Date.now();
                     const headers = {
@@ -7724,18 +7794,24 @@
                         }
                     };
                     
-                    const response = await fetch(trackUrl, {
-                        method: 'POST',
-                        headers: headers,
-                        body: JSON.stringify(requestBody)
-                    });
-                    
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`UPS Tracking error: ${response.status} - ${errorText}`);
+                    try {
+                        const response = await fetch(trackUrl, {
+                            method: 'POST',
+                            headers: headers,
+                            body: JSON.stringify(requestBody)
+                        });
+                        
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(`UPS Tracking error: ${response.status} - ${errorText}`);
+                        }
+                        
+                        data = await response.json();
+                    } catch (fetchError) {
+                        // If CORS proxy fails, provide helpful error message
+                        console.error('Direct API call failed:', fetchError);
+                        throw new Error(`UPS API call failed. This is likely due to CORS restrictions. Please configure a working proxy server URL in Settings. Error: ${fetchError.message}`);
                     }
-                    
-                    data = await response.json();
                 }
                 
                 // Process response (data is set from either proxy or direct call above)
@@ -8075,9 +8151,15 @@
                                 await new Promise(resolve => setTimeout(resolve, 500));
                             } catch (error) {
                                 console.error(`Error checking tracking ${shipment.trackingNumber}:`, error);
-                                // Store error status
-                                shipment.upsStatus = 'Error checking status';
+                                // Store error status with more detail
+                                const errorMsg = error.message || 'Error checking status';
+                                shipment.upsStatus = `Error: ${errorMsg}`;
                                 shipment.upsLastChecked = new Date().toISOString();
+                                
+                                // If it's a CORS or network error, provide helpful message
+                                if (errorMsg.includes('CORS') || errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
+                                    console.warn('⚠️ CORS/Network error detected. The UPS API may require a proxy server. Check your proxy URL in Settings.');
+                                }
                             }
                         }
                     }
