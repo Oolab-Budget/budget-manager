@@ -1467,45 +1467,6 @@
                 <button class="btn btn-primary" onclick="populateCategoryDropdowns()" data-en="Refresh Categories" data-es="Actualizar Categorías">Refresh Categories</button>
             </div>
 
-            <div class="form-section" style="background: #fff3cd; border: 2px solid #ffc107;">
-                <h2 style="color: #856404;" data-en="⚠️ Backup & Restore Categories & Items" data-es="⚠️ Respaldo y Restaurar Categorías y Artículos">⚠️ Backup & Restore Categories & Items</h2>
-                <p style="color: #856404;" data-en="Export your categories and items to a backup file, or import from a previous backup." data-es="Exporta tus categorías y artículos a un archivo de respaldo, o importa desde un respaldo anterior.">Export your categories and items to a backup file, or import from a previous backup.</p>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <button class="btn btn-warning" onclick="exportCategoriesAndItems()" style="font-size: 1rem; padding: 12px 20px;" data-en="Export Complete Backup" data-es="Exportar Respaldo Completo">Export Complete Backup</button>
-                        <small style="display: block; margin-top: 5px;" data-en="Download a complete backup file including: categories, items, Canada requests, saved budgets, activity logs, and all settings" data-es="Descargar un archivo de respaldo completo que incluye: categorías, artículos, solicitudes de Canadá, presupuestos guardados, registros de actividad y todas las configuraciones">Download a complete backup file including: categories, items, Canada requests, saved budgets, activity logs, and all settings</small>
-                    </div>
-                    <div class="form-group">
-                        <button class="btn btn-success" onclick="exportCompleteBackupWithSupabase()" style="font-size: 1rem; padding: 12px 20px;" data-en="Export Full Backup (with Supabase)" data-es="Exportar Respaldo Completo (con Supabase)">Export Full Backup (with Supabase)</button>
-                        <small style="display: block; margin-top: 5px;" data-en="Export ALL data including Supabase: requests, tracking shipments, items, budgets, and settings. You can choose to save to Desktop/Budget manager folder." data-es="Exporta TODOS los datos incluyendo Supabase: solicitudes, envíos de seguimiento, artículos, presupuestos y configuraciones. Puedes elegir guardar en la carpeta Escritorio/Budget manager.">Export ALL data including Supabase: requests, tracking shipments, items, budgets, and settings. You can choose to save to Desktop/Budget manager folder.</small>
-                    </div>
-                    <div class="form-group">
-                        <label style="font-weight: 600; margin-bottom: 5px; display: block;" data-en="Import Backup" data-es="Importar Respaldo">Import Backup</label>
-                        <input type="file" id="importCategoriesFile" accept=".json" onchange="importCategoriesAndItems(event)" style="padding: 8px; width: 100%;">
-                        <small style="display: block; margin-top: 5px;" data-en="Select a previously exported JSON file to restore" data-es="Selecciona un archivo JSON exportado previamente para restaurar">Select a previously exported JSON file to restore</small>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 15px; padding: 15px; background: #e7f3ff; border-radius: 5px; border-left: 4px solid #2196F3;">
-                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                        <input type="checkbox" id="autoBackupEnabled" onchange="toggleAutoBackup()" style="width: 18px; height: 18px;">
-                        <span style="font-weight: 600;" data-en="Enable Automatic Backup" data-es="Habilitar Respaldo Automático">Enable Automatic Backup</span>
-                    </label>
-                    <div style="margin-top: 10px; margin-left: 28px;">
-                        <label style="display: block; margin-bottom: 5px;" data-en="Backup Frequency:" data-es="Frecuencia de Respaldo:">Backup Frequency:</label>
-                        <select id="backupFrequency" onchange="updateAutoBackupSchedule()" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
-                            <option value="daily" data-en="Daily" data-es="Diario">Daily</option>
-                            <option value="weekly" data-en="Weekly" data-es="Semanal">Weekly</option>
-                            <option value="monthly" data-en="Monthly" data-es="Mensual">Monthly</option>
-                        </select>
-                        <small style="display: block; margin-top: 5px; color: #666;" data-en="Automatic backups will download to your default download folder. You can move them to Desktop/Budget manager folder." data-es="Los respaldos automáticos se descargarán en tu carpeta de descargas predeterminada. Puedes moverlos a la carpeta Escritorio/Budget manager.">Automatic backups will download to your default download folder. You can move them to Desktop/Budget manager folder.</small>
-                    </div>
-                </div>
-                
-                <div id="backupStatus" style="margin-top: 15px; padding: 15px; border-radius: 5px; display: none; font-size: 1rem;"></div>
-            </div>
-
             <div class="form-section">
                 <h3 data-en="Existing Categories" data-es="Categorías Existentes">Existing Categories</h3>
                 <div id="categoriesList" style="max-height: 400px; overflow-y: auto; border: 1px solid #e1e8ed; border-radius: 8px; padding: 15px; background: #f8f9fa;">
