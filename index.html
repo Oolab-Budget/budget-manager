@@ -7030,9 +7030,38 @@
             updateApprovalSummary();
         }
 
-        function clearBudget(showConfirmation = true) {
+        async function clearBudget(showConfirmation = true) {
             if (!showConfirmation || confirm(currentLanguage === 'en' ? 'Are you sure you want to clear all items? This will also clear any items pushed to next week.' : '¿Estás seguro de que quieres limpiar todos los artículos? Esto también limpiará los artículos empujados a la próxima semana.')) {
                 const itemCount = items.length;
+                
+                // Delete from Supabase if logged in
+                if (useSupabase && currentUser && items.length > 0) {
+                    try {
+                        // Get all item IDs to delete
+                        const itemIds = items.map(item => item.id).filter(id => id != null);
+                        
+                        if (itemIds.length > 0) {
+                            // Delete all budget items from Supabase
+                            const { error } = await supabase
+                                .from('budget_items')
+                                .delete()
+                                .eq('user_id', currentUser.id)
+                                .in('id', itemIds);
+                            
+                            if (error) {
+                                console.error('Error deleting items from Supabase:', error);
+                                // Continue with localStorage clear even if Supabase delete fails
+                            } else {
+                                console.log(`Deleted ${itemIds.length} items from Supabase`);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error clearing items from Supabase:', error);
+                        // Continue with localStorage clear even if Supabase delete fails
+                    }
+                }
+                
+                // Clear from localStorage
                 items = [];
                 saveItems();
                 
@@ -17131,6 +17160,12 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 
                 // Reload history
                 await loadCanadaHistory();
+                
+                // Reload reports to exclude deleted request
+                const canadaReportsTab = document.getElementById('canadaReportsTab');
+                if (canadaReportsTab && canadaReportsTab.classList.contains('active')) {
+                    loadCanadaReport();
+                }
                 
                 // Show confirmation message
                 showApprovalStatus('success', currentLanguage === 'en' 
