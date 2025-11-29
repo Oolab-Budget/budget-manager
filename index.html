@@ -15951,9 +15951,10 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             // Get all items from Canada category OR items marked forCanada
             const canadaItems = [];
             
-            // Reload categories and itemDatabase to ensure we have latest data
-            const savedCategories = JSON.parse(localStorage.getItem('customCategories')) || {};
-            const savedItemDatabase = JSON.parse(localStorage.getItem('categoryItems')) || {};
+            // Use global itemDatabase (synced with Supabase) and categories
+            // Also check localStorage as fallback
+            const savedCategories = categories || JSON.parse(localStorage.getItem('customCategories')) || {};
+            const savedItemDatabase = itemDatabase || JSON.parse(localStorage.getItem('categoryItems')) || {};
             
             // Find Canada category (case-insensitive search)
             let canadaCategoryKey = null;
@@ -18327,9 +18328,13 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             // Get all items marked forMexico
             const mexcanItems = [];
             
-            // Reload categories and itemDatabase to ensure we have latest data
-            const savedCategories = JSON.parse(localStorage.getItem('customCategories')) || {};
-            const savedItemDatabase = JSON.parse(localStorage.getItem('categoryItems')) || {};
+            // Use global itemDatabase (synced with Supabase) and categories
+            // Also check localStorage as fallback
+            const savedCategories = categories || JSON.parse(localStorage.getItem('customCategories')) || {};
+            const savedItemDatabase = itemDatabase || JSON.parse(localStorage.getItem('categoryItems')) || {};
+            
+            console.log('🔵 loadMexcanItems - savedCategories keys:', Object.keys(savedCategories));
+            console.log('🔵 loadMexcanItems - savedItemDatabase keys:', Object.keys(savedItemDatabase));
             
             // Find Mexico category (case-insensitive search)
             let mexicoCategoryKey = null;
@@ -18338,22 +18343,28 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 const catNameEs = savedCategories[key].nameEs || '';
                 if (catNameEn.toLowerCase() === 'mexico' || catNameEs.toLowerCase() === 'méxico' || key.toLowerCase() === 'mexico') {
                     mexicoCategoryKey = key;
+                    console.log('✅ Found Mexico category:', key, 'with name:', catNameEn || catNameEs);
                 }
             });
             
             // Get items from Mexico category
             if (mexicoCategoryKey && savedItemDatabase[mexicoCategoryKey] && Array.isArray(savedItemDatabase[mexicoCategoryKey])) {
+                console.log('✅ Found', savedItemDatabase[mexicoCategoryKey].length, 'items in Mexico category');
                 savedItemDatabase[mexicoCategoryKey].forEach(item => {
                     mexcanItems.push({...item, source: 'category', category: mexicoCategoryKey});
                 });
+            } else {
+                console.log('⚠️ Mexico category not found or has no items. Category key:', mexicoCategoryKey, 'Items:', savedItemDatabase[mexicoCategoryKey]);
             }
             
             // Also get items marked forMexico from other categories
+            let forMexicoCount = 0;
             Object.keys(savedItemDatabase).forEach(category => {
                 if (category === mexicoCategoryKey) return; // Skip Mexico category (already added)
                 if (Array.isArray(savedItemDatabase[category])) {
                     savedItemDatabase[category].forEach(item => {
                         if (item.forMexico) {
+                            forMexicoCount++;
                             const exists = mexcanItems.find(mi => 
                                 mi.nameEn === item.nameEn && 
                                 mi.nameEs === item.nameEs && 
@@ -18366,6 +18377,8 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     });
                 }
             });
+            
+            console.log('🔵 loadMexcanItems - Total items found:', mexcanItems.length, '(from Mexico category +', forMexicoCount, 'marked forMexico)');
             
             if (mexcanItems.length === 0) {
                 mexcanItemsList.innerHTML = `
