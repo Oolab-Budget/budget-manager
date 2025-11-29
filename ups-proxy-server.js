@@ -158,6 +158,10 @@ app.post('/api/ups/track', async (req, res) => {
             let errorJson = null;
             const contentType = response.headers.get('content-type') || '';
             
+            // Extract error information from headers (UPS sometimes puts error info in headers)
+            const errorCode = response.headers.get('errorcode') || '';
+            const errorDescription = response.headers.get('errordescription') || '';
+            
             // Always try to read as text first (works for any content type)
             try {
                 errorText = await response.text();
@@ -176,34 +180,44 @@ app.post('/api/ups/track', async (req, res) => {
                 errorText = `Failed to read error response: ${readError.message}`;
             }
             
-            // If errorText is empty, provide a default message
-            if (!errorText || errorText.trim() === '') {
-                errorText = `UPS API returned ${response.status} with empty response body`;
+            // Build error message from available sources
+            let errorMessage = '';
+            if (errorText && errorText.trim() !== '') {
+                errorMessage = errorText;
+            } else if (errorCode || errorDescription) {
+                errorMessage = `UPS API Error: ${errorCode} - ${errorDescription}`.trim();
+            } else {
+                errorMessage = `UPS API returned ${response.status} with empty response body`;
             }
             
             console.log('Step 7: UPS API error - Status:', response.status);
             console.log('Step 7a: Content-Type:', contentType);
-            console.log('Step 7b: Error text (first 500 chars):', errorText.substring(0, 500));
-            console.log('Step 7c: Error text length:', errorText ? errorText.length : 0);
-            console.log('Step 7d: Error JSON:', errorJson);
-            console.log('Step 7e: Request body sent to UPS:', JSON.stringify(requestBody, null, 2));
-            console.log('Step 7f: Headers sent to UPS:', JSON.stringify(headers, null, 2));
-            console.log('Step 7g: UPS API URL:', 'https://onlinetools.ups.com/api/track/v1/details');
+            console.log('Step 7b: Error Code (header):', errorCode);
+            console.log('Step 7c: Error Description (header):', errorDescription);
+            console.log('Step 7d: Error text (first 500 chars):', errorText ? errorText.substring(0, 500) : '(empty)');
+            console.log('Step 7e: Error text length:', errorText ? errorText.length : 0);
+            console.log('Step 7f: Error JSON:', errorJson);
+            console.log('Step 7g: Request body sent to UPS:', JSON.stringify(requestBody, null, 2));
+            console.log('Step 7h: Headers sent to UPS:', JSON.stringify(headers, null, 2));
+            console.log('Step 7i: UPS API URL:', 'https://onlinetools.ups.com/api/track/v1/details');
             
             // Return 502 (Bad Gateway) instead of forwarding UPS API status codes
             // This makes it clear the proxy is working but UPS API failed
             return res.status(502).json({ 
                 error: 'UPS API returned an error',
                 upsStatus: response.status,
-                upsError: errorText,
+                upsErrorCode: errorCode,
+                upsErrorDescription: errorDescription,
+                upsError: errorMessage,
                 upsErrorJson: errorJson,
-                message: `UPS API returned status ${response.status}. Check upsError for details.`,
+                message: `UPS API returned status ${response.status}. ${errorMessage}`,
                 debug: {
                     contentType: contentType,
                     trackingNumber: trackingNumber,
                     hasAccessToken: !!accessToken,
                     hasClientId: !!clientId,
-                    errorTextLength: errorText ? errorText.length : 0
+                    errorTextLength: errorText ? errorText.length : 0,
+                    allResponseHeaders: Object.fromEntries(response.headers.entries())
                 }
             });
         }
