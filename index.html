@@ -3091,6 +3091,92 @@
         }
         window.checkCategoryItemCounts = checkCategoryItemCounts;
         
+        // Recover missing category items from Supabase - call from console: recoverMissingCategoryItems()
+        async function recoverMissingCategoryItems() {
+            if (!currentUser || !useSupabase) {
+                alert('Please log in first to recover category items from Supabase');
+                return;
+            }
+            
+            console.log('Recovering category items from Supabase...');
+            
+            try {
+                // Fetch all categories from Supabase
+                const { data: categoriesData, error } = await supabase
+                    .from('custom_categories')
+                    .select('*')
+                    .eq('user_id', currentUser.id);
+                
+                if (error) {
+                    console.error('Error fetching categories from Supabase:', error);
+                    alert('Error fetching categories: ' + error.message);
+                    return;
+                }
+                
+                if (!categoriesData || categoriesData.length === 0) {
+                    alert('No categories found in Supabase');
+                    return;
+                }
+                
+                // Reload itemDatabase from Supabase
+                itemDatabase = {};
+                let totalItems = 0;
+                let categoryCount = 0;
+                
+                categoriesData.forEach(cat => {
+                    // Always include the category, even if items is null/undefined
+                    if (cat.items && Array.isArray(cat.items)) {
+                        itemDatabase[cat.category_key] = cat.items;
+                        totalItems += cat.items.length;
+                    } else {
+                        // Initialize with empty array if items is missing
+                        itemDatabase[cat.category_key] = [];
+                    }
+                    categoryCount++;
+                });
+                
+                // Update localStorage
+                localStorage.setItem('categoryItems', JSON.stringify(itemDatabase));
+                
+                // Also update categories object
+                categories = {};
+                categoriesData.forEach(cat => {
+                    categories[cat.category_key] = {
+                        nameEn: cat.name_en,
+                        nameEs: cat.name_es,
+                        descriptionEn: cat.description_en,
+                        descriptionEs: cat.description_es,
+                        pricingType: cat.pricing_type || 'fixed',
+                        recurringWeekly: cat.recurring_weekly || false,
+                        recurringMonthly: cat.recurring_monthly || false,
+                        monthlyDay: cat.monthly_day,
+                        hasDueDate: cat.has_due_date || false,
+                        dueDate: cat.due_date,
+                        items: cat.items || []
+                    };
+                });
+                localStorage.setItem('customCategories', JSON.stringify(categories));
+                
+                // Refresh the UI
+                loadCategoriesList();
+                populateCategoryDropdowns();
+                
+                // If a category is selected, reload its items
+                const categorySelect = document.getElementById('categorySelect');
+                if (categorySelect && categorySelect.value) {
+                    loadCategoryItems();
+                }
+                
+                console.log(`Successfully recovered ${totalItems} category items across ${categoryCount} categories from Supabase`);
+                alert(`Successfully recovered ${totalItems} category items across ${categoryCount} categories from Supabase!`);
+                
+            } catch (error) {
+                console.error('Error recovering category items:', error);
+                alert('Error recovering category items: ' + error.message);
+            }
+        }
+        window.recoverMissingCategoryItems = recoverMissingCategoryItems;
+        
         // Force migrate category items from localStorage to Supabase - call from console: forceMigrateCategoryItems()
         async function forceMigrateCategoryItems() {
             if (!currentUser || !useSupabase) {
