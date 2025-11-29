@@ -2959,6 +2959,202 @@
         }
         window.forceReloadItems = forceReloadItems;
         
+        // Diagnostic function to check category item counts - call from console: checkCategoryItemCounts()
+        async function checkCategoryItemCounts() {
+            if (!currentUser || !useSupabase) {
+                console.log('Not logged in or Supabase not enabled');
+                return;
+            }
+            
+            const localItems = JSON.parse(localStorage.getItem('categoryItems') || '{}');
+            let localItemCount = 0;
+            Object.keys(localItems).forEach(cat => {
+                if (Array.isArray(localItems[cat])) {
+                    localItemCount += localItems[cat].length;
+                }
+            });
+            console.log(`LocalStorage category items: ${localItemCount} items across ${Object.keys(localItems).length} categories`);
+            
+            const { data: supabaseCategories, error } = await supabase
+                .from('custom_categories')
+                .select('category_key, items')
+                .eq('user_id', currentUser.id);
+            
+            if (error) {
+                console.error('Error fetching Supabase categories:', error);
+            } else {
+                let supabaseItemCount = 0;
+                if (supabaseCategories) {
+                    supabaseCategories.forEach(cat => {
+                        if (cat.items && Array.isArray(cat.items)) {
+                            supabaseItemCount += cat.items.length;
+                        }
+                    });
+                }
+                console.log(`Supabase category items: ${supabaseItemCount} items across ${supabaseCategories?.length || 0} categories`);
+            }
+            
+            let loadedItemCount = 0;
+            Object.keys(itemDatabase).forEach(cat => {
+                if (Array.isArray(itemDatabase[cat])) {
+                    loadedItemCount += itemDatabase[cat].length;
+                }
+            });
+            console.log(`Currently loaded category items: ${loadedItemCount} items across ${Object.keys(itemDatabase).length} categories`);
+            
+            return {
+                localStorage: localItemCount,
+                supabase: supabaseItemCount || 0,
+                loaded: loadedItemCount,
+                missing: localItemCount - (supabaseItemCount || 0)
+            };
+        }
+        window.checkCategoryItemCounts = checkCategoryItemCounts;
+        
+        // Force migrate category items from localStorage to Supabase - call from console: forceMigrateCategoryItems()
+        async function forceMigrateCategoryItems() {
+            if (!currentUser || !useSupabase) {
+                console.error('Please log in first to migrate category items to Supabase');
+                alert('Please log in first to migrate category items to Supabase');
+                return;
+            }
+            
+            const localItems = JSON.parse(localStorage.getItem('categoryItems') || '{}');
+            let localItemCount = 0;
+            Object.keys(localItems).forEach(cat => {
+                if (Array.isArray(localItems[cat])) {
+                    localItemCount += localItems[cat].length;
+                }
+            });
+            
+            if (localItemCount === 0) {
+                console.log('No category items found in localStorage to migrate');
+                alert('No category items found in localStorage to migrate');
+                return;
+            }
+            
+            console.log(`Found ${localItemCount} category items in localStorage across ${Object.keys(localItems).length} categories. Starting migration...`);
+            
+            try {
+                // Get current categories from Supabase
+                const { data: existingCategories, error: fetchError } = await supabase
+                    .from('custom_categories')
+                    .select('category_key, items')
+                    .eq('user_id', currentUser.id);
+                
+                if (fetchError) {
+                    console.error('Error fetching existing categories:', fetchError);
+                    alert('Error fetching existing categories: ' + fetchError.message);
+                    return;
+                }
+                
+                let supabaseItemCount = 0;
+                if (existingCategories) {
+                    existingCategories.forEach(cat => {
+                        if (cat.items && Array.isArray(cat.items)) {
+                            supabaseItemCount += cat.items.length;
+                        }
+                    });
+                }
+                console.log(`Found ${supabaseItemCount} existing category items in Supabase across ${existingCategories?.length || 0} categories`);
+                
+                // Migrate category items
+                let migratedCount = 0;
+                let updatedCount = 0;
+                let errorCount = 0;
+                const errors = [];
+                
+                for (const [categoryKey, categoryItems] of Object.entries(localItems)) {
+                    if (!Array.isArray(categoryItems) || categoryItems.length === 0) {
+                        continue;
+                    }
+                    
+                    try {
+                        // Get the category data (we need it to update the category record)
+                        const categoryData = categories[categoryKey];
+                        if (!categoryData) {
+                            console.warn(`Category ${categoryKey} not found in categories object, skipping items`);
+                            continue;
+                        }
+                        
+                        // Check if category exists in Supabase
+                        const existingCategory = existingCategories?.find(cat => cat.category_key === categoryKey);
+                        const existingItems = existingCategory?.items || [];
+                        
+                        // Merge local items with existing items (avoid duplicates)
+                        const mergedItems = [...existingItems];
+                        categoryItems.forEach(localItem => {
+                            // Check if item already exists (by name)
+                            const itemName = localItem.nameEn || localItem.nameEs || localItem.name || '';
+                            const exists = mergedItems.some(existing => {
+                                const existingName = existing.nameEn || existing.nameEs || existing.name || '';
+                                return existingName === itemName;
+                            });
+                            if (!exists) {
+                                mergedItems.push(localItem);
+                            }
+                        });
+                        
+                        // Update category with merged items
+                        const categoryRecord = {
+                            user_id: currentUser.id,
+                            category_key: categoryKey,
+                            name_en: categoryData.nameEn,
+                            name_es: categoryData.nameEs,
+                            description_en: categoryData.descriptionEn,
+                            description_es: categoryData.descriptionEs,
+                            pricing_type: categoryData.pricingType || 'fixed',
+                            recurring_weekly: categoryData.recurringWeekly || false,
+                            recurring_monthly: categoryData.recurringMonthly || false,
+                            monthly_day: categoryData.monthlyDay,
+                            has_due_date: categoryData.hasDueDate || false,
+                            due_date: categoryData.dueDate,
+                            items: mergedItems
+                        };
+                        
+                        const { error: upsertError } = await supabase
+                            .from('custom_categories')
+                            .upsert(categoryRecord, {
+                                onConflict: 'user_id,category_key'
+                            });
+                        
+                        if (upsertError) {
+                            console.error(`Error migrating category ${categoryKey}:`, upsertError);
+                            errors.push({ category: categoryKey, error: upsertError.message });
+                            errorCount++;
+                        } else {
+                            if (existingCategory) {
+                                updatedCount++;
+                                migratedCount += mergedItems.length - existingItems.length;
+                            } else {
+                                migratedCount += mergedItems.length;
+                            }
+                        }
+                    } catch (err) {
+                        console.error(`Error processing category ${categoryKey}:`, err);
+                        errors.push({ category: categoryKey, error: err.message });
+                        errorCount++;
+                    }
+                }
+                
+                console.log(`Migration complete! Migrated: ${migratedCount} items, Updated: ${updatedCount} categories, Errors: ${errorCount}`);
+                if (errors.length > 0) {
+                    console.log('Errors encountered:', errors.slice(0, 10)); // Log first 10 errors
+                }
+                
+                alert(`Category items migration complete!\\nMigrated: ${migratedCount} items\\nUpdated: ${updatedCount} categories\\nErrors: ${errorCount}${errors.length > 0 ? '\\n\\nCheck console for error details' : ''}`);
+                
+                // Reload categories and items from Supabase
+                await loadUserData();
+                console.log(`Loaded ${Object.keys(itemDatabase).length} categories with items from Supabase`);
+                alert(`Successfully loaded category items from Supabase!`);
+            } catch (error) {
+                console.error('Migration error:', error);
+                alert('Migration failed: ' + error.message);
+            }
+        }
+        window.forceMigrateCategoryItems = forceMigrateCategoryItems;
+        
         // Function to migrate localStorage data to Supabase
         async function migrateLocalStorageToSupabase(localCategories, localItems, localBudgetItems, localSavedBudgets = []) {
             if (!currentUser || !useSupabase) return;
