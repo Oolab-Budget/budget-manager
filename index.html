@@ -2980,10 +2980,10 @@
                 .select('category_key, items')
                 .eq('user_id', currentUser.id);
             
+            let supabaseItemCount = 0;
             if (error) {
                 console.error('Error fetching Supabase categories:', error);
             } else {
-                let supabaseItemCount = 0;
                 if (supabaseCategories) {
                     supabaseCategories.forEach(cat => {
                         if (cat.items && Array.isArray(cat.items)) {
@@ -3004,9 +3004,9 @@
             
             return {
                 localStorage: localItemCount,
-                supabase: supabaseItemCount || 0,
+                supabase: supabaseItemCount,
                 loaded: loadedItemCount,
-                missing: localItemCount - (supabaseItemCount || 0)
+                missing: localItemCount - supabaseItemCount
             };
         }
         window.checkCategoryItemCounts = checkCategoryItemCounts;
@@ -3081,19 +3081,37 @@
                         const existingCategory = existingCategories?.find(cat => cat.category_key === categoryKey);
                         const existingItems = existingCategory?.items || [];
                         
-                        // Merge local items with existing items (avoid duplicates)
-                        const mergedItems = [...existingItems];
+                        // Use localStorage as source of truth - merge intelligently
+                        // Start with existing items from Supabase
+                        const mergedItems = existingItems ? [...existingItems] : [];
+                        
+                        // Add all local items, but check for duplicates more carefully
                         categoryItems.forEach(localItem => {
-                            // Check if item already exists (by name)
                             const itemName = localItem.nameEn || localItem.nameEs || localItem.name || '';
+                            const itemPrice = localItem.unitPrice || 0;
+                            const itemDesc = localItem.descriptionEn || localItem.descriptionEs || localItem.description || '';
+                            
+                            // Check if item already exists (by name AND price AND description for better matching)
                             const exists = mergedItems.some(existing => {
                                 const existingName = existing.nameEn || existing.nameEs || existing.name || '';
-                                return existingName === itemName;
+                                const existingPrice = existing.unitPrice || 0;
+                                const existingDesc = existing.descriptionEn || existing.descriptionEs || existing.description || '';
+                                
+                                // Match if name, price, and description all match (more strict duplicate check)
+                                return existingName === itemName && 
+                                       existingPrice === itemPrice && 
+                                       existingDesc === itemDesc;
                             });
+                            
                             if (!exists) {
                                 mergedItems.push(localItem);
+                                console.log(`Adding item to ${categoryKey}: ${itemName}`);
+                            } else {
+                                console.log(`Skipping duplicate item in ${categoryKey}: ${itemName}`);
                             }
                         });
+                        
+                        console.log(`Category ${categoryKey}: ${existingItems.length} existing + ${categoryItems.length} local = ${mergedItems.length} total items`);
                         
                         // Update category with merged items
                         const categoryRecord = {
@@ -3154,6 +3172,122 @@
             }
         }
         window.forceMigrateCategoryItems = forceMigrateCategoryItems;
+        
+        // Force replace category items from localStorage (use localStorage as absolute source of truth)
+        // Call from console: forceReplaceCategoryItems('other') or forceReplaceCategoryItems() for all
+        async function forceReplaceCategoryItems(categoryKey = null) {
+            if (!currentUser || !useSupabase) {
+                console.error('Please log in first');
+                alert('Please log in first');
+                return;
+            }
+            
+            const localItems = JSON.parse(localStorage.getItem('categoryItems') || '{}');
+            
+            if (categoryKey) {
+                // Replace specific category
+                if (!localItems[categoryKey] || !Array.isArray(localItems[categoryKey])) {
+                    console.error(`Category ${categoryKey} not found in localStorage or has no items`);
+                    alert(`Category ${categoryKey} not found in localStorage or has no items`);
+                    return;
+                }
+                
+                const categoryData = categories[categoryKey];
+                if (!categoryData) {
+                    console.error(`Category ${categoryKey} not found in categories object`);
+                    alert(`Category ${categoryKey} not found in categories object`);
+                    return;
+                }
+                
+                console.log(`Replacing items for category ${categoryKey} with ${localItems[categoryKey].length} items from localStorage...`);
+                
+                const categoryRecord = {
+                    user_id: currentUser.id,
+                    category_key: categoryKey,
+                    name_en: categoryData.nameEn,
+                    name_es: categoryData.nameEs,
+                    description_en: categoryData.descriptionEn,
+                    description_es: categoryData.descriptionEs,
+                    pricing_type: categoryData.pricingType || 'fixed',
+                    recurring_weekly: categoryData.recurringWeekly || false,
+                    recurring_monthly: categoryData.recurringMonthly || false,
+                    monthly_day: categoryData.monthlyDay,
+                    has_due_date: categoryData.hasDueDate || false,
+                    due_date: categoryData.dueDate,
+                    items: localItems[categoryKey] // Use localStorage items directly
+                };
+                
+                const { error } = await supabase
+                    .from('custom_categories')
+                    .upsert(categoryRecord, {
+                        onConflict: 'user_id,category_key'
+                    });
+                
+                if (error) {
+                    console.error(`Error replacing category ${categoryKey}:`, error);
+                    alert(`Error: ${error.message}`);
+                } else {
+                    console.log(`Successfully replaced ${localItems[categoryKey].length} items for category ${categoryKey}`);
+                    alert(`Successfully replaced ${localItems[categoryKey].length} items for category ${categoryKey}!`);
+                    // Reload data
+                    await loadUserData();
+                }
+            } else {
+                // Replace all categories
+                console.log('Replacing ALL category items from localStorage...');
+                let replacedCount = 0;
+                let errorCount = 0;
+                
+                for (const [catKey, catItems] of Object.entries(localItems)) {
+                    if (!Array.isArray(catItems) || catItems.length === 0) {
+                        continue;
+                    }
+                    
+                    const catData = categories[catKey];
+                    if (!catData) {
+                        console.warn(`Category ${catKey} not found in categories object, skipping`);
+                        continue;
+                    }
+                    
+                    const categoryRecord = {
+                        user_id: currentUser.id,
+                        category_key: catKey,
+                        name_en: catData.nameEn,
+                        name_es: catData.nameEs,
+                        description_en: catData.descriptionEn,
+                        description_es: catData.descriptionEs,
+                        pricing_type: catData.pricingType || 'fixed',
+                        recurring_weekly: catData.recurringWeekly || false,
+                        recurring_monthly: catData.recurringMonthly || false,
+                        monthly_day: catData.monthlyDay,
+                        has_due_date: catData.hasDueDate || false,
+                        due_date: catData.dueDate,
+                        items: catItems // Use localStorage items directly
+                    };
+                    
+                    const { error } = await supabase
+                        .from('custom_categories')
+                        .upsert(categoryRecord, {
+                            onConflict: 'user_id,category_key'
+                        });
+                    
+                    if (error) {
+                        console.error(`Error replacing category ${catKey}:`, error);
+                        errorCount++;
+                    } else {
+                        replacedCount++;
+                        console.log(`Replaced ${catItems.length} items for category ${catKey}`);
+                    }
+                }
+                
+                console.log(`Replacement complete! Replaced: ${replacedCount} categories, Errors: ${errorCount}`);
+                alert(`Replacement complete!\\nReplaced: ${replacedCount} categories\\nErrors: ${errorCount}`);
+                
+                // Reload data
+                await loadUserData();
+            }
+        }
+        window.forceReplaceCategoryItems = forceReplaceCategoryItems;
         
         // Function to migrate localStorage data to Supabase
         async function migrateLocalStorageToSupabase(localCategories, localItems, localBudgetItems, localSavedBudgets = []) {
