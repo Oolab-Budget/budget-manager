@@ -18387,7 +18387,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     (currentLanguage === 'en' ? categories[item.category].nameEn : categories[item.category].nameEs) : 
                     item.category;
                 const itemId = item.id || `mexcan_${item.nameEn}_${item.category}`;
-                const selected = mexcanSelectedItems[itemId] || {selected: false, quantity: 1, unit: 'sheet'};
+                const selected = mexcanSelectedItems[itemId] || {selected: false, quantity: 1, unit: 'pieces'};
                 
                 html += `
                     <div style="padding: 15px; background: white; border: 2px solid ${selected.selected ? '#3498db' : '#e1e8ed'}; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
@@ -18421,8 +18421,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                         style="width: 80px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem;"
                                         onchange="updateMexcanUnit('${itemId}', this.value)"
                                         ${!selected.selected ? 'disabled' : ''}>
-                                    <option value="roll" ${(selected.unit || 'sheet') === 'roll' ? 'selected' : ''}>${currentLanguage === 'en' ? 'Roll' : 'Rollo'}</option>
-                                    <option value="sheet" ${(selected.unit || 'sheet') === 'sheet' ? 'selected' : ''}>${currentLanguage === 'en' ? 'Sheet' : 'Hoja'}</option>
+                                    <option value="pieces" ${(selected.unit || 'pieces') === 'pieces' ? 'selected' : ''}>${currentLanguage === 'en' ? 'Pieces' : 'Piezas'}</option>
                                 </select>
                             </label>
                         </div>
@@ -18463,7 +18462,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         
         function updateMexcanQuantity(itemId, quantity) {
             if (!mexcanSelectedItems[itemId]) {
-                mexcanSelectedItems[itemId] = {selected: true, quantity: 1, unit: 'sheet'};
+                mexcanSelectedItems[itemId] = {selected: true, quantity: 1, unit: 'pieces'};
             }
             mexcanSelectedItems[itemId].quantity = parseInt(quantity) || 1;
             localStorage.setItem('mexcanSelectedItems', JSON.stringify(mexcanSelectedItems));
@@ -18472,9 +18471,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         
         function updateMexcanUnit(itemId, unit) {
             if (!mexcanSelectedItems[itemId]) {
-                mexcanSelectedItems[itemId] = {selected: true, quantity: 1, unit: 'sheet'};
+                mexcanSelectedItems[itemId] = {selected: true, quantity: 1, unit: 'pieces'};
             }
-            mexcanSelectedItems[itemId].unit = unit || 'sheet';
+            mexcanSelectedItems[itemId].unit = unit || 'pieces';
             localStorage.setItem('mexcanSelectedItems', JSON.stringify(mexcanSelectedItems));
             updateMexcanRequestSummary();
         }
@@ -18507,12 +18506,11 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 
                 if (item) {
                     const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
-                    const unit = selection.unit || 'sheet';
+                    const unit = selection.unit || 'pieces';
                     const unitLabels = {
-                        'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
-                        'sheet': currentLanguage === 'en' ? 'Sheet' : 'Hoja'
+                        'pieces': currentLanguage === 'en' ? 'Pieces' : 'Piezas'
                     };
-                    const unitLabel = unitLabels[unit] || unitLabels['sheet'];
+                    const unitLabel = unitLabels[unit] || unitLabels['pieces'];
                     html += `
                         <div style="padding: 10px; background: white; border-left: 4px solid #3498db; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
                             <span><strong>${itemName}</strong></span>
@@ -18658,7 +18656,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                         descriptionEs: item.descriptionEs || '',
                         category: item.category,
                         quantity: selection.quantity,
-                        unit: selection.unit || 'sheet'
+                        unit: selection.unit || 'pieces'
                     });
                 }
             });
@@ -18728,12 +18726,11 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                             (currentLanguage === 'en' ? categories[item.category].nameEn : categories[item.category].nameEs) : 
                             item.category;
                         
-                        const unit = item.unit || 'sheet';
+                        const unit = item.unit || 'pieces';
                         const unitLabels = {
-                            'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
-                            'sheet': currentLanguage === 'en' ? 'Sheet' : 'Hoja'
+                            'pieces': currentLanguage === 'en' ? 'Pieces' : 'Piezas'
                         };
-                        const unitLabel = unitLabels[unit] || unitLabels['sheet'];
+                        const unitLabel = unitLabels[unit] || unitLabels['pieces'];
                         return [
                             index + 1,
                             itemName,
@@ -18956,12 +18953,11 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                             <div style="display: flex; flex-direction: column; gap: 5px;">
                                 ${request.items.map(item => {
                                     const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
-                                    const unit = item.unit || 'sheet';
+                                    const unit = item.unit || 'pieces';
                                     const unitLabels = {
-                                        'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
-                                        'sheet': currentLanguage === 'en' ? 'Sheet' : 'Hoja'
+                                        'pieces': currentLanguage === 'en' ? 'Pieces' : 'Piezas'
                                     };
-                                    const unitLabel = unitLabels[unit] || unitLabels['sheet'];
+                                    const unitLabel = unitLabels[unit] || unitLabels['pieces'];
                                     return `<div style="padding: 5px; background: #f8f9fa; border-radius: 4px; font-size: 0.85rem;">
                                         • ${itemName}: ${item.quantity} ${unitLabel}
                                     </div>`;
