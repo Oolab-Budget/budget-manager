@@ -128,8 +128,8 @@ app.post('/api/ups/track', async (req, res) => {
     console.log('Body:', JSON.stringify(req.body, null, 2));
     try {
         console.log('Step 1: Extracting request body...');
-        const { trackingNumber, accessToken, clientId } = req.body;
-        console.log('Step 2: Extracted - trackingNumber:', trackingNumber, 'accessToken exists:', !!accessToken, 'clientId:', clientId);
+        const { trackingNumber, accessToken, clientId, environment } = req.body;
+        console.log('Step 2: Extracted - trackingNumber:', trackingNumber, 'accessToken exists:', !!accessToken, 'clientId:', clientId, 'environment:', environment);
         
         if (!trackingNumber || !accessToken) {
             console.log('Step 3: Missing required fields - returning 400');
@@ -149,8 +149,8 @@ app.post('/api/ups/track', async (req, res) => {
             headers['x-merchant-id'] = clientId;
         }
         
-        // Determine if using test or production environment
-        const isTest = environment === 'test' || process.env.UPS_ENV === 'test';
+        // Determine if using test or production environment (default to production)
+        const isTest = (environment === 'test' || process.env.UPS_ENV === 'test');
         const baseUrl = isTest ? 'https://wwwcie.ups.com' : 'https://onlinetools.ups.com';
         console.log('Step 4a: Using environment:', isTest ? 'TEST' : 'PRODUCTION', 'Base URL:', baseUrl);
         
