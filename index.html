@@ -2005,6 +2005,46 @@
                 <button class="btn btn-info" onclick="testUPSTracking()" style="margin-top: 10px;" data-en="Test UPS Tracking" data-es="Probar Seguimiento de UPS">Test UPS Tracking</button>
                 <button class="btn btn-primary" onclick="checkAllTrackingNumbers()" style="margin-top: 10px; margin-left: 10px;" data-en="Check All Tracking Now" data-es="Verificar Todos los Seguimientos Ahora">Check All Tracking Now</button>
             </div>
+
+            <!-- Backup & Restore Section -->
+            <div class="form-section" style="background: #fff3cd; border: 2px solid #ffc107; margin-top: 25px;">
+                <h2 style="color: #856404;" data-en="⚠️ Backup & Restore" data-es="⚠️ Respaldo y Restaurar">⚠️ Backup & Restore</h2>
+                <p style="color: #856404;" data-en="Export your complete data to a backup file, or import from a previous backup." data-es="Exporta tus datos completos a un archivo de respaldo, o importa desde un respaldo anterior.">Export your complete data to a backup file, or import from a previous backup.</p>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <button class="btn btn-warning" onclick="exportCategoriesAndItems()" style="font-size: 1rem; padding: 12px 20px;" data-en="Export Complete Backup" data-es="Exportar Respaldo Completo">Export Complete Backup</button>
+                        <small style="display: block; margin-top: 5px;" data-en="Download a complete backup file including: categories, items, Canada requests, saved budgets, activity logs, and all settings" data-es="Descargar un archivo de respaldo completo que incluye: categorías, artículos, solicitudes de Canadá, presupuestos guardados, registros de actividad y todas las configuraciones">Download a complete backup file including: categories, items, Canada requests, saved budgets, activity logs, and all settings</small>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-success" onclick="exportCompleteBackupWithSupabase()" style="font-size: 1rem; padding: 12px 20px;" data-en="Export Full Backup (with Supabase)" data-es="Exportar Respaldo Completo (con Supabase)">Export Full Backup (with Supabase)</button>
+                        <small style="display: block; margin-top: 5px;" data-en="Export ALL data including Supabase: requests, tracking shipments, items, budgets, and settings. You can choose to save to Desktop/Budget manager folder." data-es="Exporta TODOS los datos incluyendo Supabase: solicitudes, envíos de seguimiento, artículos, presupuestos y configuraciones. Puedes elegir guardar en la carpeta Escritorio/Budget manager.">Export ALL data including Supabase: requests, tracking shipments, items, budgets, and settings. You can choose to save to Desktop/Budget manager folder.</small>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-weight: 600; margin-bottom: 5px; display: block;" data-en="Import Backup" data-es="Importar Respaldo">Import Backup</label>
+                        <input type="file" id="importCategoriesFile" accept=".json" onchange="importCategoriesAndItems(event)" style="padding: 8px; width: 100%;">
+                        <small style="display: block; margin-top: 5px;" data-en="Select a previously exported JSON file to restore" data-es="Selecciona un archivo JSON exportado previamente para restaurar">Select a previously exported JSON file to restore</small>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px; padding: 15px; background: #e7f3ff; border-radius: 5px; border-left: 4px solid #2196F3;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="autoBackupEnabled" onchange="toggleAutoBackup()" style="width: 18px; height: 18px;">
+                        <span style="font-weight: 600;" data-en="Enable Automatic Backup" data-es="Habilitar Respaldo Automático">Enable Automatic Backup</span>
+                    </label>
+                    <div style="margin-top: 10px; margin-left: 28px;">
+                        <label style="display: block; margin-bottom: 5px;" data-en="Backup Frequency:" data-es="Frecuencia de Respaldo:">Backup Frequency:</label>
+                        <select id="backupFrequency" onchange="updateAutoBackupSchedule()" style="padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="daily" data-en="Daily" data-es="Diario">Daily</option>
+                            <option value="weekly" data-en="Weekly" data-es="Semanal">Weekly</option>
+                            <option value="monthly" data-en="Monthly" data-es="Mensual">Monthly</option>
+                        </select>
+                        <small style="display: block; margin-top: 5px; color: #666;" data-en="Automatic backups will download to your default download folder. You can move them to Desktop/Budget manager folder." data-es="Los respaldos automáticos se descargarán en tu carpeta de descargas predeterminada. Puedes moverlos a la carpeta Escritorio/Budget manager.">Automatic backups will download to your default download folder. You can move them to Desktop/Budget manager folder.</small>
+                    </div>
+                </div>
+                
+                <div id="backupStatus" style="margin-top: 15px; padding: 15px; border-radius: 5px; display: none; font-size: 1rem;"></div>
+            </div>
         </div>
 
     </div>
@@ -9390,13 +9430,16 @@ Budget Manager System`;
         }
 
         // Comprehensive backup function that includes all Supabase data
-        async function exportCompleteBackupWithSupabase() {
+        async function exportCompleteBackupWithSupabase(silent = false) {
+            console.log('🔵 Starting backup export...', { silent, useSupabase, currentUser: currentUser ? currentUser.email : 'not logged in' });
             const statusDiv = document.getElementById('backupStatus');
-            statusDiv.style.display = 'block';
-            statusDiv.style.background = '#d1ecf1';
-            statusDiv.style.border = '1px solid #bee5eb';
-            statusDiv.style.color = '#0c5460';
-            statusDiv.innerHTML = '<strong>⏳ Exporting complete backup with Supabase data... This may take a moment.</strong>';
+            if (!silent && statusDiv) {
+                statusDiv.style.display = 'block';
+                statusDiv.style.background = '#d1ecf1';
+                statusDiv.style.border = '1px solid #bee5eb';
+                statusDiv.style.color = '#0c5460';
+                statusDiv.innerHTML = '<strong>⏳ Exporting complete backup with Supabase data... This may take a moment.</strong>';
+            }
             
             try {
                 const backupData = {
@@ -9432,20 +9475,26 @@ Budget Manager System`;
                 
                 // 2. Get Supabase data if user is logged in
                 if (useSupabase && currentUser) {
+                    console.log('🔵 Fetching Supabase data for user:', currentUser.email);
                     if (!silent && statusDiv) {
                         statusDiv.innerHTML = '<strong>⏳ Fetching data from Supabase...</strong>';
                     }
                     
                     try {
                         // Get all Canada requests
+                        console.log('🔵 Fetching Canada requests...');
                         const { data: requests, error: requestsError } = await supabase
                             .from('canada_requests')
                             .select('*')
                             .eq('user_id', currentUser.id)
                             .order('created_at', { ascending: false });
                         
-                        if (requestsError) throw requestsError;
+                        if (requestsError) {
+                            console.error('❌ Error fetching requests:', requestsError);
+                            throw requestsError;
+                        }
                         backupData.supabaseRequests = requests || [];
+                        console.log('✅ Fetched', requests?.length || 0, 'Canada requests');
                         
                         // Get all tracking shipments
                         const requestIds = (requests || []).map(r => r.id);
@@ -9478,25 +9527,36 @@ Budget Manager System`;
                         }
                         
                         // Get budget items from Supabase
+                        console.log('🔵 Fetching budget items...');
                         const { data: budgetItems, error: budgetError } = await supabase
                             .from('budget_items')
                             .select('*')
                             .eq('user_id', currentUser.id);
                         
-                        if (budgetError) throw budgetError;
+                        if (budgetError) {
+                            console.error('❌ Error fetching budget items:', budgetError);
+                            throw budgetError;
+                        }
                         backupData.supabaseBudgetItems = budgetItems || [];
+                        console.log('✅ Fetched', budgetItems?.length || 0, 'budget items');
                         
                         // Get saved budgets
+                        console.log('🔵 Fetching saved budgets...');
                         const { data: savedBudgets, error: savedError } = await supabase
                             .from('saved_budget_items')
                             .select('*')
                             .eq('user_id', currentUser.id)
                             .order('created_at', { ascending: false });
                         
-                        if (savedError) throw savedError;
+                        if (savedError) {
+                            console.error('❌ Error fetching saved budgets:', savedError);
+                            throw savedError;
+                        }
                         backupData.supabaseSavedBudgets = savedBudgets || [];
+                        console.log('✅ Fetched', savedBudgets?.length || 0, 'saved budgets');
                         
                         // Get request counter
+                        console.log('🔵 Fetching request counter...');
                         const { data: counter, error: counterError } = await supabase
                             .from('canada_request_counters')
                             .select('*')
@@ -9505,17 +9565,20 @@ Budget Manager System`;
                         
                         if (!counterError && counter) {
                             backupData.supabaseRequestCounter = counter;
+                            console.log('✅ Fetched request counter');
                         }
                         
                         backupData.supabaseDataIncluded = true;
                         backupData.supabaseUserEmail = currentUser.email;
+                        console.log('✅ Supabase data fetch complete');
                     } catch (supabaseError) {
-                        console.error('Error fetching Supabase data:', supabaseError);
+                        console.error('❌ Error fetching Supabase data:', supabaseError);
                         backupData.supabaseDataIncluded = false;
                         backupData.supabaseError = supabaseError.message;
                         // Continue with localStorage data even if Supabase fails
                     }
                 } else {
+                    console.log('⚠️ User not logged in - only localStorage data will be included');
                     backupData.supabaseDataIncluded = false;
                     backupData.supabaseNote = 'User not logged in - only localStorage data included';
                 }
@@ -9551,14 +9614,16 @@ Budget Manager System`;
                             }
                             statusDiv.innerHTML = message;
                         }
+                        console.log('✅ Backup saved using File System Access API');
                         return;
                     } catch (saveError) {
                         // User cancelled or error - fall back to download
-                        console.log('File System Access API not available or cancelled, using download:', saveError);
+                        console.log('⚠️ File System Access API not available or cancelled, using download:', saveError);
                     }
                 }
                 
                 // Fallback: Download file
+                console.log('🔵 Downloading backup file...');
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -9567,6 +9632,7 @@ Budget Manager System`;
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
+                console.log('✅ Backup file downloaded');
                 
                 if (!silent && statusDiv) {
                     statusDiv.style.background = '#d4edda';
@@ -9583,13 +9649,14 @@ Budget Manager System`;
                 }
                         
             } catch (error) {
-                console.error('Error creating backup:', error);
+                console.error('❌ Error creating backup:', error);
                 if (!silent && statusDiv) {
                     statusDiv.style.background = '#f8d7da';
                     statusDiv.style.border = '1px solid #f5c6cb';
                     statusDiv.style.color = '#721c24';
                     statusDiv.innerHTML = `<strong>✗ Error creating backup:</strong> ${error.message}`;
                 }
+                throw error; // Re-throw so caller knows it failed
             }
         }
 
