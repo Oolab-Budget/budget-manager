@@ -5,7 +5,22 @@
 
 const express = require('express');
 const cors = require('cors');
-const fetch = require('node-fetch');
+
+// Use native fetch if available (Node 18+), otherwise use node-fetch
+let fetch;
+try {
+    // Try to use native fetch (Node 18+)
+    if (typeof globalThis.fetch !== 'undefined') {
+        fetch = globalThis.fetch;
+        console.log('Using native fetch API');
+    } else {
+        throw new Error('No native fetch');
+    }
+} catch (e) {
+    // Fallback to node-fetch for older Node versions
+    fetch = require('node-fetch');
+    console.log('Using node-fetch');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
