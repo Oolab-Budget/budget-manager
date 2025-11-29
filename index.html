@@ -8292,12 +8292,14 @@
             localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
             
             // Save tracking updates to Supabase if logged in
-            if (useSupabase && currentUser && updated) {
+            // Always save tracking updates (not just when request status changes)
+            // This ensures tracking status refreshes are persisted
+            if (useSupabase && currentUser) {
                 try {
                     for (const request of history) {
                         if (request.trackingShipments && request.trackingShipments.length > 0 && request.id) {
                             // Update request status if changed
-                            if (request.status) {
+                            if (updated && request.status) {
                                 await supabase
                                     .from('canada_requests')
                                     .update({
@@ -8309,7 +8311,8 @@
                                     .eq('user_id', currentUser.id);
                             }
                             
-                            // Update tracking shipments
+                            // Always update tracking shipments (even if request status didn't change)
+                            // This ensures tracking status refreshes are saved
                             for (const shipment of request.trackingShipments) {
                                 if (shipment.trackingNumber) {
                                     await supabase
@@ -8338,11 +8341,22 @@
                 }
             }
             
-            // Always refresh Canada tab if it's currently visible
+            // Always refresh Canada tab to show updated tracking status
+            // Wait a moment for Supabase to propagate the changes, then refresh
+            // Refresh even if tab isn't active so data is ready when user switches to it
             const canadaTab = document.getElementById('canadaTab');
-            if (canadaTab && canadaTab.classList.contains('active')) {
-                loadCanadaHistory();
-                updateCanadaRequestSummary();
+            if (canadaTab) {
+                // Small delay to ensure Supabase has processed the updates
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // If tab is active, refresh immediately
+                if (canadaTab.classList.contains('active')) {
+                    await loadCanadaHistory();
+                    updateCanadaRequestSummary();
+                } else {
+                    // If tab is not active, refresh in background so data is ready
+                    loadCanadaHistory().catch(err => console.error('Error refreshing Canada history:', err));
+                }
             }
             
             // Check for duties/taxes alerts after tracking update
@@ -16123,11 +16137,45 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                         };
                                     });
                                 
-                                // If Supabase has no tracking shipments but localStorage does, use localStorage
-                                // This handles the case where Supabase save failed but localStorage has the data
-                                const finalTrackingShipments = supabaseTracking.length > 0 
-                                    ? supabaseTracking 
-                                    : (localRequest?.trackingShipments || []);
+                                // Merge Supabase and localStorage tracking data
+                                // Prefer the most recent status (compare upsLastChecked timestamps)
+                                // This ensures we show the latest status even if Supabase save is delayed
+                                let finalTrackingShipments = supabaseTracking;
+                                
+                                if (localRequest?.trackingShipments && localRequest.trackingShipments.length > 0) {
+                                    // Merge: for each tracking number, use the most recent status
+                                    const mergedShipments = new Map();
+                                    
+                                    // Add Supabase shipments first
+                                    supabaseTracking.forEach(shipment => {
+                                        mergedShipments.set(shipment.trackingNumber, shipment);
+                                    });
+                                    
+                                    // Merge with localStorage, preferring newer status
+                                    localRequest.trackingShipments.forEach(localShipment => {
+                                        if (!localShipment.trackingNumber) return;
+                                        
+                                        const existing = mergedShipments.get(localShipment.trackingNumber);
+                                        if (!existing) {
+                                            // No Supabase entry, use localStorage
+                                            mergedShipments.set(localShipment.trackingNumber, localShipment);
+                                        } else {
+                                            // Compare timestamps - use the newer one
+                                            const localTime = localShipment.upsLastChecked ? new Date(localShipment.upsLastChecked).getTime() : 0;
+                                            const supabaseTime = existing.upsLastChecked ? new Date(existing.upsLastChecked).getTime() : 0;
+                                            
+                                            if (localTime > supabaseTime && localShipment.upsStatus && !localShipment.upsStatus.includes('Error')) {
+                                                // localStorage has newer status and it's not an error, use it
+                                                mergedShipments.set(localShipment.trackingNumber, localShipment);
+                                            }
+                                        }
+                                    });
+                                    
+                                    finalTrackingShipments = Array.from(mergedShipments.values());
+                                } else if (supabaseTracking.length === 0 && localRequest?.trackingShipments) {
+                                    // No Supabase data, use localStorage
+                                    finalTrackingShipments = localRequest.trackingShipments;
+                                }
                                 
                                 return {
                                     id: req.id,
