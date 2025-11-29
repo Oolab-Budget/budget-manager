@@ -73,6 +73,8 @@ app.get('/', (req, res) => {
             health: 'GET /health',
             token: 'POST /api/ups/token',
             track: 'POST /api/ups/track',
+            'track-alert-subscribe': 'POST /api/ups/track-alert/subscribe',
+            'track-alert-webhook': 'POST /api/ups/track-alert/webhook',
             test: 'POST /api/ups/test'
         }
     });
@@ -81,15 +83,19 @@ app.get('/', (req, res) => {
 // UPS OAuth Token Endpoint
 app.post('/api/ups/token', async (req, res) => {
     try {
-        const { clientId, clientSecret } = req.body;
+        const { clientId, clientSecret, environment } = req.body;
         
         if (!clientId || !clientSecret) {
             return res.status(400).json({ error: 'Client ID and Client Secret are required' });
         }
         
+        // Support test or production environment
+        const isTest = environment === 'test' || process.env.UPS_ENV === 'test';
+        const baseUrl = isTest ? 'https://wwwcie.ups.com' : 'https://onlinetools.ups.com';
+        
         const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
         
-        const response = await fetch('https://onlinetools.ups.com/security/v1/oauth/token', {
+        const response = await fetch(`${baseUrl}/security/v1/oauth/token`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -134,7 +140,7 @@ app.post('/api/ups/track', async (req, res) => {
         const transId = 'tracking-' + Date.now();
         const headers = {
             'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
+            'Accept': 'application/json',
             'transId': transId,
             'transactionSrc': 'budget-manager'
         };
@@ -143,25 +149,19 @@ app.post('/api/ups/track', async (req, res) => {
             headers['x-merchant-id'] = clientId;
         }
         
-        const requestBody = {
-            TrackRequest: {
-                Request: {
-                    RequestOption: '1',
-                    TransactionReference: {
-                        CustomerContext: transId
-                    },
-                    Locale: 'en_US'
-                },
-                InquiryNumber: trackingNumber
-            }
-        };
+        // Determine if using test or production environment
+        const isTest = environment === 'test' || process.env.UPS_ENV === 'test';
+        const baseUrl = isTest ? 'https://wwwcie.ups.com' : 'https://onlinetools.ups.com';
+        console.log('Step 4a: Using environment:', isTest ? 'TEST' : 'PRODUCTION', 'Base URL:', baseUrl);
         
-        console.log('Step 5: Calling UPS API...', 'URL: https://onlinetools.ups.com/api/track/v1/details');
-        console.log('Step 5a: Request body being sent:', JSON.stringify(requestBody, null, 2));
-        const response = await fetch('https://onlinetools.ups.com/api/track/v1/details', {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(requestBody)
+        // UPS API endpoint: /track/v1/details/{trackingNumber} (not /api/track/v1/details)
+        // Use GET method as per UPS API documentation
+        const upsTrackUrl = `${baseUrl}/track/v1/details/${trackingNumber}`;
+        console.log('Step 5: Calling UPS API...', 'URL:', upsTrackUrl);
+        console.log('Step 5a: Using GET method with tracking number in URL path');
+        const response = await fetch(upsTrackUrl, {
+            method: 'GET',
+            headers: headers
         });
         
         console.log('Step 6: UPS API response received - Status:', response.status, 'OK:', response.ok);
@@ -212,9 +212,8 @@ app.post('/api/ups/track', async (req, res) => {
             console.log('Step 7d: Error text (first 500 chars):', errorText ? errorText.substring(0, 500) : '(empty)');
             console.log('Step 7e: Error text length:', errorText ? errorText.length : 0);
             console.log('Step 7f: Error JSON:', errorJson);
-            console.log('Step 7g: Request body sent to UPS:', JSON.stringify(requestBody, null, 2));
-            console.log('Step 7h: Headers sent to UPS:', JSON.stringify(headers, null, 2));
-            console.log('Step 7i: UPS API URL:', 'https://onlinetools.ups.com/api/track/v1/details');
+            console.log('Step 7g: Headers sent to UPS:', JSON.stringify(headers, null, 2));
+            console.log('Step 7h: UPS API URL:', upsTrackUrl);
             
             // Return 502 (Bad Gateway) instead of forwarding UPS API status codes
             // This makes it clear the proxy is working but UPS API failed
@@ -249,6 +248,189 @@ app.post('/api/ups/track', async (req, res) => {
     }
 });
 
+// UPS Track Alert - Subscribe to tracking numbers
+app.post('/api/ups/track-alert/subscribe', async (req, res) => {
+    console.log('=== POST /api/ups/track-alert/subscribe - Request received ===');
+    try {
+        const { trackingNumbers, webhookUrl, accessToken, clientId, environment } = req.body;
+        
+        if (!trackingNumbers || !Array.isArray(trackingNumbers) || trackingNumbers.length === 0) {
+            return res.status(400).json({ error: 'trackingNumbers array is required' });
+        }
+        
+        if (trackingNumbers.length > 100) {
+            return res.status(400).json({ error: 'Maximum 100 tracking numbers per request' });
+        }
+        
+        if (!webhookUrl) {
+            return res.status(400).json({ error: 'webhookUrl is required' });
+        }
+        
+        if (!accessToken) {
+            return res.status(400).json({ error: 'accessToken is required' });
+        }
+        
+        // Determine environment
+        const isTest = environment === 'test' || process.env.UPS_ENV === 'test';
+        const baseUrl = isTest ? 'https://wwwcie.ups.com' : 'https://onlinetools.ups.com';
+        
+        const transId = 'track-alert-' + Date.now();
+        const headers = {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'transId': transId,
+            'transactionSrc': 'budget-manager'
+        };
+        
+        if (clientId) {
+            headers['x-merchant-id'] = clientId;
+        }
+        
+        // Track Alert subscription request
+        const subscriptionRequest = {
+            locale: 'en_US',
+            countryCode: 'US',
+            trackingNumberList: trackingNumbers,
+            destination: {
+                url: webhookUrl,
+                credentialType: 'Bearer',
+                credential: accessToken // UPS will send this back in webhook headers
+            }
+        };
+        
+        console.log('Subscribing tracking numbers:', trackingNumbers);
+        console.log('Webhook URL:', webhookUrl);
+        
+        const response = await fetch(`${baseUrl}/api/track/v1/subscription/standard/package`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(subscriptionRequest)
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorJson = null;
+            try {
+                errorJson = JSON.parse(errorText);
+            } catch (e) {
+                // Not JSON
+            }
+            
+            console.error('Track Alert subscription failed:', response.status, errorText);
+            return res.status(response.status).json({
+                error: 'Track Alert subscription failed',
+                upsStatus: response.status,
+                upsError: errorText,
+                upsErrorJson: errorJson
+            });
+        }
+        
+        const data = await response.json();
+        console.log('Track Alert subscription successful:', data);
+        res.json(data);
+        
+    } catch (error) {
+        console.error('Track Alert subscription error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// UPS Track Alert - Webhook endpoint (receives push notifications from UPS)
+app.post('/api/ups/track-alert/webhook', async (req, res) => {
+    console.log('=== POST /api/ups/track-alert/webhook - Webhook received ===');
+    console.log('Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('Body:', JSON.stringify(req.body, null, 2));
+    
+    try {
+        // UPS requires a quick 200 response (within milliseconds)
+        // Process the event asynchronously after responding
+        res.status(200).json({ received: true });
+        
+        // Process the webhook event asynchronously
+        setImmediate(() => {
+            processTrackAlertWebhook(req.body, req.headers);
+        });
+        
+    } catch (error) {
+        console.error('Webhook processing error:', error);
+        // Still return 200 to UPS even if processing fails
+        res.status(200).json({ received: true, error: error.message });
+    }
+});
+
+// Process Track Alert webhook event
+function processTrackAlertWebhook(eventData, headers) {
+    try {
+        console.log('Processing Track Alert webhook event...');
+        
+        const {
+            trackingNumber,
+            activityStatus,
+            activityLocation,
+            localActivityDate,
+            localActivityTime,
+            scheduledDeliveryDate,
+            actualDeliveryDate,
+            actualDeliveryTime,
+            gmtActivityDate,
+            gmtActivityTime
+        } = eventData;
+        
+        const status = activityStatus || {};
+        const statusType = status.type || '';
+        const statusCode = status.code || '';
+        const statusDescription = status.description || '';
+        
+        console.log('Event details:', {
+            trackingNumber,
+            statusType,
+            statusCode,
+            statusDescription,
+            localActivityDate,
+            localActivityTime,
+            actualDeliveryDate,
+            actualDeliveryTime
+        });
+        
+        // Determine status based on status type
+        // M/MV = manifest, X = exception, I = in-progress, U = update, D = delivery
+        let deliveryStatus = 'In Transit';
+        if (statusType === 'D') {
+            deliveryStatus = actualDeliveryDate ? 'Delivered' : 'Out for Delivery';
+        } else if (statusType === 'X') {
+            deliveryStatus = 'Exception';
+        } else if (statusType === 'I') {
+            deliveryStatus = 'In Transit';
+        } else if (statusType === 'M' || statusType === 'MV') {
+            deliveryStatus = 'Manifest';
+        } else if (statusType === 'U') {
+            deliveryStatus = 'Update';
+        }
+        
+        // Store event for frontend to retrieve
+        // In a real implementation, you'd store this in a database
+        // For now, we'll log it and the frontend can poll or use a different mechanism
+        console.log('Track Alert Event:', {
+            trackingNumber,
+            status: deliveryStatus,
+            statusDescription,
+            statusCode,
+            statusType,
+            location: activityLocation,
+            deliveryDate: actualDeliveryDate,
+            deliveryTime: actualDeliveryTime,
+            scheduledDate: scheduledDeliveryDate,
+            timestamp: new Date().toISOString()
+        });
+        
+        // TODO: Store in database or send to frontend via WebSocket/SSE
+        // For now, frontend will need to check for updates
+        
+    } catch (error) {
+        console.error('Error processing webhook event:', error);
+    }
+}
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', service: 'UPS Proxy Server' });
@@ -282,6 +464,8 @@ app.use((req, res) => {
             'GET /health',
             'POST /api/ups/token',
             'POST /api/ups/track',
+            'POST /api/ups/track-alert/subscribe',
+            'POST /api/ups/track-alert/webhook',
             'POST /api/ups/test'
         ]
     });
@@ -293,12 +477,14 @@ console.log('Registering routes...');
     console.log('  - GET /health');
     console.log('  - POST /api/ups/token');
     console.log('  - POST /api/ups/track');
+    console.log('  - POST /api/ups/track-alert/subscribe');
+    console.log('  - POST /api/ups/track-alert/webhook');
     console.log('  - POST /api/ups/test');
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`UPS Proxy Server running on port ${PORT}`);
     console.log(`Listening on 0.0.0.0:${PORT}`);
-    console.log('Endpoints available: /health, /api/ups/token, /api/ups/track');
+    console.log('Endpoints available: /health, /api/ups/token, /api/ups/track, /api/ups/track-alert/subscribe, /api/ups/track-alert/webhook');
     console.log('Environment:', {
         NODE_ENV: process.env.NODE_ENV || 'not set',
         PORT: PORT

@@ -7699,6 +7699,96 @@
             }
         }
         
+        // Subscribe tracking numbers to UPS Track Alert API
+        async function subscribeToTrackAlert(trackingNumbers) {
+            try {
+                const clientId = localStorage.getItem('upsClientId');
+                const clientSecret = localStorage.getItem('upsClientSecret');
+                const proxyUrl = localStorage.getItem('upsProxyUrl') || '';
+                
+                if (!clientId || !clientSecret) {
+                    console.log('UPS credentials not configured, skipping Track Alert subscription');
+                    return { success: false, error: 'Credentials not configured' };
+                }
+                
+                if (!proxyUrl) {
+                    console.log('Proxy URL not configured, skipping Track Alert subscription');
+                    return { success: false, error: 'Proxy URL not configured' };
+                }
+                
+                // Normalize proxy URL
+                let PROXY_URL = proxyUrl;
+                if (!PROXY_URL.match(/^https?:\/\//i)) {
+                    PROXY_URL = 'https://' + PROXY_URL;
+                }
+                PROXY_URL = PROXY_URL.replace(/\/+$/, '');
+                
+                // Get OAuth token
+                const token = await getUPSToken();
+                
+                // Build webhook URL (UPS will POST to this when events occur)
+                const webhookUrl = `${PROXY_URL}/api/ups/track-alert/webhook`;
+                
+                // Filter out empty tracking numbers
+                const validTrackingNumbers = trackingNumbers.filter(tn => tn && tn.trim());
+                
+                if (validTrackingNumbers.length === 0) {
+                    return { success: false, error: 'No valid tracking numbers' };
+                }
+                
+                // Subscribe in batches of 100 (UPS limit)
+                const batches = [];
+                for (let i = 0; i < validTrackingNumbers.length; i += 100) {
+                    batches.push(validTrackingNumbers.slice(i, i + 100));
+                }
+                
+                const results = [];
+                for (const batch of batches) {
+                    try {
+                        const response = await fetch(`${PROXY_URL}/api/ups/track-alert/subscribe`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                trackingNumbers: batch,
+                                webhookUrl: webhookUrl,
+                                accessToken: token,
+                                clientId: clientId,
+                                environment: 'production' // or 'test' if using test credentials
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log('Track Alert subscription successful for batch:', batch, data);
+                            results.push({ success: true, batch: batch, data: data });
+                        } else {
+                            const errorData = await response.json();
+                            console.error('Track Alert subscription failed:', response.status, errorData);
+                            results.push({ success: false, batch: batch, error: errorData });
+                        }
+                    } catch (error) {
+                        console.error('Error subscribing batch to Track Alert:', error);
+                        results.push({ success: false, batch: batch, error: error.message });
+                    }
+                }
+                
+                const allSuccess = results.every(r => r.success);
+                return {
+                    success: allSuccess,
+                    results: results,
+                    message: allSuccess 
+                        ? `Subscribed ${validTrackingNumbers.length} tracking numbers to Track Alert`
+                        : `Some subscriptions failed. Check console for details.`
+                };
+                
+            } catch (error) {
+                console.error('Error subscribing to Track Alert:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
         // Check UPS tracking status
         async function checkUPSTracking(trackingNumber) {
             try {
@@ -17296,6 +17386,21 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     trackingShipmentsCount: trackingShipmentsToSave.length,
                     trackingShipments: trackingShipmentsToSave
                 });
+                
+                // Subscribe to UPS Track Alert API for real-time updates
+                const trackingNumbers = trackingShipmentsToSave.map(s => s.trackingNumber).filter(tn => tn && tn.trim());
+                if (trackingNumbers.length > 0) {
+                    console.log('Subscribing tracking numbers to Track Alert:', trackingNumbers);
+                    subscribeToTrackAlert(trackingNumbers).then(result => {
+                        if (result.success) {
+                            console.log('✓ Track Alert subscription successful:', result.message);
+                        } else {
+                            console.warn('⚠ Track Alert subscription failed:', result.error || result.message);
+                        }
+                    }).catch(error => {
+                        console.error('Error subscribing to Track Alert:', error);
+                    });
+                }
                 
                 // Calculate backorders - only for items NOT assigned to any shipment OR where sent qty < requested qty
                 const allAssignedItemIds = new Set();
