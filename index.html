@@ -1202,6 +1202,7 @@
 
             <div class="form-section">
                 <button class="btn btn-info" onclick="requestReview()" style="background: #17a2b8; border-color: #17a2b8;" data-en="Request Review" data-es="Solicitar Revisión">Request Review</button>
+                <button class="btn btn-primary" onclick="saveAndContinueBudget()" style="background: #6c757d; border-color: #6c757d;" data-en="Save and Continue" data-es="Guardar y Continuar">Save and Continue</button>
                 <button class="btn btn-success" onclick="saveAndClearBudget()" data-en="Save & Clear for Next Week" data-es="Guardar y Limpiar para la Próxima Semana">Save & Clear for Next Week</button>
                 <button class="btn btn-warning" onclick="printBudget()" data-en="Print Budget" data-es="Imprimir Presupuesto">Print Budget</button>
                 <button class="btn btn-danger" onclick="clearBudget().catch(err => console.error('Error clearing budget:', err))" data-en="Clear All Items" data-es="Limpiar Todos los Artículos">Clear All Items</button>
@@ -7291,6 +7292,30 @@
                 console.error('Error updating saved budget in Supabase:', error);
                 throw error;
             }
+        }
+
+        // Save budget without clearing - allows adding more items later
+        function saveAndContinueBudget() {
+            if (items.length === 0) {
+                showApprovalStatus('info', currentLanguage === 'en' ? 
+                    'No items to save. Budget is already empty.' : 
+                    'No hay artículos para guardar. El presupuesto ya está vacío.');
+                return;
+            }
+            
+            // Save budget snapshot
+            const snapshot = saveBudgetSnapshot();
+            
+            // Generate PDF and Excel, then send emails
+            generatePDFAndExcelForEmail(snapshot);
+            
+            // Show success message
+            showApprovalStatus('success', currentLanguage === 'en' 
+                ? `Budget saved successfully! You can continue adding items.` 
+                : `¡Presupuesto guardado exitosamente! Puedes continuar agregando artículos.`);
+            
+            // Log activity
+            logActivity('export', `${currentLanguage === 'en' ? 'Saved budget (continue mode)' : 'Presupuesto guardado (modo continuar)'}: ${snapshot.weekLabel}`, null);
         }
 
         function saveAndClearBudget() {
@@ -14107,8 +14132,15 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 
                 categoryItems.forEach(item => {
                     // Check if item is recurring weekly (skip if skipRecurring is true)
-                    // Add items for the current week if they haven't been added yet (regardless of day)
+                    // Only add recurring weekly items on Monday (start of the week)
                     if (item.recurringWeekly && !skipRecurring) {
+                        // Only add recurring items on Monday
+                        // For current week: add on Monday of current week
+                        // For next week: add on Monday of current week (to prepare for next week)
+                        if (!isMonday || !isCurrentWeekMonday) {
+                            return; // Skip adding recurring items if it's not Monday
+                        }
+                        
                         // Check if this item already exists in current budget for target week
                         // Use flexible matching: check by weeklyAddedWeek OR by dateAdded being in the target week
                         const existingItemsInBudget = items.filter(existingItem => {
