@@ -153,28 +153,39 @@ app.post('/api/ups/track', async (req, res) => {
         console.log('Step 6a: Response headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
         
         if (!response.ok) {
-            // Try to read error response - could be text or JSON
+            // Try to read error response - could be text, JSON, or empty
             let errorText = '';
             let errorJson = null;
             const contentType = response.headers.get('content-type') || '';
             
+            // Always try to read as text first (works for any content type)
             try {
-                if (contentType.includes('application/json')) {
-                    errorJson = await response.json();
-                    errorText = JSON.stringify(errorJson, null, 2);
-                } else {
-                    errorText = await response.text();
+                errorText = await response.text();
+                
+                // If we got text and it looks like JSON, try to parse it
+                if (errorText && errorText.trim().startsWith('{')) {
+                    try {
+                        errorJson = JSON.parse(errorText);
+                    } catch (parseError) {
+                        // Not valid JSON, keep as text
+                        console.log('Step 7: Response text is not valid JSON, keeping as text');
+                    }
                 }
             } catch (readError) {
                 console.log('Step 7: Failed to read error response:', readError);
                 errorText = `Failed to read error response: ${readError.message}`;
             }
             
+            // If errorText is empty, provide a default message
+            if (!errorText || errorText.trim() === '') {
+                errorText = `UPS API returned ${response.status} with empty response body`;
+            }
+            
             console.log('Step 7: UPS API error - Status:', response.status);
             console.log('Step 7a: Content-Type:', contentType);
-            console.log('Step 7b: Error text:', errorText);
-            console.log('Step 7c: Error JSON:', errorJson);
-            console.log('Step 7d: Error text length:', errorText ? errorText.length : 0);
+            console.log('Step 7b: Error text (first 500 chars):', errorText.substring(0, 500));
+            console.log('Step 7c: Error text length:', errorText ? errorText.length : 0);
+            console.log('Step 7d: Error JSON:', errorJson);
             console.log('Step 7e: Request body sent to UPS:', JSON.stringify(requestBody, null, 2));
             console.log('Step 7f: Headers sent to UPS:', JSON.stringify(headers, null, 2));
             console.log('Step 7g: UPS API URL:', 'https://onlinetools.ups.com/api/track/v1/details');
@@ -184,14 +195,15 @@ app.post('/api/ups/track', async (req, res) => {
             return res.status(502).json({ 
                 error: 'UPS API returned an error',
                 upsStatus: response.status,
-                upsError: errorText || 'Empty response from UPS API',
+                upsError: errorText,
                 upsErrorJson: errorJson,
                 message: `UPS API returned status ${response.status}. Check upsError for details.`,
                 debug: {
                     contentType: contentType,
                     trackingNumber: trackingNumber,
                     hasAccessToken: !!accessToken,
-                    hasClientId: !!clientId
+                    hasClientId: !!clientId,
+                    errorTextLength: errorText ? errorText.length : 0
                 }
             });
         }
