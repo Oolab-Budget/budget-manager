@@ -2455,19 +2455,21 @@
             }
             
             try {
-                // Load budget items
+                // Load budget items - MUST filter by user_id
                 const { data: budgetItems, error: itemsError } = await supabase
                     .from('budget_items')
                     .select('*')
+                    .eq('user_id', currentUser.id)
                     .order('date_added', { ascending: false });
                 
                 if (itemsError) throw itemsError;
                 items = (budgetItems || []).map(convertDbItemToAppItem);
                 
-                // Load categories
+                // Load categories - MUST filter by user_id
                 const { data: categoriesData, error: categoriesError } = await supabase
                     .from('custom_categories')
-                    .select('*');
+                    .select('*')
+                    .eq('user_id', currentUser.id);
                 
                 if (categoriesError) throw categoriesError;
                 
@@ -2501,10 +2503,11 @@
                     });
                 }
                 
-                // Check for saved budgets
+                // Check for saved budgets - MUST filter by user_id
                 const { data: savedBudgetsData } = await supabase
                     .from('saved_budgets')
-                    .select('*');
+                    .select('*')
+                    .eq('user_id', currentUser.id);
                 
                 // If Supabase is empty, check localStorage and migrate data
                 if ((!categoriesData || categoriesData.length === 0) && (!budgetItems || budgetItems.length === 0) && (!savedBudgetsData || savedBudgetsData.length === 0)) {
@@ -2669,10 +2672,11 @@
                     }
                 }
                 
-                // Load activity log
+                // Load activity log - MUST filter by user_id
                 const { data: activityData, error: activityError } = await supabase
                     .from('activity_log')
                     .select('*')
+                    .eq('user_id', currentUser.id)
                     .order('created_at', { ascending: false })
                     .limit(100);
                 
@@ -2683,10 +2687,11 @@
                     activityLog = JSON.parse(localStorage.getItem('activityLog')) || [];
                 }
                 
-                // Load change history
+                // Load change history - MUST filter by user_id
                 const { data: historyData, error: historyError } = await supabase
                     .from('change_history')
                     .select('*')
+                    .eq('user_id', currentUser.id)
                     .order('created_at', { ascending: false })
                     .limit(100);
                 
@@ -2764,7 +2769,7 @@
                 // Get current items from Supabase
                 const { data: existingItems, error: fetchError } = await supabase
                     .from('budget_items')
-                    .select('id, name_en, date_added')
+                    .select('id, name_en, date_added, unit_price, quantity')
                     .eq('user_id', currentUser.id);
                 
                 if (fetchError) {
@@ -2773,26 +2778,43 @@
                     return;
                 }
                 
+                console.log(`Found ${existingItems?.length || 0} existing items in Supabase`);
+                
+                // Create a more robust duplicate check using multiple fields
                 const existingItemKeys = new Set();
                 if (existingItems) {
                     existingItems.forEach(item => {
-                        // Create a unique key for each item
-                        const key = `${item.name_en}_${item.date_added}`;
-                        existingItemKeys.add(key);
+                        // Normalize date for comparison (handle different date formats)
+                        const dateStr = item.date_added ? new Date(item.date_added).toISOString().split('T')[0] : '';
+                        // Create multiple keys for better duplicate detection
+                        const key1 = `${item.name_en || ''}_${dateStr}_${item.unit_price || 0}_${item.quantity || 1}`;
+                        const key2 = `${item.name_en || ''}_${dateStr}`;
+                        existingItemKeys.add(key1);
+                        existingItemKeys.add(key2);
                     });
                 }
                 
                 let migratedCount = 0;
                 let skippedCount = 0;
                 let errorCount = 0;
+                const errors = [];
                 
                 // Migrate items that don't exist in Supabase
-                for (const item of localBudgetItems) {
+                for (let i = 0; i < localBudgetItems.length; i++) {
+                    const item = localBudgetItems[i];
                     try {
-                        const itemKey = `${item.nameEn || item.name}_${item.dateAdded}`;
+                        // Normalize date for comparison
+                        const itemDate = item.dateAdded ? new Date(item.dateAdded).toISOString().split('T')[0] : '';
+                        const itemName = item.nameEn || item.name || '';
+                        const itemPrice = item.unitPrice || 0;
+                        const itemQty = item.quantity || 1;
                         
-                        // Check if item already exists
-                        if (existingItemKeys.has(itemKey)) {
+                        // Check multiple keys for duplicates
+                        const key1 = `${itemName}_${itemDate}_${itemPrice}_${itemQty}`;
+                        const key2 = `${itemName}_${itemDate}`;
+                        
+                        // Only skip if we have a very close match (same name, date, price, and quantity)
+                        if (existingItemKeys.has(key1)) {
                             skippedCount++;
                             continue;
                         }
@@ -2801,6 +2823,11 @@
                         dbItem.user_id = currentUser.id;
                         // Remove ID so Supabase generates a new one
                         delete dbItem.id;
+                        
+                        // Ensure date_added is properly formatted
+                        if (!dbItem.date_added) {
+                            dbItem.date_added = new Date().toISOString();
+                        }
                         
                         const { error: insertError } = await supabase
                             .from('budget_items')
@@ -2811,21 +2838,34 @@
                                 // Duplicate key, skip
                                 skippedCount++;
                             } else {
-                                console.error('Error migrating item:', insertError, item);
+                                console.error(`Error migrating item ${i + 1}/${localBudgetItems.length}:`, insertError.message, item);
+                                errors.push({ item: itemName, error: insertError.message });
                                 errorCount++;
                             }
                         } else {
                             migratedCount++;
-                            existingItemKeys.add(itemKey); // Add to set to avoid duplicates
+                            // Add to set to avoid duplicates in this batch
+                            existingItemKeys.add(key1);
+                            existingItemKeys.add(key2);
+                            
+                            // Log progress every 50 items
+                            if (migratedCount % 50 === 0) {
+                                console.log(`Progress: ${migratedCount} migrated, ${skippedCount} skipped, ${errorCount} errors...`);
+                            }
                         }
                     } catch (err) {
-                        console.error('Error processing item:', err, item);
+                        console.error(`Error processing item ${i + 1}/${localBudgetItems.length}:`, err, item);
+                        errors.push({ item: item.nameEn || item.name || 'Unknown', error: err.message });
                         errorCount++;
                     }
                 }
                 
                 console.log(`Migration complete! Migrated: ${migratedCount}, Skipped: ${skippedCount}, Errors: ${errorCount}`);
-                alert(`Migration complete!\nMigrated: ${migratedCount} items\nSkipped: ${skippedCount} items (already exist)\nErrors: ${errorCount} items`);
+                if (errors.length > 0) {
+                    console.log('Errors encountered:', errors.slice(0, 10)); // Log first 10 errors
+                }
+                
+                alert(`Migration complete!\nMigrated: ${migratedCount} items\nSkipped: ${skippedCount} items (already exist)\nErrors: ${errorCount} items${errors.length > 0 ? '\n\nCheck console for error details' : ''}`);
                 
                 // Reload items from Supabase
                 const { data: allItems, error: reloadError } = await supabase
@@ -2838,9 +2878,11 @@
                     items = allItems.map(convertDbItemToAppItem);
                     renderBudgetItems();
                     updateTotal();
-                    console.log(`Loaded ${items.length} items from Supabase`);
+                    console.log(`Loaded ${items.length} items from Supabase (should match migrated + existing)`);
+                    alert(`Successfully loaded ${items.length} items from Supabase!`);
                 } else {
                     console.error('Error reloading items:', reloadError);
+                    alert('Migration completed but failed to reload items. Please refresh the page.');
                 }
             } catch (error) {
                 console.error('Migration error:', error);
@@ -2850,6 +2892,72 @@
         
         // Make function available globally for console access
         window.forceMigrateBudgetItems = forceMigrateBudgetItems;
+        
+        // Diagnostic function to check item counts - call from console: checkItemCounts()
+        async function checkItemCounts() {
+            if (!currentUser || !useSupabase) {
+                console.log('Not logged in or Supabase not enabled');
+                return;
+            }
+            
+            const localItems = JSON.parse(localStorage.getItem('budgetItems') || '[]');
+            console.log(`LocalStorage items: ${localItems.length}`);
+            
+            const { data: supabaseItems, error } = await supabase
+                .from('budget_items')
+                .select('id')
+                .eq('user_id', currentUser.id);
+            
+            if (error) {
+                console.error('Error fetching Supabase items:', error);
+            } else {
+                console.log(`Supabase items: ${supabaseItems?.length || 0}`);
+            }
+            
+            console.log(`Currently loaded items: ${items.length}`);
+            console.log(`Difference: ${localItems.length - (supabaseItems?.length || 0)} items not in Supabase`);
+            
+            return {
+                localStorage: localItems.length,
+                supabase: supabaseItems?.length || 0,
+                loaded: items.length,
+                missing: localItems.length - (supabaseItems?.length || 0)
+            };
+        }
+        window.checkItemCounts = checkItemCounts;
+        
+        // Force reload all items from Supabase - call from console: forceReloadItems()
+        async function forceReloadItems() {
+            if (!currentUser || !useSupabase) {
+                console.error('Please log in first');
+                return;
+            }
+            
+            console.log('Force reloading items from Supabase...');
+            const { data: allItems, error } = await supabase
+                .from('budget_items')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('date_added', { ascending: false });
+            
+            if (error) {
+                console.error('Error reloading items:', error);
+                alert('Error reloading items: ' + error.message);
+                return;
+            }
+            
+            if (allItems) {
+                items = allItems.map(convertDbItemToAppItem);
+                renderBudgetItems();
+                updateTotal();
+                console.log(`Successfully reloaded ${items.length} items from Supabase`);
+                alert(`Successfully reloaded ${items.length} items!`);
+            } else {
+                console.log('No items found in Supabase');
+                alert('No items found in Supabase');
+            }
+        }
+        window.forceReloadItems = forceReloadItems;
         
         // Function to migrate localStorage data to Supabase
         async function migrateLocalStorageToSupabase(localCategories, localItems, localBudgetItems, localSavedBudgets = []) {
@@ -16772,4 +16880,4 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
     </script>
 </body>
 </html>
-Fix MutationObserver error and add user_id filters to loadUserData queries
+
