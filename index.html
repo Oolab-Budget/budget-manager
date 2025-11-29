@@ -2742,10 +2742,16 @@
                 updateMigrationButtonVisibility();
                 
                 // Check and add recurring items AFTER data is loaded
-                if (typeof checkAndAddDueItems === 'function') {
+                // Only add recurring items if items array is not empty (to avoid re-adding after clear)
+                // This prevents items from reappearing immediately after clearing
+                if (typeof checkAndAddDueItems === 'function' && items.length > 0) {
                     checkAndAddDueItems();
                     // Save items after adding recurring items
                     saveItems();
+                    renderBudgetItems();
+                    updateTotal();
+                } else if (items.length === 0) {
+                    // If items array is empty, just render to show empty state
                     renderBudgetItems();
                     updateTotal();
                 }
@@ -16654,22 +16660,8 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             
             let filteredHistory = history;
             if (filter === 'all') {
-                // Show all requests except received ones (received items can be viewed via "Received" filter)
-                filteredHistory = history.filter(req => {
-                    // Exclude if status is explicitly 'received'
-                    if (req.status === 'received') return false;
-                    
-                    // Also exclude if all shipments are delivered (even if status hasn't been updated yet)
-                    if (req.trackingShipments && req.trackingShipments.length > 0) {
-                        const allDelivered = req.trackingShipments.every(shipment => {
-                            const status = (shipment.upsStatus || '').toLowerCase();
-                            return status.includes('delivered');
-                        });
-                        if (allDelivered) return false;
-                    }
-                    
-                    return true;
-                });
+                // Show ALL requests - no filtering
+                filteredHistory = [...history];
                 
                 // Sort by date descending (newest first)
                 filteredHistory.sort((a, b) => {
