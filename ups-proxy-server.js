@@ -55,7 +55,8 @@ app.get('/', (req, res) => {
         endpoints: {
             health: 'GET /health',
             token: 'POST /api/ups/token',
-            track: 'POST /api/ups/track'
+            track: 'POST /api/ups/track',
+            test: 'POST /api/ups/test'
         }
     });
 });
@@ -175,6 +176,15 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', service: 'UPS Proxy Server' });
 });
 
+// Test endpoint to verify routing works
+app.post('/api/ups/test', (req, res) => {
+    res.json({ 
+        message: 'Test endpoint works!',
+        timestamp: new Date().toISOString(),
+        body: req.body
+    });
+});
+
 // Catch-all route for debugging
 app.use((req, res) => {
     console.log(`=== 404 ERROR ===`);
@@ -193,17 +203,19 @@ app.use((req, res) => {
             'GET /',
             'GET /health',
             'POST /api/ups/token',
-            'POST /api/ups/track'
+            'POST /api/ups/track',
+            'POST /api/ups/test'
         ]
     });
 });
 
 // Verify routes are registered
 console.log('Registering routes...');
-console.log('  - GET /');
-console.log('  - GET /health');
-console.log('  - POST /api/ups/token');
-console.log('  - POST /api/ups/track');
+    console.log('  - GET /');
+    console.log('  - GET /health');
+    console.log('  - POST /api/ups/token');
+    console.log('  - POST /api/ups/track');
+    console.log('  - POST /api/ups/test');
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`UPS Proxy Server running on port ${PORT}`);
