@@ -41,6 +41,8 @@ app.use(express.json());
 // Request logging middleware - Enhanced with detailed headers
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    console.log(`Request URL: ${req.url}`);
+    console.log(`Request originalUrl: ${req.originalUrl}`);
     console.log(`Request headers:`, JSON.stringify(req.headers, null, 2));
     next();
 });
@@ -98,6 +100,7 @@ app.post('/api/ups/track', async (req, res) => {
     console.log('Request path:', req.path);
     console.log('Request method:', req.method);
     console.log('Request URL:', req.url);
+    console.log('Request originalUrl:', req.originalUrl);
     console.log('Body:', JSON.stringify(req.body, null, 2));
     try {
         console.log('Step 1: Extracting request body...');
@@ -174,11 +177,18 @@ app.get('/health', (req, res) => {
 
 // Catch-all route for debugging
 app.use((req, res) => {
-    console.log(`404 - ${req.method} ${req.path} - Not found`);
+    console.log(`=== 404 ERROR ===`);
+    console.log(`Method: ${req.method}`);
+    console.log(`Path: ${req.path}`);
+    console.log(`URL: ${req.url}`);
+    console.log(`Original URL: ${req.originalUrl}`);
+    console.log(`Headers:`, JSON.stringify(req.headers, null, 2));
     res.status(404).json({
         error: 'Endpoint not found',
         method: req.method,
         path: req.path,
+        url: req.url,
+        originalUrl: req.originalUrl,
         availableEndpoints: [
             'GET /',
             'GET /health',
@@ -187,6 +197,13 @@ app.use((req, res) => {
         ]
     });
 });
+
+// Verify routes are registered
+console.log('Registering routes...');
+console.log('  - GET /');
+console.log('  - GET /health');
+console.log('  - POST /api/ups/token');
+console.log('  - POST /api/ups/track');
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`UPS Proxy Server running on port ${PORT}`);
@@ -198,5 +215,6 @@ app.listen(PORT, '0.0.0.0', () => {
     });
     console.log('Server started at:', new Date().toISOString());
     console.log('Enhanced logging enabled for /api/ups/track endpoint');
+    console.log('All routes registered successfully');
 });
 
