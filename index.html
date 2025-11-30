@@ -12833,6 +12833,30 @@ Budget Manager System`;
             });
         }
         
+        // Helper function to deduplicate budgets by week_start
+        function deduplicateBudgets(budgets) {
+            const deduplicated = [];
+            const weekStartMap = new Map();
+            
+            budgets.forEach(budget => {
+                const weekStartKey = budget.weekStart;
+                const existing = weekStartMap.get(weekStartKey);
+                
+                if (!existing || new Date(budget.savedDate) > new Date(existing.savedDate)) {
+                    if (existing) {
+                        const index = deduplicated.findIndex(b => b.id === existing.id);
+                        if (index !== -1) {
+                            deduplicated.splice(index, 1);
+                        }
+                    }
+                    weekStartMap.set(weekStartKey, budget);
+                    deduplicated.push(budget);
+                }
+            });
+            
+            return deduplicated;
+        }
+        
         async function getAllSavedBudgets() {
             // Always check localStorage first as backup
             const localBudgets = JSON.parse(localStorage.getItem('savedBudgets')) || [];
