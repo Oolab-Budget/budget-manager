@@ -2610,6 +2610,42 @@
             } catch (error) {
                 errorDiv.textContent = error.message || 'Login failed';
                 errorDiv.style.display = 'block';
+                
+                // Show resend confirmation button if email not confirmed
+                if (error.message && error.message.toLowerCase().includes('email not confirmed')) {
+                    document.getElementById('resendConfirmationDiv').style.display = 'block';
+                } else {
+                    document.getElementById('resendConfirmationDiv').style.display = 'none';
+                }
+            }
+        }
+        
+        async function resendConfirmationEmail() {
+            const email = document.getElementById('loginEmail').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if (!email) {
+                errorDiv.textContent = 'Please enter your email address first';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const { error } = await supabase.auth.resend({
+                    type: 'signup',
+                    email: email
+                });
+                
+                if (error) throw error;
+                
+                errorDiv.style.color = '#27ae60';
+                errorDiv.textContent = 'Confirmation email sent! Please check your inbox (and spam folder).';
+                errorDiv.style.display = 'block';
+                document.getElementById('resendConfirmationDiv').style.display = 'none';
+            } catch (error) {
+                errorDiv.style.color = '#e74c3c';
+                errorDiv.textContent = 'Error sending confirmation email: ' + (error.message || 'Unknown error');
+                errorDiv.style.display = 'block';
             }
         }
         
@@ -2638,9 +2674,17 @@
             }
             
             try {
+                // New users default to 'user' role (limited access)
+                // Admins can be set manually in Supabase dashboard by updating user metadata
                 const { data, error } = await supabase.auth.signUp({
                     email: email,
-                    password: password
+                    password: password,
+                    options: {
+                        data: {
+                            role: 'user' // Default role - admin can be set manually in Supabase
+                        },
+                        emailRedirectTo: window.location.origin // For email confirmation
+                    }
                 });
                 
                 if (error) throw error;
@@ -2654,7 +2698,7 @@
                 }
                 
                 errorDiv.style.color = '#27ae60';
-                errorDiv.textContent = 'Account created! Please check your email to verify your account, or you can login now.';
+                errorDiv.textContent = 'Account created! Please check your email to verify your account. If you don\'t receive it, check your spam folder or use the "Resend Confirmation Email" button on the login screen.';
                 errorDiv.style.display = 'block';
                 
                 setTimeout(() => {
