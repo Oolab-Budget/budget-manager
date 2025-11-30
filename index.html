@@ -18629,7 +18629,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     (currentLanguage === 'en' ? categories[item.category].nameEn : categories[item.category].nameEs) : 
                     item.category;
                 const itemId = item.id || `mexcan_${item.nameEn}_${item.category}`;
-                const selected = mexcanSelectedItems[itemId] || {selected: false, quantity: 1, unit: 'pieces'};
+                const selected = mexcanSelectedItems[itemId] || {selected: false, quantity: 1, unit: 'pieces', note: ''};
                 
                 html += `
                     <div style="padding: 15px; background: white; border: 2px solid ${selected.selected ? '#3498db' : '#e1e8ed'}; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
@@ -18679,7 +18679,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             const quantityInput = document.getElementById(`mexcan_qty_${itemId}`);
             
             if (!mexcanSelectedItems[itemId]) {
-                mexcanSelectedItems[itemId] = {selected: false, quantity: 1, unit: 'sheet'};
+                mexcanSelectedItems[itemId] = {selected: false, quantity: 1, unit: 'pieces'};
             }
             
             mexcanSelectedItems[itemId].selected = checkbox.checked;
@@ -18691,13 +18691,15 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             
             if (!checkbox.checked) {
                 mexcanSelectedItems[itemId].quantity = 1;
-                mexcanSelectedItems[itemId].unit = 'sheet';
+                mexcanSelectedItems[itemId].unit = 'pieces';
                 quantityInput.value = 1;
                 if (unitSelect) {
-                    unitSelect.value = 'sheet';
+                    unitSelect.value = 'pieces';
                 }
             }
             
+            // Reload items to show/hide note field properly
+            loadMexcanItems();
             localStorage.setItem('mexcanSelectedItems', JSON.stringify(mexcanSelectedItems));
             updateMexcanRequestSummary();
         }
@@ -18718,6 +18720,14 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             mexcanSelectedItems[itemId].unit = unit || 'pieces';
             localStorage.setItem('mexcanSelectedItems', JSON.stringify(mexcanSelectedItems));
             updateMexcanRequestSummary();
+        }
+        
+        function updateMexcanNote(itemId, note) {
+            if (!mexcanSelectedItems[itemId]) {
+                mexcanSelectedItems[itemId] = {selected: true, quantity: 1, unit: 'pieces', note: ''};
+            }
+            mexcanSelectedItems[itemId].note = note || '';
+            localStorage.setItem('mexcanSelectedItems', JSON.stringify(mexcanSelectedItems));
         }
         
         function updateMexcanRequestSummary() {
@@ -18898,7 +18908,8 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                         descriptionEs: item.descriptionEs || '',
                         category: item.category,
                         quantity: selection.quantity,
-                        unit: selection.unit || 'pieces'
+                        unit: selection.unit || 'pieces',
+                        note: selection.note || ''
                     });
                 }
             });
@@ -18970,12 +18981,15 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                         
                         const unit = item.unit || 'pieces';
                         const unitLabels = {
-                            'pieces': currentLanguage === 'en' ? 'Pieces' : 'Piezas'
+                            'pieces': currentLanguage === 'en' ? 'Pieces' : 'Piezas',
+                            'pairs': currentLanguage === 'en' ? 'Pairs' : 'Pares'
                         };
                         const unitLabel = unitLabels[unit] || unitLabels['pieces'];
+                        // Include note in item name if present
+                        const displayName = item.note ? `${itemName} (${item.note})` : itemName;
                         return [
                             index + 1,
-                            itemName,
+                            displayName,
                             itemDescription || '',
                             categoryName,
                             `${item.quantity} ${unitLabel}`
@@ -19080,8 +19094,13 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             request.items.forEach((item, index) => {
                 const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
                 const unit = item.unit || 'pieces';
-                const unitLabel = unit === 'pieces' ? (currentLanguage === 'en' ? 'Pieces' : 'Piezas') : unit;
-                itemsList += `${index + 1}. ${itemName} - ${item.quantity} ${unitLabel}\n`;
+                const unitLabels = {
+                    'pieces': currentLanguage === 'en' ? 'Pieces' : 'Piezas',
+                    'pairs': currentLanguage === 'en' ? 'Pairs' : 'Pares'
+                };
+                const unitLabel = unitLabels[unit] || unitLabels['pieces'];
+                const noteText = item.note ? ` (${item.note})` : '';
+                itemsList += `${index + 1}. ${itemName}${noteText} - ${item.quantity} ${unitLabel}\n`;
             });
             
             const subject = currentLanguage === 'en' ? `Mex/Can Material Request #${request.id}` : `Solicitud de Materiales Mex/Can #${request.id}`;
@@ -19238,13 +19257,16 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                         </div>
                         ${(() => {
                             const unitLabels = {
-                                'pieces': currentLanguage === 'en' ? 'Pieces' : 'Piezas'
+                                'pieces': currentLanguage === 'en' ? 'Pieces' : 'Piezas',
+                                'pairs': currentLanguage === 'en' ? 'Pairs' : 'Pares'
                             };
                             
                             const itemsHtml = request.items.map((item, itemIdx) => {
                                 const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
                                 const unit = item.unit || 'pieces';
                                 const unitLabel = unitLabels[unit] || unitLabels['pieces'];
+                                // Include note if present
+                                const displayName = item.note ? `${itemName} <span style="color: #7f8c8d; font-style: italic;">(${item.note})</span>` : itemName;
                                 
                                 // Check if there's a sent item or backorder
                                 const itemId = item.id !== undefined && item.id !== null 
@@ -19279,7 +19301,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 });
                                 
                                 let itemDisplay = '<div style="padding: 5px; background: #f8f9fa; border-radius: 4px; font-size: 0.85rem;">';
-                                itemDisplay += '• ' + itemName + ' ';
+                                itemDisplay += '• ' + displayName + ' ';
                                 
                                 // Add tracking info if this item is in a tracking shipment
                                 if (trackingInfo) {
