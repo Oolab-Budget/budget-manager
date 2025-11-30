@@ -2569,6 +2569,11 @@
             document.getElementById('signupForm').style.display = 'none';
             document.getElementById('loginError').style.display = 'none';
             document.getElementById('signupError').style.display = 'none';
+            // Hide resend button when showing login form
+            const resendDiv = document.getElementById('resendConfirmationDiv');
+            if (resendDiv) {
+                resendDiv.style.display = 'none';
+            }
         }
         
         function showSignupForm() {
@@ -2608,14 +2613,27 @@
                 updateTabVisibility(); // Hide/show tabs based on role
                 await loadUserData();
             } catch (error) {
-                errorDiv.textContent = error.message || 'Login failed';
+                const errorMessage = error.message || 'Login failed';
+                errorDiv.textContent = errorMessage;
                 errorDiv.style.display = 'block';
                 
-                // Show resend confirmation button if email not confirmed
-                if (error.message && error.message.toLowerCase().includes('email not confirmed')) {
-                    document.getElementById('resendConfirmationDiv').style.display = 'block';
+                // Show resend confirmation button if email not confirmed (check various error message formats)
+                const errorLower = errorMessage.toLowerCase();
+                const resendDiv = document.getElementById('resendConfirmationDiv');
+                if (resendDiv) {
+                    if (errorLower.includes('email not confirmed') || 
+                        errorLower.includes('email_not_confirmed') ||
+                        errorLower.includes('email not verified') ||
+                        errorLower.includes('email_not_verified') ||
+                        (errorLower.includes('confirm') && errorLower.includes('email')) ||
+                        errorLower.includes('email_not_confirmed')) {
+                        resendDiv.style.display = 'block';
+                        console.log('Showing resend confirmation button');
+                    } else {
+                        resendDiv.style.display = 'none';
+                    }
                 } else {
-                    document.getElementById('resendConfirmationDiv').style.display = 'none';
+                    console.warn('resendConfirmationDiv element not found');
                 }
             }
         }
