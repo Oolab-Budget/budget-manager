@@ -12925,7 +12925,6 @@ Budget Manager System`;
                         localStorage.setItem('savedBudgets', JSON.stringify(deduplicatedLocal));
                     }
                     
-                    console.log('Falling back to localStorage budgets:', deduplicatedLocal.length, '(deduplicated from', localBudgets.length, ')');
                     return deduplicatedLocal;
                 }
             }
