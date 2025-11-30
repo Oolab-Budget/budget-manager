@@ -1105,6 +1105,9 @@
                     <label style="display: block; margin-bottom: 5px; color: #2c3e50; font-weight: 600;">Confirm Password</label>
                     <input type="password" id="signupPasswordConfirm" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box;" placeholder="••••••••">
                 </div>
+                <div style="background: #e8f4fd; border: 1px solid #bee5eb; border-radius: 5px; padding: 10px; margin-bottom: 15px; font-size: 0.85rem; color: #0c5460;">
+                    <strong>Note:</strong> New accounts are created with limited access (Budget, Reports, Can/Mex, and Mex/Can tabs only). Contact an administrator to request admin access.
+                </div>
                 <button onclick="handleSignup()" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 16px; margin-bottom: 15px;">Create Account</button>
                 <button onclick="showLoginForm()" class="btn btn-secondary" style="width: 100%; padding: 12px; font-size: 16px;">Back to Login</button>
                 <div id="signupError" style="color: #e74c3c; margin-top: 15px; text-align: center; display: none;"></div>
@@ -2457,7 +2460,8 @@
         
         // Check authentication status
         let currentUser = null;
-        let useSupabase = false; // Flag to toggle between localStorage and Supabase
+        let useSupabase = false;
+        let userRole = 'user'; // 'admin' or 'user' - default to 'user' for limited access // Flag to toggle between localStorage and Supabase
         
         // Function to initialize auth (can be called after library loads)
         function initializeAuth() {
@@ -2595,7 +2599,13 @@
                 
                 currentUser = data.user;
                 useSupabase = true;
+                
+                // Get user role from metadata (default to 'user' if not set)
+                userRole = data.user.user_metadata?.role || 'user';
+                console.log('User role:', userRole);
+                
                 hideLoginScreen();
+                updateTabVisibility(); // Hide/show tabs based on role
                 await loadUserData();
             } catch (error) {
                 errorDiv.textContent = error.message || 'Login failed';
@@ -2660,10 +2670,41 @@
             await supabase.auth.signOut();
             currentUser = null;
             useSupabase = false;
+            userRole = 'user'; // Reset role
             items = [];
             saveItems(); // Clear local state
             document.getElementById('logoutBtn').style.display = 'none';
+            updateTabVisibility(); // Reset tab visibility
             showLoginScreen();
+        }
+        
+        // Function to update tab visibility based on user role
+        function updateTabVisibility() {
+            const tabsToHideForUsers = ['addItems', 'manageItems', 'categories', 'monitor', 'alerts', 'settings'];
+            const tabButtons = document.querySelectorAll('.tab-button');
+            
+            tabButtons.forEach(button => {
+                const onclick = button.getAttribute('onclick');
+                if (onclick) {
+                    // Extract tab name from onclick attribute
+                    const match = onclick.match(/switchTab\('([^']+)'\)/);
+                    if (match) {
+                        const tabName = match[1];
+                        
+                        if (userRole === 'admin') {
+                            // Admin sees all tabs
+                            button.style.display = '';
+                        } else {
+                            // Limited users only see: budget, reports, canada (Can/Mex), mexcan (Mex/Can)
+                            if (tabsToHideForUsers.includes(tabName)) {
+                                button.style.display = 'none';
+                            } else {
+                                button.style.display = '';
+                            }
+                        }
+                    }
+                }
+            });
         }
         
         // Function to load user data from Supabase
@@ -5490,6 +5531,18 @@
 
         function switchTab(tabName) {
             console.log('Switching to tab:', tabName);
+            
+            // Check if user has permission to access this tab
+            if (userRole !== 'admin') {
+                const restrictedTabs = ['addItems', 'manageItems', 'categories', 'monitor', 'alerts', 'settings'];
+                if (restrictedTabs.includes(tabName)) {
+                    alert(currentLanguage === 'en' ? 
+                        'You do not have permission to access this tab. Please contact an administrator.' : 
+                        'No tienes permiso para acceder a esta pestaña. Por favor contacta a un administrador.');
+                    return;
+                }
+            }
+            
             // First, hide ALL tabs explicitly
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
@@ -20324,6 +20377,11 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         loadDeepLSettings(); // Load saved DeepL API key
         loadUPSSettings(); // Load saved UPS settings and start polling
         initializeAutoBackup(); // Initialize automatic backup if enabled
+        
+        // Ensure tab visibility is updated after page loads (in case user is already logged in)
+        if (currentUser) {
+            updateTabVisibility();
+        }
         
         // Check for duties alerts on page load (after data is loaded)
         setTimeout(() => {
