@@ -12905,53 +12905,6 @@ Budget Manager System`;
                         localStorage.setItem('savedBudgets', JSON.stringify(deduplicatedBudgets));
                         return deduplicatedBudgets;
                     } else {
-                        // If Supabase is empty but localStorage has data, try to migrate first
-                        if (localBudgets.length > 0) {
-                            console.log('getAllSavedBudgets: Supabase empty, but localStorage has', localBudgets.length, 'budgets. Attempting migration...');
-                            try {
-                                await migrateSavedBudgets(localBudgets);
-                                // After migration, reload from Supabase
-                                const { data: migratedBudgets } = await supabase
-                                    .from('saved_budgets')
-                                    .select('*')
-                                    .eq('user_id', currentUser.id)
-                                    .order('saved_date', { ascending: false });
-                                
-                                if (migratedBudgets && migratedBudgets.length > 0) {
-                                    console.log('getAllSavedBudgets: Migration successful, loaded', migratedBudgets.length, 'budgets from Supabase');
-                                    // Load items for each budget
-                                    const budgetsWithItems = await Promise.all(
-                                        migratedBudgets.map(async (budget) => {
-                                            const { data: budgetItems } = await supabase
-                                                .from('saved_budget_items')
-                                                .select('item_data')
-                                                .eq('saved_budget_id', budget.id);
-                                            
-                                            return {
-                                                id: budget.id,
-                                                savedDate: budget.saved_date,
-                                                weekStart: budget.week_start,
-                                                weekLabel: budget.week_label,
-                                                total: parseFloat(budget.total || 0),
-                                                itemCount: budget.item_count,
-                                                approvedCount: budget.approved_count,
-                                                pendingCount: budget.pending_count,
-                                                language: budget.language,
-                                                isPartialPayment: budget.is_partial_payment || false,
-                                                items: (budgetItems || []).map(bi => bi.item_data)
-                                            };
-                                        })
-                                    );
-                                    
-                                    const deduplicatedBudgets = deduplicateBudgets(budgetsWithItems);
-                                    localStorage.setItem('savedBudgets', JSON.stringify(deduplicatedBudgets));
-                                    return deduplicatedBudgets;
-                                }
-                            } catch (migrateError) {
-                                console.error('getAllSavedBudgets: Migration failed:', migrateError);
-                            }
-                        }
-                        
                         // If Supabase is empty but localStorage has data, deduplicate and return localStorage
                         const deduplicatedLocal = deduplicateBudgets(localBudgets);
                         
