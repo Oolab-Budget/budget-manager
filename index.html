@@ -19008,9 +19008,32 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     // Get PDF as base64 using jsPDF's built-in method (more reliable for email attachments)
                     const pdfDataUri = doc.output('datauristring');
                     // Extract base64 part (remove "data:application/pdf;base64," prefix)
-                    const pdfBase64 = pdfDataUri.split(',')[1];
+                    let pdfBase64 = pdfDataUri.split(',')[1];
+                    
+                    // Ensure base64 is clean (remove any whitespace/newlines that might cause issues)
+                    pdfBase64 = pdfBase64.replace(/\s/g, '');
+                    
+                    // Validate base64
+                    if (!pdfBase64 || pdfBase64.length === 0) {
+                        throw new Error('Failed to generate PDF base64 data');
+                    }
                     
                     const pdfFileName = `Mexcan_Request_${request.id}_${new Date().toISOString().split('T')[0]}.pdf`;
+                    
+                    // Log PDF generation for debugging
+                    console.log('PDF generated for Mex/Can request:', {
+                        requestId: request.id,
+                        pdfSize: pdfBase64.length,
+                        pdfFileName: pdfFileName,
+                        itemCount: request.items.length,
+                        base64Preview: pdfBase64.substring(0, 50) + '...'
+                    });
+                    
+                    // Optional: Test PDF download (uncomment to test PDF locally)
+                    // const link = document.createElement('a');
+                    // link.href = 'data:application/pdf;base64,' + pdfBase64;
+                    // link.download = pdfFileName;
+                    // link.click();
                     
                     // Send email
                     sendMexcanRequestEmail(request, pdfBase64, pdfFileName).then(resolve).catch(reject);
@@ -19081,7 +19104,15 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 try {
                     // EmailJS expects base64 string without data URI prefix for attachments
                     // Make sure the base64 string is clean (no data:application/pdf;base64, prefix)
-                    const cleanBase64 = pdfBase64.startsWith('data:') ? pdfBase64.split(',')[1] : pdfBase64;
+                    let cleanBase64 = pdfBase64.startsWith('data:') ? pdfBase64.split(',')[1] : pdfBase64;
+                    
+                    // Remove any whitespace/newlines that might cause encoding issues
+                    cleanBase64 = cleanBase64.replace(/\s/g, '');
+                    
+                    // Validate base64 before sending
+                    if (!cleanBase64 || cleanBase64.length === 0) {
+                        throw new Error('Invalid PDF base64 data');
+                    }
                     
                     const emailParams = {
                         email: email,  // Use 'email' to match EmailJS template variable {{email}}
