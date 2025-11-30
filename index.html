@@ -1545,8 +1545,48 @@
                     </div>
                 </div>
                 
-                <div id="reportContent" style="margin-top: 20px;">
-                    <!-- Report content will be loaded here -->
+                    <div id="reportContent" style="margin-top: 20px;">
+                        <!-- Report content will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Canada Reports Section -->
+                <div id="canadaReportsSection" style="display: none;">
+                    <h3 data-en="Canada Reports & Analytics" data-es="Reportes y Análisis de Canadá">Canada Reports & Analytics</h3>
+                    <p data-en="View reports and analytics for Canada material requests, shipping status, and backorders." data-es="Ve reportes y análisis para solicitudes de materiales de Canadá, estado de envío y pedidos pendientes.">View reports and analytics for Canada material requests, shipping status, and backorders.</p>
+                
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-en="Report Type" data-es="Tipo de Reporte">Report Type</label>
+                            <select id="canadaReportType" onchange="loadCanadaReport()">
+                                <option value="requestHistory" data-en="Request History Summary" data-es="Resumen del Historial de Solicitudes">Request History Summary</option>
+                                <option value="shippingStatus" data-en="Shipping Status Report" data-es="Reporte de Estado de Envío">Shipping Status Report</option>
+                                <option value="backorders" data-en="Backorders Report" data-es="Reporte de Pedidos Pendientes">Backorders Report</option>
+                                <option value="dutiesTaxes" data-en="Duties & Taxes Report" data-es="Reporte de Impuestos y Aranceles">Duties & Taxes Report</option>
+                                <option value="deliveryTimeline" data-en="Delivery Timeline" data-es="Línea de Tiempo de Entrega">Delivery Timeline</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label data-en="Date Range" data-es="Rango de Fechas">Date Range</label>
+                            <select id="canadaDateRange" onchange="loadCanadaReport()">
+                                <option value="all" data-en="All Time" data-es="Todo el Tiempo">All Time</option>
+                                <option value="last30" data-en="Last 30 Days" data-es="Últimos 30 Días">Last 30 Days</option>
+                                <option value="last90" data-en="Last 90 Days" data-es="Últimos 90 Días">Last 90 Days</option>
+                                <option value="lastYear" data-en="Last Year" data-es="Último Año">Last Year</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label data-en="Filter by Item" data-es="Filtrar por Artículo">Filter by Item</label>
+                            <select id="canadaReportItemFilter" onchange="loadCanadaReport()">
+                                <option value="all" data-en="All Items" data-es="Todos los Artículos">All Items</option>
+                                <!-- Items will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="canadaReportContent" style="margin-top: 20px;">
+                        <!-- Canada report content will be loaded here -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -5270,7 +5310,8 @@
             const targetTab = document.getElementById(tabName + 'Tab');
             if (targetTab) {
                 targetTab.classList.add('active');
-                console.log('Tab content found and activated');
+                targetTab.style.display = 'block'; // Ensure tab is visible
+                console.log('Tab content found and activated:', tabName);
                 
                 // Refresh monitor dashboard when switching to monitor tab
                 if (tabName === 'monitor') {
