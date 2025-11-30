@@ -12995,21 +12995,26 @@ Budget Manager System`;
             `;
             
                 // Switch to Reports tab and set report type to savedBudgets
-                switchTab('budgetReports');
+                switchTab('reports');
                 
-                // Wait a moment for tab switch to complete, then set content
+                // Ensure budget reports section is visible
                 setTimeout(() => {
-                    const reportContent = document.getElementById('reportContent');
-                    if (reportContent) {
-                        reportContent.innerHTML = detailsHTML;
-                        updateLanguage();
-                    }
+                    switchReportType('budget');
                     
-                    const reportTypeSelect = document.getElementById('reportType');
-                    if (reportTypeSelect) {
-                        reportTypeSelect.value = 'savedBudgets';
-                    }
-                }, 200);
+                    // Wait a moment for tab switch to complete, then set content
+                    setTimeout(() => {
+                        const reportContent = document.getElementById('reportContent');
+                        if (reportContent) {
+                            reportContent.innerHTML = detailsHTML;
+                            updateLanguage();
+                        }
+                        
+                        const reportTypeSelect = document.getElementById('reportType');
+                        if (reportTypeSelect) {
+                            reportTypeSelect.value = 'savedBudgets';
+                        }
+                    }, 200);
+                }, 100);
             } catch (error) {
                 console.error('Error in viewSavedBudget:', error);
                 alert(currentLanguage === 'en' 

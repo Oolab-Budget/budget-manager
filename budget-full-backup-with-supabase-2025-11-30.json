@@ -1,44 +1,8 @@
 {
-  "exportDate": "2025-11-30T15:00:26.850Z",
+  "exportDate": "2025-11-30T17:03:36.612Z",
   "version": "2.0",
   "exportSource": "complete_with_supabase",
   "categories": {
-    "rent": {
-      "nameEn": "Rent",
-      "nameEs": "Alquiler",
-      "descriptionEn": "Rent",
-      "descriptionEs": "Alquiler",
-      "pricingType": "fixed",
-      "recurringWeekly": false,
-      "recurringMonthly": false,
-      "monthlyDay": null,
-      "hasDueDate": false,
-      "dueDate": null,
-      "items": [
-        {
-          "notes": "",
-          "nameEn": "Rent",
-          "nameEs": "",
-          "dueDate": null,
-          "notesEn": "",
-          "notesEs": "",
-          "category": "rent",
-          "priority": "medium",
-          "supplier": {
-            "name": "Rent",
-            "email": "",
-            "phone": "",
-            "address": ""
-          },
-          "unitPrice": 30000,
-          "hasDueDate": false,
-          "invoicePhoto": null,
-          "descriptionEn": "Rent",
-          "descriptionEs": "",
-          "recurringWeekly": false
-        }
-      ]
-    },
     "office_supplies": {
       "nameEn": "Office Supplies ",
       "nameEs": "Oficina Suministros",
@@ -70,6 +34,42 @@
           "hasDueDate": false,
           "invoicePhoto": null,
           "descriptionEn": "Office Supplies",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    },
+    "rent": {
+      "nameEn": "Rent",
+      "nameEs": "Alquiler",
+      "descriptionEn": "Rent",
+      "descriptionEs": "Alquiler",
+      "pricingType": "fixed",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "Rent",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "rent",
+          "priority": "medium",
+          "supplier": {
+            "name": "Rent",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 30000,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Rent",
           "descriptionEs": "",
           "recurringWeekly": false
         }
@@ -338,6 +338,45 @@
         }
       ]
     },
+    "polypro": {
+      "nameEn": "PolyPro",
+      "nameEs": "Polypro",
+      "descriptionEn": "PolyPro",
+      "descriptionEs": "Polypro",
+      "pricingType": "fixed",
+      "recurringWeekly": true,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "PolyPro",
+          "nameEs": "PolyPro",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "polypro",
+          "priority": "medium",
+          "supplier": {
+            "name": "PolyPro",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1160,
+          "hasDueDate": false,
+          "monthlyDay": null,
+          "invoicePhoto": null,
+          "descriptionEn": "PolyPro",
+          "descriptionEs": "",
+          "receiptAmount": null,
+          "recurringWeekly": true,
+          "recurringMonthly": false
+        }
+      ]
+    },
     "water": {
       "nameEn": "Water",
       "nameEs": "Agua",
@@ -531,48 +570,9 @@
         }
       ]
     },
-    "polypro": {
-      "nameEn": "PolyPro",
-      "nameEs": "Polypro",
-      "descriptionEn": "PolyPro",
-      "descriptionEs": "Polypro",
-      "pricingType": "fixed",
-      "recurringWeekly": true,
-      "recurringMonthly": false,
-      "monthlyDay": null,
-      "hasDueDate": false,
-      "dueDate": null,
-      "items": [
-        {
-          "notes": "",
-          "nameEn": "PolyPro",
-          "nameEs": "PolyPro",
-          "dueDate": null,
-          "notesEn": "",
-          "notesEs": "",
-          "category": "polypro",
-          "priority": "medium",
-          "supplier": {
-            "name": "PolyPro",
-            "email": "",
-            "phone": "",
-            "address": ""
-          },
-          "unitPrice": 1160,
-          "hasDueDate": false,
-          "monthlyDay": null,
-          "invoicePhoto": null,
-          "descriptionEn": "PolyPro",
-          "descriptionEs": "",
-          "receiptAmount": null,
-          "recurringWeekly": true,
-          "recurringMonthly": false
-        }
-      ]
-    },
     "imss-large": {
       "nameEn": "IMSS",
-      "nameEs": "IMSS",
+      "nameEs": "Imss",
       "descriptionEn": "IMSS-Payroll Taxes",
       "descriptionEs": "IMSS-Impuestos a la Nómina",
       "pricingType": "flexible",
@@ -887,9 +887,9 @@
     },
     "mexico": {
       "nameEn": "Mexico",
-      "nameEs": "México",
+      "nameEs": "Mexico",
       "descriptionEn": "Mexico",
-      "descriptionEs": "",
+      "descriptionEs": "Mexico",
       "pricingType": "fixed",
       "recurringWeekly": false,
       "recurringMonthly": false,
@@ -962,32 +962,18 @@
           "descriptionEn": "Vinyl Top Cover",
           "descriptionEs": "",
           "recurringWeekly": false
-        }
-      ]
-    },
-    "canada": {
-      "nameEn": "Canada",
-      "nameEs": "Canadá",
-      "descriptionEn": "Materials we ship to Mexico",
-      "descriptionEs": "Materials We Ship To Mexico",
-      "pricingType": "fixed",
-      "recurringWeekly": false,
-      "recurringMonthly": false,
-      "monthlyDay": null,
-      "hasDueDate": false,
-      "dueDate": null,
-      "items": [
+        },
         {
           "notes": "",
-          "nameEn": "3mm Xstatic",
+          "nameEn": "1mm Carbon",
           "nameEs": "",
           "dueDate": null,
           "notesEn": "",
           "notesEs": "",
-          "category": "canada",
+          "category": "mexico",
           "priority": "medium",
           "supplier": {
-            "name": "Canada",
+            "name": "Mexico",
             "email": "",
             "phone": "",
             "address": ""
@@ -995,21 +981,21 @@
           "unitPrice": 0.01,
           "hasDueDate": false,
           "invoicePhoto": null,
-          "descriptionEn": "3mm Xstatic",
+          "descriptionEn": "1mm Carbon",
           "descriptionEs": "",
           "recurringWeekly": false
         },
         {
           "notes": "",
-          "nameEn": "3mm Black ETC",
+          "nameEn": "2mm Carbon",
           "nameEs": "",
           "dueDate": null,
           "notesEn": "",
           "notesEs": "",
-          "category": "canada",
+          "category": "mexico",
           "priority": "medium",
           "supplier": {
-            "name": "Canada",
+            "name": "Mexico",
             "email": "",
             "phone": "",
             "address": ""
@@ -1017,21 +1003,21 @@
           "unitPrice": 0.01,
           "hasDueDate": false,
           "invoicePhoto": null,
-          "descriptionEn": "3mm Black ETC",
+          "descriptionEn": "2mm Carbon",
           "descriptionEs": "",
           "recurringWeekly": false
         },
         {
           "notes": "",
-          "nameEn": "3mm Blue ETC",
+          "nameEn": "3mm Carbon",
           "nameEs": "",
           "dueDate": null,
           "notesEn": "",
           "notesEs": "",
-          "category": "canada",
+          "category": "mexico",
           "priority": "medium",
           "supplier": {
-            "name": "Canada",
+            "name": "Mexico",
             "email": "",
             "phone": "",
             "address": ""
@@ -1039,21 +1025,21 @@
           "unitPrice": 0.01,
           "hasDueDate": false,
           "invoicePhoto": null,
-          "descriptionEn": "3mm Blue ETC",
+          "descriptionEn": "3mm Carbon",
           "descriptionEs": "",
           "recurringWeekly": false
         },
         {
           "notes": "",
-          "nameEn": "2mm Xstatic",
+          "nameEn": "4mm Carbon",
           "nameEs": "",
           "dueDate": null,
           "notesEn": "",
           "notesEs": "",
-          "category": "canada",
+          "category": "mexico",
           "priority": "medium",
           "supplier": {
-            "name": "Canada",
+            "name": "Mexico",
             "email": "",
             "phone": "",
             "address": ""
@@ -1061,7 +1047,95 @@
           "unitPrice": 0.01,
           "hasDueDate": false,
           "invoicePhoto": null,
-          "descriptionEn": "2mm Xstatic",
+          "descriptionEn": "4mm Carbon",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "1mm PolyPro",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "Mexico",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "1mm PolyPro",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "2mm PolyPro",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "Mexico",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "2mm PolyPro",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "3mm PolyPro",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "Mexico",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "3mm PolyPro",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "4mm PolyPro",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "Mexico",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "4mm PolyPro",
           "descriptionEs": "",
           "recurringWeekly": false
         }
@@ -1069,9 +1143,9 @@
     },
     "test_2": {
       "nameEn": "Test 2",
-      "nameEs": "Prueba 2",
+      "nameEs": "Test 2",
       "descriptionEn": "Test 2",
-      "descriptionEs": "",
+      "descriptionEs": "Test 2",
       "pricingType": "fixed",
       "recurringWeekly": false,
       "recurringMonthly": false,
@@ -1191,33 +1265,111 @@
           "recurringWeekly": false
         }
       ]
+    },
+    "canada": {
+      "nameEn": "Canada",
+      "nameEs": "Canadá",
+      "descriptionEn": "Materials we ship to Mexico",
+      "descriptionEs": "Materials We Ship To Mexico",
+      "pricingType": "fixed",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "3mm Xstatic",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "canada",
+          "priority": "medium",
+          "supplier": {
+            "name": "Canada",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "3mm Xstatic",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "3mm Black ETC",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "canada",
+          "priority": "medium",
+          "supplier": {
+            "name": "Canada",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "3mm Black ETC",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "3mm Blue ETC",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "canada",
+          "priority": "medium",
+          "supplier": {
+            "name": "Canada",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "3mm Blue ETC",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "2mm Xstatic",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "canada",
+          "priority": "medium",
+          "supplier": {
+            "name": "Canada",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "2mm Xstatic",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
     }
   },
   "items": {
-    "rent": [
-      {
-        "notes": "",
-        "nameEn": "Rent",
-        "nameEs": "",
-        "dueDate": null,
-        "notesEn": "",
-        "notesEs": "",
-        "category": "rent",
-        "priority": "medium",
-        "supplier": {
-          "name": "Rent",
-          "email": "",
-          "phone": "",
-          "address": ""
-        },
-        "unitPrice": 30000,
-        "hasDueDate": false,
-        "invoicePhoto": null,
-        "descriptionEn": "Rent",
-        "descriptionEs": "",
-        "recurringWeekly": false
-      }
-    ],
     "office_supplies": [
       {
         "notes": "",
@@ -1238,6 +1390,30 @@
         "hasDueDate": false,
         "invoicePhoto": null,
         "descriptionEn": "Office Supplies",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      }
+    ],
+    "rent": [
+      {
+        "notes": "",
+        "nameEn": "Rent",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "rent",
+        "priority": "medium",
+        "supplier": {
+          "name": "Rent",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 30000,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Rent",
         "descriptionEs": "",
         "recurringWeekly": false
       }
@@ -1457,6 +1633,33 @@
         "recurringWeekly": false
       }
     ],
+    "polypro": [
+      {
+        "notes": "",
+        "nameEn": "PolyPro",
+        "nameEs": "PolyPro",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "polypro",
+        "priority": "medium",
+        "supplier": {
+          "name": "PolyPro",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 1160,
+        "hasDueDate": false,
+        "monthlyDay": null,
+        "invoicePhoto": null,
+        "descriptionEn": "PolyPro",
+        "descriptionEs": "",
+        "receiptAmount": null,
+        "recurringWeekly": true,
+        "recurringMonthly": false
+      }
+    ],
     "water": [
       {
         "notes": "",
@@ -1576,33 +1779,6 @@
         "descriptionEn": "Petty Cash",
         "descriptionEs": "",
         "recurringWeekly": true
-      }
-    ],
-    "polypro": [
-      {
-        "notes": "",
-        "nameEn": "PolyPro",
-        "nameEs": "PolyPro",
-        "dueDate": null,
-        "notesEn": "",
-        "notesEs": "",
-        "category": "polypro",
-        "priority": "medium",
-        "supplier": {
-          "name": "PolyPro",
-          "email": "",
-          "phone": "",
-          "address": ""
-        },
-        "unitPrice": 1160,
-        "hasDueDate": false,
-        "monthlyDay": null,
-        "invoicePhoto": null,
-        "descriptionEn": "PolyPro",
-        "descriptionEs": "",
-        "receiptAmount": null,
-        "recurringWeekly": true,
-        "recurringMonthly": false
       }
     ],
     "imss-large": [
@@ -1950,20 +2126,18 @@
         "descriptionEn": "Vinyl Top Cover",
         "descriptionEs": "",
         "recurringWeekly": false
-      }
-    ],
-    "canada": [
+      },
       {
         "notes": "",
-        "nameEn": "3mm Xstatic",
+        "nameEn": "1mm Carbon",
         "nameEs": "",
         "dueDate": null,
         "notesEn": "",
         "notesEs": "",
-        "category": "canada",
+        "category": "mexico",
         "priority": "medium",
         "supplier": {
-          "name": "Canada",
+          "name": "Mexico",
           "email": "",
           "phone": "",
           "address": ""
@@ -1971,21 +2145,21 @@
         "unitPrice": 0.01,
         "hasDueDate": false,
         "invoicePhoto": null,
-        "descriptionEn": "3mm Xstatic",
+        "descriptionEn": "1mm Carbon",
         "descriptionEs": "",
         "recurringWeekly": false
       },
       {
         "notes": "",
-        "nameEn": "3mm Black ETC",
+        "nameEn": "2mm Carbon",
         "nameEs": "",
         "dueDate": null,
         "notesEn": "",
         "notesEs": "",
-        "category": "canada",
+        "category": "mexico",
         "priority": "medium",
         "supplier": {
-          "name": "Canada",
+          "name": "Mexico",
           "email": "",
           "phone": "",
           "address": ""
@@ -1993,21 +2167,21 @@
         "unitPrice": 0.01,
         "hasDueDate": false,
         "invoicePhoto": null,
-        "descriptionEn": "3mm Black ETC",
+        "descriptionEn": "2mm Carbon",
         "descriptionEs": "",
         "recurringWeekly": false
       },
       {
         "notes": "",
-        "nameEn": "3mm Blue ETC",
+        "nameEn": "3mm Carbon",
         "nameEs": "",
         "dueDate": null,
         "notesEn": "",
         "notesEs": "",
-        "category": "canada",
+        "category": "mexico",
         "priority": "medium",
         "supplier": {
-          "name": "Canada",
+          "name": "Mexico",
           "email": "",
           "phone": "",
           "address": ""
@@ -2015,21 +2189,21 @@
         "unitPrice": 0.01,
         "hasDueDate": false,
         "invoicePhoto": null,
-        "descriptionEn": "3mm Blue ETC",
+        "descriptionEn": "3mm Carbon",
         "descriptionEs": "",
         "recurringWeekly": false
       },
       {
         "notes": "",
-        "nameEn": "2mm Xstatic",
+        "nameEn": "4mm Carbon",
         "nameEs": "",
         "dueDate": null,
         "notesEn": "",
         "notesEs": "",
-        "category": "canada",
+        "category": "mexico",
         "priority": "medium",
         "supplier": {
-          "name": "Canada",
+          "name": "Mexico",
           "email": "",
           "phone": "",
           "address": ""
@@ -2037,7 +2211,95 @@
         "unitPrice": 0.01,
         "hasDueDate": false,
         "invoicePhoto": null,
-        "descriptionEn": "2mm Xstatic",
+        "descriptionEn": "4mm Carbon",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "1mm PolyPro",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "Mexico",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "1mm PolyPro",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "2mm PolyPro",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "Mexico",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "2mm PolyPro",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "3mm PolyPro",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "Mexico",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "3mm PolyPro",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "4mm PolyPro",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "Mexico",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "4mm PolyPro",
         "descriptionEs": "",
         "recurringWeekly": false
       }
@@ -2142,6 +2404,96 @@
         "descriptionEs": "",
         "recurringWeekly": false
       }
+    ],
+    "canada": [
+      {
+        "notes": "",
+        "nameEn": "3mm Xstatic",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "canada",
+        "priority": "medium",
+        "supplier": {
+          "name": "Canada",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "3mm Xstatic",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "3mm Black ETC",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "canada",
+        "priority": "medium",
+        "supplier": {
+          "name": "Canada",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "3mm Black ETC",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "3mm Blue ETC",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "canada",
+        "priority": "medium",
+        "supplier": {
+          "name": "Canada",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "3mm Blue ETC",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "2mm Xstatic",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "canada",
+        "priority": "medium",
+        "supplier": {
+          "name": "Canada",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "2mm Xstatic",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      }
     ]
   },
   "settings": {
@@ -2155,7 +2507,7 @@
     "upsClientId": "ufi7ai1AkWFtvJvAZb950xytvqn0GuGrgAdbfyGLQfGvk4dy",
     "upsClientSecret": "GlzGO2dKpiBFbe9D2HADINIPeBPBtfAX80ADRcXQAhLE5ceYj9x09t5c0AGaDect",
     "upsCheckInterval": "1",
-    "upsProxyUrl": "https://budget-manager-production-9f37.up.railway.app"
+    "upsProxyUrl": "https://wholesome-generosity-production.up.railway.app"
   },
   "canadaRequestHistory": [
     {
@@ -2184,7 +2536,40 @@
           "totalPrice": 0
         }
       ],
-      "sentItems": [],
+      "sentItems": [
+        {
+          "id": 11,
+          "nameEn": "2mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 3,
+          "unit": "sheet"
+        },
+        {
+          "id": 12,
+          "nameEn": "3mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 5,
+          "unit": "sheet"
+        },
+        {
+          "id": "11",
+          "nameEn": "2mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 3,
+          "unit": "sheet"
+        },
+        {
+          "id": "12",
+          "nameEn": "3mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 5,
+          "unit": "sheet"
+        }
+      ],
       "trackingShipments": [
         {
           "trackingNumber": "1Z0R07V00450285572",
@@ -2204,7 +2589,7 @@
           "upsStatusCode": "005",
           "upsLastLocation": "Leon",
           "upsLastDate": "20251129",
-          "upsLastChecked": "2025-11-30T14:58:55.326Z"
+          "upsLastChecked": "2025-11-30T17:01:45.468Z"
         }
       ],
       "trackingNumbers": [
@@ -2275,7 +2660,104 @@
           "totalPrice": 0
         }
       ],
-      "sentItems": [],
+      "sentItems": [
+        {
+          "id": 5,
+          "nameEn": "Black Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 3,
+          "unit": "sheet"
+        },
+        {
+          "id": 6,
+          "nameEn": "Blue Swirl",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 8,
+          "unit": "sheet"
+        },
+        {
+          "id": 7,
+          "nameEn": "Plastazote",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 7,
+          "unit": "sheet"
+        },
+        {
+          "id": 8,
+          "nameEn": "Black Swirl",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 5,
+          "unit": "sheet"
+        },
+        {
+          "id": 9,
+          "nameEn": "Green, Black, Blue Microcell",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 5,
+          "unit": "sheet"
+        },
+        {
+          "id": 10,
+          "nameEn": "2mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 3,
+          "unit": "sheet"
+        },
+        {
+          "id": "5",
+          "nameEn": "Black Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 3,
+          "unit": "sheet"
+        },
+        {
+          "id": "6",
+          "nameEn": "Blue Swirl",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 8,
+          "unit": "sheet"
+        },
+        {
+          "id": "8",
+          "nameEn": "Black Swirl",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 5,
+          "unit": "sheet"
+        },
+        {
+          "id": "9",
+          "nameEn": "Green, Black, Blue Microcell",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 5,
+          "unit": "sheet"
+        },
+        {
+          "id": "10",
+          "nameEn": "2mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 3,
+          "unit": "sheet"
+        },
+        {
+          "id": "7",
+          "nameEn": "Plastazote",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 7,
+          "unit": "sheet"
+        }
+      ],
       "trackingShipments": [
         {
           "trackingNumber": "1Z0R07V00450534892",
@@ -2299,7 +2781,7 @@
           "upsStatusCode": "011",
           "upsLastLocation": "LEON",
           "upsLastDate": "20251126",
-          "upsLastChecked": "2025-11-30T14:58:56.589Z",
+          "upsLastChecked": "2025-11-30T17:01:46.578Z",
           "dutiesAlerted": false
         }
       ],
@@ -2335,7 +2817,40 @@
           "totalPrice": 0
         }
       ],
-      "sentItems": [],
+      "sentItems": [
+        {
+          "id": 3,
+          "nameEn": "3mm Black ETC",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 1,
+          "unit": "roll"
+        },
+        {
+          "id": 4,
+          "nameEn": "3mm Blue ETC",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 1,
+          "unit": "roll"
+        },
+        {
+          "id": "3",
+          "nameEn": "3mm Black ETC",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 1,
+          "unit": "roll"
+        },
+        {
+          "id": "4",
+          "nameEn": "3mm Blue ETC",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 1,
+          "unit": "roll"
+        }
+      ],
       "trackingShipments": [
         {
           "trackingNumber": "1Z0R07V00450813278",
@@ -2354,7 +2869,7 @@
           "upsStatusCode": "011",
           "upsLastLocation": "LEON",
           "upsLastDate": "20251126",
-          "upsLastChecked": "2025-11-30T14:58:57.710Z",
+          "upsLastChecked": "2025-11-30T17:01:47.914Z",
           "dutiesAlerted": false
         },
         {
@@ -2374,7 +2889,7 @@
           "upsStatusCode": "011",
           "upsLastLocation": "LEON",
           "upsLastDate": "20251128",
-          "upsLastChecked": "2025-11-30T14:58:58.784Z",
+          "upsLastChecked": "2025-11-30T17:01:49.130Z",
           "dutiesAlerted": false
         }
       ],
@@ -4999,9 +5514,34 @@
     }
   ],
   "canadaSelectedItems": {
-    "canada_3mm Xstatic_canada": {
+    "canada_Black Suede_canada": {
       "selected": false,
-      "quantity": 1,
+      "quantity": 3,
+      "unit": "roll"
+    },
+    "canada_Blue Swirl_canada": {
+      "selected": false,
+      "quantity": 8,
+      "unit": "sheet"
+    },
+    "canada_Plastazote_canada": {
+      "selected": false,
+      "quantity": 7,
+      "unit": "sheet"
+    },
+    "canada_Black Swirl_canada": {
+      "selected": false,
+      "quantity": 5,
+      "unit": "sheet"
+    },
+    "canada_Green, Black, Blue Microcell_canada": {
+      "selected": false,
+      "quantity": 5,
+      "unit": "sheet"
+    },
+    "canada_2mm Xstatic_canada": {
+      "selected": false,
+      "quantity": 2,
       "unit": "sheet"
     },
     "canada_3mm Black ETC_canada": {
@@ -5009,22 +5549,21 @@
       "quantity": 1,
       "unit": "roll"
     },
-    "canada_2mm Xstatic_canada": {
-      "selected": false,
-      "quantity": 1,
-      "unit": "pieces"
-    },
     "canada_3mm Blue ETC_canada": {
       "selected": false,
       "quantity": 1,
-      "unit": "pieces"
+      "unit": "roll"
+    },
+    "canada_3mm Xstatic_canada": {
+      "selected": false,
+      "quantity": 5,
+      "unit": "sheet"
     }
   },
   "dismissedBackorders": {
-    "3mm Xstatic_canada": true,
     "3mm Black ETC_canada": true
   },
-  "canadaRequestCounter": "0",
+  "canadaRequestCounter": "10",
   "supabaseRequests": [
     {
       "id": 28,
