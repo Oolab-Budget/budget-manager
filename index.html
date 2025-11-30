@@ -18313,8 +18313,11 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
 
         function closeTrackingModal() {
             document.getElementById('trackingModal').style.display = 'none';
+            // Clear both Can/Mex and Mex/Can tracking states
             currentTrackingRequestId = null;
             trackingShipments = [];
+            currentMexcanTrackingRequestId = null;
+            mexcanTrackingShipments = [];
         }
 
         // Mex/Can Request Functions (Mexico requesting from Canada)
@@ -18837,10 +18840,19 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             const itemCount = request.items.length;
             const totalQuantity = request.items.reduce((sum, item) => sum + item.quantity, 0);
             
+            // Build item list for email body
+            let itemsList = '';
+            request.items.forEach((item, index) => {
+                const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+                const unit = item.unit || 'pieces';
+                const unitLabel = unit === 'pieces' ? (currentLanguage === 'en' ? 'Pieces' : 'Piezas') : unit;
+                itemsList += `${index + 1}. ${itemName} - ${item.quantity} ${unitLabel}\n`;
+            });
+            
             const subject = currentLanguage === 'en' ? `Mex/Can Material Request #${request.id}` : `Solicitud de Materiales Mex/Can #${request.id}`;
             const message = currentLanguage === 'en' ? 
-                `Please find the Mex/Can material request attached.\n\nRequest Details:\n- Request ID: #${request.id}\n- Date: ${requestDate}\n- Items: ${itemCount}\n- Total Quantity: ${totalQuantity}\n\nThe PDF file is attached to this email.\n\nThank you,\nBudget Manager System` :
-                `Por favor encuentra la solicitud de materiales Mex/Can adjunta.\n\nDetalles de la Solicitud:\n- ID de Solicitud: #${request.id}\n- Fecha: ${requestDate}\n- Artículos: ${itemCount}\n- Cantidad Total: ${totalQuantity}\n\nEl archivo PDF está adjunto a este correo.\n\nGracias,\nSistema de Gestión de Presupuesto`;
+                `Please find the Mex/Can material request attached.\n\nRequest Details:\n- Request ID: #${request.id}\n- Date: ${requestDate}\n- Total Items: ${itemCount}\n- Total Quantity: ${totalQuantity}\n\nItems Requested:\n${itemsList}\nThe PDF file is attached to this email.\n\nThank you,\nBudget Manager System` :
+                `Por favor encuentra la solicitud de materiales Mex/Can adjunta.\n\nDetalles de la Solicitud:\n- ID de Solicitud: #${request.id}\n- Fecha: ${requestDate}\n- Total de Artículos: ${itemCount}\n- Cantidad Total: ${totalQuantity}\n\nArtículos Solicitados:\n${itemsList}\nEl archivo PDF está adjunto a este correo.\n\nGracias,\nSistema de Gestión de Presupuesto`;
             
             // Send email to each recipient
             let successCount = 0;
@@ -18849,16 +18861,26 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             
             for (const email of emailList) {
                 try {
+                    // EmailJS expects base64 string without data URI prefix for attachments
+                    // Make sure the base64 string is clean (no data:application/pdf;base64, prefix)
                     const cleanBase64 = pdfBase64.startsWith('data:') ? pdfBase64.split(',')[1] : pdfBase64;
                     
                     const emailParams = {
-                        email: email,
-                        to_email: email,
+                        email: email,  // Use 'email' to match EmailJS template variable {{email}}
+                        to_email: email,  // Also include 'to_email' in case template uses it
                         subject: subject,
                         message: message,
-                        pdf_attachment: cleanBase64,
+                        pdf_attachment: cleanBase64,  // Clean base64 without data URI prefix
                         pdf_filename: pdfFileName
                     };
+                    
+                    // Log attachment data size for debugging
+                    console.log(`Sending Mex/Can request email to ${email} with PDF attachment:`, {
+                        pdf_size: cleanBase64.length,
+                        pdf_filename: pdfFileName,
+                        pdf_base64_preview: cleanBase64.substring(0, 50) + '...',
+                        has_data_uri_prefix: pdfBase64.startsWith('data:')
+                    });
                     
                     await emailjs.send(mexcanEmailjsServiceId, mexcanEmailjsTemplateId, emailParams);
                     successCount++;
@@ -18948,10 +18970,22 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 <strong style="font-size: 1.1rem;">${currentLanguage === 'en' ? 'Request' : 'Solicitud'} #${request.id}</strong>
                                 <div style="color: #7f8c8d; font-size: 0.9rem; margin-top: 3px;">${date}</div>
                             </div>
-                            <div style="display: flex; gap: 10px; align-items: center;">
+                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                                 <span style="padding: 5px 12px; background: ${statusColor}; color: white; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
                                     ${statusText}
                                 </span>
+                                ${request.status === 'pending' ? `
+                                    <button class="btn btn-sm" onclick="markMexcanRequestSent(${request.id})" 
+                                            style="background: #27ae60; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
+                                        ${currentLanguage === 'en' ? 'Mark as Sent' : 'Marcar como Enviada'}
+                                    </button>
+                                ` : request.status === 'sent' ? `
+                                    <button class="btn btn-sm" onclick="editMexcanRequestTracking(${request.id})" 
+                                            style="background: #3498db; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;"
+                                            title="${currentLanguage === 'en' ? 'Edit items, quantities, and tracking numbers' : 'Editar artículos, cantidades y números de seguimiento'}">
+                                        ${currentLanguage === 'en' ? 'Edit Items & Tracking' : 'Editar Artículos y Seguimiento'}
+                                    </button>
+                                ` : ''}
                                 <button class="btn btn-sm" onclick="deleteMexcanRequest(${request.id})" 
                                         style="background: #e74c3c; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;"
                                         title="${currentLanguage === 'en' ? 'Delete this request' : 'Eliminar esta solicitud'}">
@@ -18959,24 +18993,166 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 </button>
                             </div>
                         </div>
-                        <div style="margin-top: 10px;">
-                            <div style="color: #2c3e50; font-weight: 600; margin-bottom: 5px;">
-                                ${currentLanguage === 'en' ? 'Items' : 'Artículos'} (${request.items.length}):
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 5px;">
-                                ${request.items.map(item => {
-                                    const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
-                                    const unit = item.unit || 'pieces';
-                                    const unitLabels = {
-                                        'pieces': currentLanguage === 'en' ? 'Pieces' : 'Piezas'
-                                    };
-                                    const unitLabel = unitLabels[unit] || unitLabels['pieces'];
-                                    return `<div style="padding: 5px; background: #f8f9fa; border-radius: 4px; font-size: 0.85rem;">
-                                        • ${itemName}: ${item.quantity} ${unitLabel}
-                                    </div>`;
-                                }).join('')}
-                            </div>
-                        </div>
+                        ${(() => {
+                            const unitLabels = {
+                                'pieces': currentLanguage === 'en' ? 'Pieces' : 'Piezas'
+                            };
+                            
+                            const itemsHtml = request.items.map((item, itemIdx) => {
+                                const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+                                const unit = item.unit || 'pieces';
+                                const unitLabel = unitLabels[unit] || unitLabels['pieces'];
+                                
+                                // Check if there's a sent item or backorder
+                                const itemId = item.id !== undefined && item.id !== null 
+                                    ? String(item.id) 
+                                    : `item_${item.nameEn}_${item.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                                
+                                // Find which tracking shipment this item belongs to
+                                let trackingInfo = '';
+                                if (request.trackingShipments && request.trackingShipments.length > 0) {
+                                    request.trackingShipments.forEach((shipment, shipmentIdx) => {
+                                        const shipmentItemIds = (shipment.itemIds || []).map(id => String(id));
+                                        if (shipmentItemIds.includes(String(itemId))) {
+                                            const trackingLink = `<a href="https://www.ups.com/track?tracknum=${shipment.trackingNumber}" 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                style="color: #3498db; text-decoration: underline; font-size: 0.8rem; margin-left: 5px;"
+                                                title="${currentLanguage === 'en' ? 'Click to track on UPS website' : 'Haz clic para rastrear en el sitio web de UPS'}">
+                                                📦 ${currentLanguage === 'en' ? 'Tracking' : 'Seguimiento'} #${shipmentIdx + 1}: ${shipment.trackingNumber}
+                                            </a>`;
+                                            trackingInfo = trackingLink;
+                                        }
+                                    });
+                                }
+                                
+                                const sentItem = request.sentItems && request.sentItems.find(si => {
+                                    const siId = si.id !== undefined && si.id !== null 
+                                        ? String(si.id) 
+                                        : `item_${si.nameEn}_${si.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                                    return String(siId) === String(itemId);
+                                });
+                                const backorder = request.backorders && request.backorders.find(bo => {
+                                    const boId = bo.id !== undefined && bo.id !== null 
+                                        ? String(bo.id) 
+                                        : `item_${bo.nameEn}_${bo.category}_${itemIdx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                                    return String(boId) === String(itemId);
+                                });
+                                
+                                let itemDisplay = `<div style="padding: 5px; background: #f8f9fa; border-radius: 4px; font-size: 0.85rem;">`;
+                                itemDisplay += `• ${itemName} `;
+                                
+                                // Add tracking info if this item is in a tracking shipment
+                                if (trackingInfo) {
+                                    itemDisplay += `<br>${trackingInfo}`;
+                                }
+                                
+                                if (sentItem && request.status === 'sent') {
+                                    const sentUnitLabel = unitLabels[sentItem.unit] || unitLabels['pieces'];
+                                    itemDisplay += `<span style="color: #2c3e50;">(${currentLanguage === 'en' ? 'Requested' : 'Solicitado'}: ${item.quantity} ${unitLabel}, ${currentLanguage === 'en' ? 'Sent' : 'Enviado'}: ${sentItem.quantity} ${sentUnitLabel})</span>`;
+                                    if (backorder) {
+                                        const dismissedBackorders = JSON.parse(localStorage.getItem('dismissedMexcanBackorders')) || {};
+                                        const boGroupKey = `${backorder.nameEn}_${backorder.category}`;
+                                        const isDismissed = dismissedBackorders[boGroupKey] === true;
+                                        
+                                        if (!isDismissed) {
+                                            itemDisplay += ` <span style="color: #e74c3c; font-weight: 600;">⚠️ ${currentLanguage === 'en' ? 'Backorder' : 'Pedido Pendiente'}: ${backorder.backorderQty} ${unitLabel}</span>`;
+                                        }
+                                    }
+                                } else {
+                                    itemDisplay += `<span style="color: #2c3e50;">(${currentLanguage === 'en' ? 'Qty' : 'Cant'}: ${item.quantity} ${unitLabel})</span>`;
+                                }
+                                
+                                itemDisplay += `</div>`;
+                                return itemDisplay;
+                            }).join('')}
+                            
+                            // Filter out dismissed backorders
+                            const dismissedBackorders = JSON.parse(localStorage.getItem('dismissedMexcanBackorders')) || {};
+                            const visibleBackorders = request.backorders ? request.backorders.filter(bo => {
+                                const boGroupKey = `${bo.nameEn}_${bo.category}`;
+                                return dismissedBackorders[boGroupKey] !== true;
+                            }) : [];
+                            
+                            const backordersHtml = visibleBackorders.length > 0 ? `
+                                <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-left: 4px solid #f39c12; border-radius: 4px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                        <div style="font-weight: 600; color: #d68910; font-size: 0.9rem;">
+                                            ⚠️ ${currentLanguage === 'en' ? 'Backorders' : 'Pedidos Pendientes'}:
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                                        ${visibleBackorders.map(bo => {
+                                            const boName = currentLanguage === 'en' ? bo.nameEn : bo.nameEs;
+                                            const boUnitLabel = unitLabels[bo.unit] || unitLabels['pieces'];
+                                            const boGroupKey = `${bo.nameEn}_${bo.category}`;
+                                            return `
+                                                <div style="padding: 5px; background: white; border-radius: 4px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+                                                    <span>${boName}: ${bo.backorderQty} ${boUnitLabel}</span>
+                                                    <button onclick="dismissMexcanBackorder('${boGroupKey}')" 
+                                                            style="background: #95a5a6; color: white; border: none; padding: 3px 8px; border-radius: 3px; font-size: 0.75rem; cursor: pointer;">
+                                                        ${currentLanguage === 'en' ? 'Dismiss' : 'Descartar'}
+                                                    </button>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            ` : '';
+                            
+                            // Show tracking shipments if they exist
+                            const trackingShipmentsHtml = request.trackingShipments && request.trackingShipments.length > 0 ? `
+                                <div style="margin-top: 10px;">
+                                    <div style="color: #2c3e50; font-weight: 600; margin-bottom: 5px;">
+                                        📦 ${currentLanguage === 'en' ? 'Tracking Shipments' : 'Envíos con Seguimiento'} (${request.trackingShipments.length}):
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                                        ${request.trackingShipments.map((shipment, idx) => {
+                                            const trackingLink = shipment.trackingNumber ? `
+                                                <a href="https://www.ups.com/track?tracknum=${shipment.trackingNumber}" 
+                                                   target="_blank" 
+                                                   rel="noopener noreferrer"
+                                                   style="color: #3498db; text-decoration: underline; font-weight: 600;">
+                                                    ${shipment.trackingNumber}
+                                                </a>
+                                            ` : '<span style="color: #7f8c8d;">No tracking number</span>';
+                                            
+                                            const statusBadge = shipment.upsStatus ? `
+                                                <span style="padding: 3px 8px; background: #3498db; color: white; border-radius: 3px; font-size: 0.75rem; margin-left: 8px;">
+                                                    ${shipment.upsStatus}
+                                                </span>
+                                            ` : '';
+                                            
+                                            return `
+                                                <div style="padding: 8px; background: #e8f4f8; border-left: 3px solid #3498db; border-radius: 4px;">
+                                                    <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 5px;">
+                                                        <strong>#${idx + 1}:</strong> ${trackingLink} ${statusBadge}
+                                                    </div>
+                                                    ${shipment.upsLastLocation ? `
+                                                        <div style="font-size: 0.8rem; color: #7f8c8d; margin-top: 3px;">
+                                                            📍 ${shipment.upsLastLocation}
+                                                        </div>
+                                                    ` : ''}
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            ` : '';
+                            
+                            return `
+                                <div style="margin-top: 10px;">
+                                    <div style="color: #2c3e50; font-weight: 600; margin-bottom: 5px;">
+                                        ${currentLanguage === 'en' ? 'Items' : 'Artículos'} (${request.items.length}):
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                                        ${itemsHtml}
+                                    </div>
+                                    ${trackingShipmentsHtml}
+                                    ${backordersHtml}
+                                </div>
+                            `;
+                        })()}
                     </div>
                 `;
             });
@@ -19012,14 +19188,695 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             }
         }
         
-        function checkAllMexcanTrackingNumbers() {
-            // TODO: Implement tracking for Mex/Can requests if needed
-            alert(currentLanguage === 'en' ? 'Tracking functionality for Mex/Can requests coming soon' : 'Funcionalidad de seguimiento para solicitudes Mex/Can próximamente');
+        function dismissMexcanBackorder(groupKey) {
+            const dismissedBackorders = JSON.parse(localStorage.getItem('dismissedMexcanBackorders')) || {};
+            dismissedBackorders[groupKey] = true;
+            localStorage.setItem('dismissedMexcanBackorders', JSON.stringify(dismissedBackorders));
+            loadMexcanHistory();
         }
         
         function migrateMexcanRequestsFromLocalStorage() {
             // TODO: Implement Supabase migration for Mex/Can requests
             alert(currentLanguage === 'en' ? 'Migration functionality coming soon' : 'Funcionalidad de migración próximamente');
+        }
+
+        // Mex/Can Tracking Functions
+        let currentMexcanTrackingRequestId = null;
+        let mexcanTrackingShipments = []; // Array of {trackingNumber: '', itemIds: []}
+
+        function markMexcanRequestSent(requestId) {
+            const history = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+            const request = history.find(r => r.id == requestId);
+            if (request) {
+                currentMexcanTrackingRequestId = requestId;
+                
+                // Initialize tracking shipments from existing data or empty
+                if (request.trackingShipments && request.trackingShipments.length > 0) {
+                    mexcanTrackingShipments = JSON.parse(JSON.stringify(request.trackingShipments));
+                } else {
+                    mexcanTrackingShipments = [];
+                }
+                
+                openMexcanTrackingModal(request);
+            }
+        }
+
+        function editMexcanRequestTracking(requestId) {
+            markMexcanRequestSent(requestId); // Same function, just different entry point
+        }
+
+        function openMexcanTrackingModal(request) {
+            const modal = document.getElementById('trackingModal');
+            const content = document.getElementById('trackingModalContent');
+            const modalTitle = document.getElementById('trackingModalTitle');
+            
+            // Always get fresh data from localStorage
+            const history = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+            const freshRequest = history.find(r => r.id == currentMexcanTrackingRequestId) || request;
+            request = freshRequest;
+            
+            // Update modal title based on request status
+            const isAlreadySent = request.status === 'sent';
+            if (modalTitle) {
+                modalTitle.textContent = isAlreadySent 
+                    ? (currentLanguage === 'en' ? 'Edit Items & Tracking (Mex/Can)' : 'Editar Artículos y Seguimiento (Mex/Can)')
+                    : (currentLanguage === 'en' ? 'Mark Request as Sent (Mex/Can)' : 'Marcar Solicitud como Enviada (Mex/Can)');
+            }
+            
+            // Calculate which items are assigned to shipments
+            const assignedItemIds = new Set();
+            mexcanTrackingShipments.forEach(shipment => {
+                if (shipment.itemIds) {
+                    shipment.itemIds.forEach(id => assignedItemIds.add(String(id)));
+                }
+            });
+            
+            // Build HTML for all items with checkboxes
+            let itemsHtml = '<div style="margin-bottom: 20px;">';
+            itemsHtml += `<h3 style="margin-bottom: 15px;">${currentLanguage === 'en' ? 'Request Items' : 'Artículos de la Solicitud'}</h3>`;
+            itemsHtml += '<div style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; padding: 10px; background: #f8f9fa;">';
+            
+            request.items.forEach((item, index) => {
+                const itemId = item.id !== undefined && item.id !== null 
+                    ? String(item.id) 
+                    : `item_${item.nameEn}_${item.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+                const requestedQty = item.quantity || 1;
+                const requestedUnit = item.unit || 'pieces';
+                const isAssigned = assignedItemIds.has(String(itemId));
+                
+                if (isAssigned) {
+                    return; // Don't render this item in the main list
+                }
+                
+                // Get sent quantity if already saved
+                const history = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+                const freshRequest = history.find(r => r.id == currentMexcanTrackingRequestId) || request;
+                const sentItem = freshRequest.sentItems && freshRequest.sentItems.find(si => {
+                    return String(si.id) === String(itemId);
+                });
+                const sentQty = sentItem ? sentItem.quantity : requestedQty;
+                const sentUnit = sentItem ? sentItem.unit : (requestedUnit || 'pieces');
+                
+                const unitLabels = {
+                    'pieces': currentLanguage === 'en' ? 'Pieces' : 'Piezas'
+                };
+                const requestedUnitLabel = unitLabels[requestedUnit] || unitLabels['pieces'];
+                
+                itemsHtml += `
+                    <div style="padding: 10px; margin-bottom: 8px; background: white; border-radius: 4px; border: 2px solid #e1e8ed;">
+                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                            <input type="checkbox" id="mexcan_item_${itemId}" value="${itemId}" 
+                                   style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;"
+                                   onchange="toggleMexcanItemEditFields('${itemId}')">
+                            <label for="mexcan_item_${itemId}" style="cursor: pointer; flex: 1;">
+                                <strong>${itemName}</strong> 
+                                <span style="color: #7f8c8d; font-size: 0.9rem;">(${currentLanguage === 'en' ? 'Requested' : 'Solicitado'}: ${requestedQty} ${requestedUnitLabel})</span>
+                            </label>
+                        </div>
+                        <div id="mexcan_editFields_${itemId}" style="display: none; padding-left: 28px; padding-top: 8px; border-top: 1px solid #e1e8ed;">
+                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                <label style="display: flex; align-items: center; gap: 5px;">
+                                    <span style="font-size: 0.85rem; color: #7f8c8d;">${currentLanguage === 'en' ? 'Sent Qty:' : 'Cant. Enviada:'}</span>
+                                    <input type="number" id="mexcan_sentQty_${itemId}" 
+                                           value="${sentQty}" 
+                                           min="0" 
+                                           style="width: 70px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; text-align: center;"
+                                           onchange="updateMexcanSentQuantity('${itemId}')">
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 5px;">
+                                    <select id="mexcan_sentUnit_${itemId}" 
+                                            style="width: 90px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem;"
+                                            onchange="updateMexcanSentQuantity('${itemId}')">
+                                        <option value="pieces" ${(sentUnit || 'pieces') === 'pieces' ? 'selected' : ''}>${unitLabels['pieces']}</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div id="mexcan_backorderInfo_${itemId}" style="margin-top: 5px; font-size: 0.8rem; color: #e74c3c; font-weight: 600;"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            itemsHtml += '</div>';
+            itemsHtml += `<div data-mexcan-remaining-items style="margin-top: 10px;"></div>`;
+            itemsHtml += '</div>';
+            
+            // Build HTML for tracking shipments
+            let shipmentsHtml = '<div style="margin-bottom: 20px;">';
+            shipmentsHtml += `<h3 style="margin-bottom: 15px;">${currentLanguage === 'en' ? 'Tracking Numbers & Items' : 'Números de Seguimiento y Artículos'}</h3>`;
+            shipmentsHtml += '<div id="mexcanTrackingShipmentsList" style="margin-bottom: 15px;">';
+            
+            if (mexcanTrackingShipments.length === 0) {
+                shipmentsHtml += `<p style="color: #7f8c8d; font-style: italic;">${currentLanguage === 'en' ? 'No tracking numbers added yet. Click "Add Tracking Number" to start.' : 'Aún no se han agregado números de seguimiento. Haz clic en "Agregar Número de Seguimiento" para comenzar.'}</p>`;
+            } else {
+                mexcanTrackingShipments.forEach((shipment, index) => {
+                    shipmentsHtml += buildMexcanTrackingShipmentHtml(shipment, index, request);
+                });
+            }
+            
+            shipmentsHtml += '</div>';
+            shipmentsHtml += `<button class="btn btn-primary" onclick="addMexcanTrackingShipment()" style="margin-bottom: 15px;">
+                ${currentLanguage === 'en' ? '+ Add Tracking Number' : '+ Agregar Número de Seguimiento'}
+            </button>`;
+            shipmentsHtml += '</div>';
+            
+            // Build complete content
+            content.innerHTML = itemsHtml + shipmentsHtml + `
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
+                    <button class="btn" onclick="closeMexcanTrackingModal()" style="background: #95a5a6; color: white;">
+                        ${currentLanguage === 'en' ? 'Cancel' : 'Cancelar'}
+                    </button>
+                    <button class="btn btn-success" onclick="saveMexcanTrackingShipments()">
+                        ${currentLanguage === 'en' ? 'Mark as Sent' : 'Marcar como Enviada'}
+                    </button>
+                </div>
+            `;
+            
+            // Initialize sent items
+            if (!request.sentItems) {
+                request.sentItems = [];
+            }
+            
+            mexcanTrackingShipments.forEach((shipment, shipmentIndex) => {
+                shipment.itemIds.forEach(itemId => {
+                    const checkbox = document.getElementById(`mexcan_item_${itemId}`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        toggleMexcanItemEditFields(itemId);
+                    }
+                });
+            });
+            
+            // Initialize all sent quantities
+            request.items.forEach((item, index) => {
+                const itemId = item.id || `item_${item.nameEn}_${item.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                updateMexcanSentQuantity(itemId);
+            });
+            
+            // Update remaining items count
+            updateMexcanRemainingItemsCount();
+            
+            modal.style.display = 'block';
+        }
+
+        function toggleMexcanItemEditFields(itemId) {
+            const checkbox = document.getElementById(`mexcan_item_${itemId}`);
+            const editFields = document.getElementById(`mexcan_editFields_${itemId}`);
+            if (checkbox && editFields) {
+                editFields.style.display = checkbox.checked ? 'block' : 'none';
+                if (checkbox.checked) {
+                    updateMexcanSentQuantity(itemId);
+                }
+            }
+        }
+
+        function updateMexcanSentQuantity(itemId) {
+            const history = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+            const request = history.find(r => r.id == currentMexcanTrackingRequestId);
+            if (!request) return;
+            
+            const item = request.items.find((it, idx) => {
+                const itId = it.id !== undefined && it.id !== null 
+                    ? String(it.id) 
+                    : `item_${it.nameEn}_${it.category}_${idx}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                return String(itId) === String(itemId);
+            });
+            
+            if (!item) return;
+            
+            const sentQtyInput = document.getElementById(`mexcan_sentQty_${itemId}`);
+            const sentUnitSelect = document.getElementById(`mexcan_sentUnit_${itemId}`);
+            const backorderInfo = document.getElementById(`mexcan_backorderInfo_${itemId}`);
+            
+            if (!sentQtyInput || !sentUnitSelect) return;
+            
+            const requestedQty = item.quantity || 1;
+            const requestedUnit = item.unit || 'pieces';
+            const sentQty = parseInt(sentQtyInput.value) || 0;
+            const sentUnit = sentUnitSelect.value || 'pieces';
+            
+            if (!request.sentItems) {
+                request.sentItems = [];
+            }
+            
+            let sentItem = request.sentItems.find(si => si.id === itemId);
+            if (!sentItem) {
+                sentItem = {
+                    id: itemId,
+                    nameEn: item.nameEn,
+                    nameEs: item.nameEs,
+                    category: item.category,
+                    quantity: sentQty,
+                    unit: sentUnit
+                };
+                request.sentItems.push(sentItem);
+            } else {
+                sentItem.quantity = sentQty;
+                sentItem.unit = sentUnit;
+            }
+            
+            // Update localStorage
+            const updatedHistory = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+            const updatedRequest = updatedHistory.find(r => r.id == currentMexcanTrackingRequestId);
+            if (updatedRequest) {
+                updatedRequest.sentItems = request.sentItems;
+                localStorage.setItem('mexcanRequestHistory', JSON.stringify(updatedHistory));
+            }
+            
+            // Show backorder warning if sent < requested
+            if (backorderInfo && requestedUnit === sentUnit && sentQty < requestedQty) {
+                const backorderQty = requestedQty - sentQty;
+                backorderInfo.textContent = currentLanguage === 'en' 
+                    ? `⚠️ Backorder: ${backorderQty} ${sentUnit === 'pieces' ? 'Pieces' : sentUnit}`
+                    : `⚠️ Pedido Pendiente: ${backorderQty} ${sentUnit === 'pieces' ? 'Piezas' : sentUnit}`;
+                backorderInfo.style.display = 'block';
+            } else if (backorderInfo) {
+                backorderInfo.style.display = 'none';
+            }
+            
+            updateMexcanRemainingItemsCount();
+        }
+
+        function updateMexcanRemainingItemsCount() {
+            const remainingItemsDiv = document.querySelector('[data-mexcan-remaining-items]');
+            if (!remainingItemsDiv) return;
+            
+            const history = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+            const request = history.find(r => r.id == currentMexcanTrackingRequestId);
+            if (!request) return;
+            
+            const assignedItemIds = new Set();
+            mexcanTrackingShipments.forEach(shipment => {
+                if (shipment.itemIds) {
+                    shipment.itemIds.forEach(id => assignedItemIds.add(String(id)));
+                }
+            });
+            
+            const unassignedItems = request.items.filter((item, index) => {
+                const itemId = item.id !== undefined && item.id !== null 
+                    ? String(item.id) 
+                    : `item_${item.nameEn}_${item.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                return !assignedItemIds.has(String(itemId));
+            });
+            
+            if (unassignedItems.length > 0) {
+                remainingItemsDiv.innerHTML = `<div style="padding: 8px; background: #fff3cd; border-left: 4px solid #f39c12; border-radius: 4px; font-size: 0.85rem; color: #d68910;">
+                    <strong>${currentLanguage === 'en' ? 'Note:' : 'Nota:'}</strong> ${unassignedItems.length} ${currentLanguage === 'en' ? 'item(s) not assigned to any shipment. They will be marked as backorders.' : 'artículo(s) no asignado(s) a ningún envío. Se marcarán como pedidos pendientes.'}
+                </div>`;
+            } else {
+                remainingItemsDiv.innerHTML = '';
+            }
+        }
+
+        function buildMexcanTrackingShipmentHtml(shipment, index, request) {
+            const history = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+            const freshRequest = history.find(r => r.id == currentMexcanTrackingRequestId) || request;
+            const currentRequest = freshRequest || request;
+            
+            const otherShipmentItemIds = new Set();
+            mexcanTrackingShipments.forEach((s, idx) => {
+                if (idx !== index && s.itemIds) {
+                    s.itemIds.forEach(id => otherShipmentItemIds.add(id));
+                }
+            });
+            
+            const unitLabels = {
+                'pieces': currentLanguage === 'en' ? 'Pieces' : 'Piezas'
+            };
+            
+            return `
+                <div id="mexcan_shipment_${index}" style="padding: 15px; margin-bottom: 10px; background: white; border: 2px solid #3498db; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong style="color: #2c3e50;">${currentLanguage === 'en' ? 'Tracking Number' : 'Número de Seguimiento'} #${index + 1}</strong>
+                        <button class="btn btn-sm" onclick="removeMexcanTrackingShipment(${index})" 
+                                style="background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.85rem;">
+                            ${currentLanguage === 'en' ? 'Remove' : 'Eliminar'}
+                        </button>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                            ${currentLanguage === 'en' ? 'Tracking Number:' : 'Número de Seguimiento:'}
+                        </label>
+                        <input type="text" id="mexcan_tracking_${index}" value="${shipment.trackingNumber || ''}" 
+                               placeholder="${currentLanguage === 'en' ? 'Enter tracking number' : 'Ingresa el número de seguimiento'}"
+                               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;"
+                               onchange="updateMexcanTrackingNumber(${index}, this.value)">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                            ${currentLanguage === 'en' ? 'Select Items for this Shipment:' : 'Selecciona Artículos para este Envío:'}
+                        </label>
+                        <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; padding: 10px; background: #f8f9fa;">
+                            ${currentRequest.items.map((item, itemIndex) => {
+                                const itemId = item.id !== undefined && item.id !== null 
+                                    ? String(item.id) 
+                                    : `item_${item.nameEn}_${item.category}_${itemIndex}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                                const itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+                                const shipmentItemIds = (shipment.itemIds || []).map(id => String(id));
+                                const isChecked = shipmentItemIds.includes(String(itemId));
+                                const isInOtherShipment = Array.from(otherShipmentItemIds).some(id => String(id) === String(itemId));
+                                const sentItem = currentRequest.sentItems && currentRequest.sentItems.find(si => {
+                                    return si.id === itemId;
+                                });
+                                const unit = item.unit || 'pieces';
+                                const unitLabel = unitLabels[unit] || unitLabels['pieces'];
+                                let qtyDisplay = `${currentLanguage === 'en' ? 'Qty' : 'Cant'}: ${item.quantity} ${unitLabel}`;
+                                if (sentItem) {
+                                    const sentUnitLabel = unitLabels[sentItem.unit] || unitLabels['pieces'];
+                                    qtyDisplay = `${currentLanguage === 'en' ? 'Sent' : 'Enviado'}: ${sentItem.quantity} ${sentUnitLabel} (${currentLanguage === 'en' ? 'Req' : 'Sol'}: ${item.quantity} ${unitLabel})`;
+                                }
+                                return `
+                                    <div style="padding: 5px; margin-bottom: 3px; ${isInOtherShipment ? 'opacity: 0.5;' : ''}">
+                                        <input type="checkbox" id="mexcan_shipment_${index}_item_${itemId}" 
+                                               value="${itemId}" ${isChecked ? 'checked' : ''} ${isInOtherShipment ? 'disabled' : ''}
+                                               onchange="updateMexcanShipmentItems(${index}, '${itemId}', this.checked)"
+                                               style="margin-right: 8px; cursor: ${isInOtherShipment ? 'not-allowed' : 'pointer'};">
+                                        <label for="mexcan_shipment_${index}_item_${itemId}" style="cursor: ${isInOtherShipment ? 'default' : 'pointer'};">
+                                            ${itemName} (${qtyDisplay})
+                                            ${isInOtherShipment ? `<span style="color: #27ae60; font-size: 0.8rem; margin-left: 5px;">✓ ${currentLanguage === 'en' ? 'In another shipment' : 'En otro envío'}</span>` : ''}
+                                        </label>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function addMexcanTrackingShipment() {
+            mexcanTrackingShipments.push({
+                trackingNumber: '',
+                itemIds: []
+            });
+            
+            const history = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+            const request = history.find(r => r.id == currentMexcanTrackingRequestId);
+            if (request) {
+                openMexcanTrackingModal(request);
+            }
+        }
+
+        function removeMexcanTrackingShipment(index) {
+            mexcanTrackingShipments.splice(index, 1);
+            const history = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+            const request = history.find(r => r.id == currentMexcanTrackingRequestId);
+            if (request) {
+                openMexcanTrackingModal(request);
+            }
+        }
+
+        function updateMexcanTrackingNumber(index, trackingNumber) {
+            if (mexcanTrackingShipments[index]) {
+                mexcanTrackingShipments[index].trackingNumber = trackingNumber.trim();
+            }
+        }
+
+        function updateMexcanShipmentItems(shipmentIndex, itemId, isChecked) {
+            if (!mexcanTrackingShipments[shipmentIndex]) {
+                mexcanTrackingShipments[shipmentIndex] = { trackingNumber: '', itemIds: [] };
+            }
+            
+            if (!mexcanTrackingShipments[shipmentIndex].itemIds) {
+                mexcanTrackingShipments[shipmentIndex].itemIds = [];
+            }
+            
+            if (isChecked) {
+                if (!mexcanTrackingShipments[shipmentIndex].itemIds.includes(itemId)) {
+                    mexcanTrackingShipments[shipmentIndex].itemIds.push(itemId);
+                }
+            } else {
+                mexcanTrackingShipments[shipmentIndex].itemIds = mexcanTrackingShipments[shipmentIndex].itemIds.filter(id => id !== itemId);
+            }
+            
+            updateMexcanRemainingItemsCount();
+        }
+
+        function saveCurrentMexcanSentItems() {
+            const history = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+            const request = history.find(r => r.id == currentMexcanTrackingRequestId);
+            if (!request) return;
+            
+            if (!request.sentItems) {
+                request.sentItems = [];
+            }
+            
+            request.items.forEach((item, index) => {
+                const itemId = item.id !== undefined && item.id !== null 
+                    ? String(item.id) 
+                    : `item_${item.nameEn}_${item.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                const checkbox = document.getElementById(`mexcan_item_${itemId}`);
+                if (checkbox && checkbox.checked) {
+                    const sentQtyInput = document.getElementById(`mexcan_sentQty_${itemId}`);
+                    const sentUnitSelect = document.getElementById(`mexcan_sentUnit_${itemId}`);
+                    
+                    if (sentQtyInput && sentUnitSelect) {
+                        const sentQty = parseInt(sentQtyInput.value) || 0;
+                        const sentUnit = sentUnitSelect.value || 'pieces';
+                        
+                        let sentItem = request.sentItems.find(si => si.id === itemId);
+                        if (!sentItem) {
+                            sentItem = {
+                                id: itemId,
+                                nameEn: item.nameEn,
+                                nameEs: item.nameEs,
+                                category: item.category,
+                                quantity: sentQty,
+                                unit: sentUnit
+                            };
+                            request.sentItems.push(sentItem);
+                        } else {
+                            sentItem.quantity = sentQty;
+                            sentItem.unit = sentUnit;
+                        }
+                    }
+                }
+            });
+            
+            const updatedHistory = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+            const updatedRequest = updatedHistory.find(r => r.id == currentMexcanTrackingRequestId);
+            if (updatedRequest) {
+                updatedRequest.sentItems = request.sentItems;
+                localStorage.setItem('mexcanRequestHistory', JSON.stringify(updatedHistory));
+            }
+        }
+
+        async function saveMexcanTrackingShipments() {
+            // Read tracking numbers from input fields
+            mexcanTrackingShipments.forEach((shipment, index) => {
+                const trackingInput = document.getElementById(`mexcan_tracking_${index}`);
+                if (trackingInput) {
+                    shipment.trackingNumber = trackingInput.value.trim();
+                }
+            });
+            
+            // Validate that all shipments have tracking numbers
+            const emptyTracking = mexcanTrackingShipments.some(s => !s.trackingNumber || s.trackingNumber.trim() === '');
+            if (emptyTracking) {
+                alert(currentLanguage === 'en' 
+                    ? 'Please enter tracking numbers for all shipments.' 
+                    : 'Por favor ingresa números de seguimiento para todos los envíos.');
+                return;
+            }
+            
+            // Save current sentItems from form
+            saveCurrentMexcanSentItems();
+            
+            const history = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+            const request = history.find(r => r.id == currentMexcanTrackingRequestId);
+            
+            if (request) {
+                const trackingShipmentsToSave = mexcanTrackingShipments.map(shipment => ({
+                    trackingNumber: shipment.trackingNumber || '',
+                    itemIds: (shipment.itemIds || []).map(id => String(id)),
+                    upsStatus: shipment.upsStatus || null,
+                    upsLastUpdate: shipment.upsLastUpdate || null,
+                    upsHasDutiesDue: shipment.upsHasDutiesDue || false,
+                    upsHasDelay: shipment.upsHasDelay || false,
+                    upsExceptionDescription: shipment.upsExceptionDescription || null,
+                    upsPickedUp: shipment.upsPickedUp || false,
+                    upsInTransit: shipment.upsInTransit || false,
+                    upsDutiesPaid: shipment.upsDutiesPaid || false,
+                    upsDutiesAmount: shipment.upsDutiesAmount || '',
+                    upsStatusCode: shipment.upsStatusCode || null,
+                    upsLastLocation: shipment.upsLastLocation || null,
+                    upsLastDate: shipment.upsLastDate || null,
+                    upsLastChecked: shipment.upsLastChecked || null
+                }));
+                
+                request.status = 'sent';
+                request.trackingShipments = trackingShipmentsToSave;
+                request.trackingNumbers = trackingShipmentsToSave.map(s => s.trackingNumber);
+                request.trackingNumber = trackingShipmentsToSave.length > 0 ? trackingShipmentsToSave[0].trackingNumber : '';
+                if (!request.sentDate) {
+                    request.sentDate = new Date().toISOString();
+                }
+                
+                // Subscribe to UPS Track Alert API
+                const trackingNumbers = trackingShipmentsToSave.map(s => s.trackingNumber).filter(tn => tn && tn.trim());
+                if (trackingNumbers.length > 0) {
+                    subscribeToTrackAlert(trackingNumbers).then(result => {
+                        if (result.success) {
+                            console.log('✓ Mex/Can Track Alert subscription successful:', result.message);
+                        } else {
+                            console.warn('⚠ Mex/Can Track Alert subscription failed:', result.error || result.message);
+                        }
+                    }).catch(error => {
+                        console.error('Error subscribing Mex/Can to Track Alert:', error);
+                    });
+                }
+                
+                // Calculate backorders
+                const allAssignedItemIds = new Set();
+                mexcanTrackingShipments.forEach(shipment => {
+                    if (shipment.itemIds) {
+                        shipment.itemIds.forEach(id => allAssignedItemIds.add(id));
+                    }
+                });
+                
+                request.backorders = [];
+                request.items.forEach((item, index) => {
+                    const itemId = item.id !== undefined && item.id !== null 
+                        ? String(item.id) 
+                        : `item_${item.nameEn}_${item.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                    const isAssigned = allAssignedItemIds.has(String(itemId));
+                    const sentItem = request.sentItems && request.sentItems.find(si => {
+                        const siId = si.id !== undefined && si.id !== null 
+                            ? String(si.id) 
+                            : `item_${si.nameEn}_${si.category}_${index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                        return String(siId) === String(itemId);
+                    });
+                    
+                    const requestedQty = item.quantity || 1;
+                    const requestedUnit = item.unit || 'pieces';
+                    
+                    if (!isAssigned) {
+                        request.backorders.push({
+                            id: itemId,
+                            nameEn: item.nameEn,
+                            nameEs: item.nameEs,
+                            category: item.category,
+                            requestedQty: requestedQty,
+                            sentQty: 0,
+                            backorderQty: requestedQty,
+                            unit: requestedUnit,
+                            reason: 'not_assigned'
+                        });
+                    } else if (sentItem) {
+                        const sentQty = sentItem.quantity || 0;
+                        const sentUnit = sentItem.unit || 'pieces';
+                        
+                        if (requestedUnit === sentUnit && requestedQty > sentQty) {
+                            request.backorders.push({
+                                id: itemId,
+                                nameEn: item.nameEn,
+                                nameEs: item.nameEs,
+                                category: item.category,
+                                requestedQty: requestedQty,
+                                sentQty: sentQty,
+                                backorderQty: requestedQty - sentQty,
+                                unit: requestedUnit,
+                                reason: 'partial'
+                            });
+                        }
+                    }
+                });
+                
+                // Save to localStorage
+                localStorage.setItem('mexcanRequestHistory', JSON.stringify(history));
+                
+                // Check UPS status for all new tracking numbers
+                for (const shipment of trackingShipmentsToSave) {
+                    if (shipment.trackingNumber && shipment.trackingNumber.trim()) {
+                        try {
+                            const result = await checkUPSTracking(shipment.trackingNumber.trim());
+                            
+                            shipment.upsStatus = result.status;
+                            shipment.upsStatusCode = result.statusCode;
+                            shipment.upsHasDelay = result.hasDelay;
+                            shipment.upsHasDutiesDue = result.hasDutiesDue || false;
+                            shipment.upsDutiesPaid = result.dutiesPaid || false;
+                            shipment.upsDutiesAmount = result.dutiesAmount || '';
+                            shipment.upsLastLocation = result.lastLocation;
+                            shipment.upsLastDate = result.lastDate;
+                            shipment.upsLastChecked = new Date().toISOString();
+                            shipment.upsPickedUp = result.pickedUp || false;
+                            shipment.upsInTransit = result.inTransit || false;
+                            
+                            // Update the request in history
+                            const updatedHistory = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+                            const updatedRequest = updatedHistory.find(r => r.id == currentMexcanTrackingRequestId);
+                            if (updatedRequest && updatedRequest.trackingShipments) {
+                                const updatedShipment = updatedRequest.trackingShipments.find(s => s.trackingNumber === shipment.trackingNumber);
+                                if (updatedShipment) {
+                                    Object.assign(updatedShipment, shipment);
+                                }
+                                localStorage.setItem('mexcanRequestHistory', JSON.stringify(updatedHistory));
+                            }
+                            
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                        } catch (error) {
+                            console.error(`Error checking UPS status for ${shipment.trackingNumber}:`, error);
+                            shipment.upsStatus = 'Error checking status';
+                            shipment.upsLastChecked = new Date().toISOString();
+                        }
+                    }
+                }
+                
+                // Close modal
+                closeMexcanTrackingModal();
+                
+                // Reload history
+                await loadMexcanHistory();
+            }
+        }
+
+        function closeMexcanTrackingModal() {
+            document.getElementById('trackingModal').style.display = 'none';
+            currentMexcanTrackingRequestId = null;
+            mexcanTrackingShipments = [];
+        }
+
+        async function checkAllMexcanTrackingNumbers() {
+            const history = JSON.parse(localStorage.getItem('mexcanRequestHistory')) || [];
+            let updated = false;
+            
+            for (const request of history) {
+                if (request.trackingShipments && request.trackingShipments.length > 0) {
+                    for (const shipment of request.trackingShipments) {
+                        if (shipment.trackingNumber && shipment.trackingNumber.trim()) {
+                            try {
+                                const result = await checkUPSTracking(shipment.trackingNumber.trim());
+                                
+                                shipment.upsStatus = result.status;
+                                shipment.upsStatusCode = result.statusCode;
+                                shipment.upsHasDelay = result.hasDelay;
+                                shipment.upsHasDutiesDue = result.hasDutiesDue || false;
+                                shipment.upsDutiesPaid = result.dutiesPaid || false;
+                                shipment.upsDutiesAmount = result.dutiesAmount || '';
+                                shipment.upsLastLocation = result.lastLocation;
+                                shipment.upsLastDate = result.lastDate;
+                                shipment.upsLastChecked = new Date().toISOString();
+                                shipment.upsPickedUp = result.pickedUp || false;
+                                shipment.upsInTransit = result.inTransit || false;
+                                
+                                updated = true;
+                                await new Promise(resolve => setTimeout(resolve, 500));
+                            } catch (error) {
+                                console.error(`Error checking UPS status for ${shipment.trackingNumber}:`, error);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (updated) {
+                localStorage.setItem('mexcanRequestHistory', JSON.stringify(history));
+                await loadMexcanHistory();
+                showApprovalStatus('success', currentLanguage === 'en' 
+                    ? 'Tracking status updated for all Mex/Can requests' 
+                    : 'Estado de seguimiento actualizado para todas las solicitudes Mex/Can');
+            }
         }
 
         updateTotal();
