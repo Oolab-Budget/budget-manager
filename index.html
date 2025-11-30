@@ -116,6 +116,38 @@
             opacity: 0.9;
         }
 
+        .header-logos {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-right: 20px;
+        }
+
+        .header-logo {
+            height: 60px;
+            width: auto;
+            max-width: 200px;
+            object-fit: contain;
+            filter: brightness(0) invert(1); /* Makes logos white - remove this if you want original colors */
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+
+        .header-logo:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .header-logos {
+                gap: 10px;
+                margin-right: 10px;
+            }
+            .header-logo {
+                height: 40px;
+                max-width: 120px;
+            }
+        }
+
         .language-toggle {
             position: absolute;
             top: 20px;
