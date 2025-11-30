@@ -2802,11 +2802,39 @@
                     .order('created_at', { ascending: false })
                     .limit(100);
                 
-                if (!activityError && activityData) {
+                if (!activityError && activityData && activityData.length > 0) {
+                    // Use Supabase data if it exists
                     activityLog = activityData.map(convertDbActivityToApp);
+                    // Also save to localStorage as backup
+                    localStorage.setItem('activityLog', JSON.stringify(activityLog));
                 } else {
-                    // Fallback to localStorage
-                    activityLog = JSON.parse(localStorage.getItem('activityLog')) || [];
+                    // Fallback to localStorage - preserve existing data
+                    const localActivityLog = JSON.parse(localStorage.getItem('activityLog')) || [];
+                    if (localActivityLog.length > 0) {
+                        activityLog = localActivityLog;
+                        // Optionally migrate to Supabase if we have local data but no Supabase data
+                        if ((!activityData || activityData.length === 0) && localActivityLog.length > 0) {
+                            console.log(`Migrating ${localActivityLog.length} activity log entries to Supabase...`);
+                            for (const activity of localActivityLog.slice(0, 100)) {
+                                try {
+                                    await supabase.from('activity_log').insert([{
+                                        user_id: currentUser.id,
+                                        type: activity.type,
+                                        description: activity.description,
+                                        item_id: activity.itemId,
+                                        created_at: activity.timestamp || new Date().toISOString()
+                                    }]);
+                                } catch (err) {
+                                    // Ignore duplicate errors
+                                    if (err.code !== '23505') {
+                                        console.error('Error migrating activity log:', err);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        activityLog = [];
+                    }
                 }
                 
                 // Load change history - MUST filter by user_id
@@ -2817,11 +2845,42 @@
                     .order('created_at', { ascending: false })
                     .limit(100);
                 
-                if (!historyError && historyData) {
+                if (!historyError && historyData && historyData.length > 0) {
+                    // Use Supabase data if it exists
                     changeHistory = historyData.map(convertDbHistoryToApp);
+                    // Also save to localStorage as backup
+                    localStorage.setItem('changeHistory', JSON.stringify(changeHistory));
                 } else {
-                    // Fallback to localStorage
-                    changeHistory = JSON.parse(localStorage.getItem('changeHistory')) || [];
+                    // Fallback to localStorage - preserve existing data
+                    const localChangeHistory = JSON.parse(localStorage.getItem('changeHistory')) || [];
+                    if (localChangeHistory.length > 0) {
+                        changeHistory = localChangeHistory;
+                        // Optionally migrate to Supabase if we have local data but no Supabase data
+                        if ((!historyData || historyData.length === 0) && localChangeHistory.length > 0) {
+                            console.log(`Migrating ${localChangeHistory.length} change history entries to Supabase...`);
+                            for (const change of localChangeHistory.slice(0, 100)) {
+                                try {
+                                    await supabase.from('change_history').insert([{
+                                        user_id: currentUser.id,
+                                        type: change.type,
+                                        item_id: change.itemId,
+                                        item_name: change.itemName,
+                                        old_value: change.oldValue,
+                                        new_value: change.newValue,
+                                        field: change.field,
+                                        created_at: change.timestamp || new Date().toISOString()
+                                    }]);
+                                } catch (err) {
+                                    // Ignore duplicate errors
+                                    if (err.code !== '23505') {
+                                        console.error('Error migrating change history:', err);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        changeHistory = [];
+                    }
                 }
                 
                 // Render UI
