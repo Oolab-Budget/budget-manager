@@ -19065,7 +19065,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 
                                 itemDisplay += '</div>';
                                 return itemDisplay;
-                            }).join('')}
+                            }).join('');
                             
                             // Filter out dismissed backorders
                             const dismissedBackorders = JSON.parse(localStorage.getItem('dismissedMexcanBackorders')) || {};
