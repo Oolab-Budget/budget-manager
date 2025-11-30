@@ -2099,6 +2099,8 @@
                     <small style="color: #666; display: block; margin-top: 5px;" data-en="Found in DeepL Account → Account → API Keys. Free tier keys end with ':fx'" data-es="Se encuentra en DeepL Account → Account → API Keys. Las claves del nivel gratuito terminan con ':fx'">Found in DeepL Account → Account → API Keys. Free tier keys end with <code>:fx</code></small>
                 </div>
                 <button class="btn btn-info" onclick="testDeepLConnection()" style="margin-top: 10px;" data-en="Test DeepL Connection" data-es="Probar Conexión de DeepL">Test DeepL Connection</button>
+                <button class="btn btn-success" onclick="translateAllItemsAndCategories()" style="margin-top: 10px; margin-left: 10px;" data-en="Translate All Items & Categories" data-es="Traducir Todos los Artículos y Categorías">Translate All Items & Categories</button>
+                <small style="color: #666; display: block; margin-top: 10px;" data-en="Click 'Translate All Items & Categories' to translate all items in all categories and update missing translations." data-es="Haz clic en 'Traducir Todos los Artículos y Categorías' para traducir todos los artículos en todas las categorías y actualizar las traducciones faltantes.">Click 'Translate All Items & Categories' to translate all items in all categories and update missing translations.</small>
             </div>
 
             <!-- UPS Tracking API Configuration -->
@@ -5153,6 +5155,125 @@
                 }
             } else {
                 console.log('No categories need translation.');
+            }
+        }
+        
+        async function translateAllItemsAndCategories() {
+            const apiKey = getDeepLAPIKey();
+            if (!apiKey) {
+                alert(currentLanguage === 'en' ? 
+                    'Please configure your DeepL API key in Settings first.' : 
+                    'Por favor configura tu clave API de DeepL en Configuración primero.');
+                return;
+            }
+            
+            try {
+                showApprovalStatus('info', currentLanguage === 'en' ? 
+                    'Translating all items and categories... This may take a moment.' : 
+                    'Traduciendo todos los artículos y categorías... Esto puede tomar un momento.');
+                
+                // Translate budget items
+                await translateMissingItemText();
+                await translateMissingNotes();
+                
+                // Translate category items (itemDatabase)
+                await translateAllCategoryItems();
+                
+                // Translate categories
+                await translateMissingCategoryNames();
+                
+                showApprovalStatus('success', currentLanguage === 'en' ? 
+                    'Translation complete! All items and categories have been translated.' : 
+                    '¡Traducción completa! Todos los artículos y categorías han sido traducidos.');
+                
+                // Refresh displays
+                loadCategoriesList();
+                if (document.getElementById('manageCategorySelect') && document.getElementById('manageCategorySelect').value) {
+                    loadManageCategoryItems();
+                }
+            } catch (error) {
+                console.error('Translation error:', error);
+                showApprovalStatus('error', currentLanguage === 'en' ? 
+                    `Translation error: ${error.message}` : 
+                    `Error de traducción: ${error.message}`);
+            }
+        }
+        
+        async function translateAllCategoryItems() {
+            const apiKey = getDeepLAPIKey();
+            if (!apiKey) {
+                console.warn('DeepL API key not set. Skipping category items translation.');
+                return;
+            }
+            
+            let needsUpdate = false;
+            const translationPromises = [];
+            
+            console.log('Translating all items in all categories...');
+            
+            // Iterate through all categories in itemDatabase
+            Object.keys(itemDatabase).forEach(category => {
+                const categoryItems = itemDatabase[category] || [];
+                
+                categoryItems.forEach((item, index) => {
+                    // Translate item name
+                    if (currentLanguage === 'en') {
+                        // Need English translation
+                        if (item.nameEs && item.nameEs.trim() !== '' && (!item.nameEn || item.nameEn.trim() === '')) {
+                            const promise = translateTextAPI(item.nameEs, 'es', 'en').then(translated => {
+                                if (translated && translated.trim() !== '') {
+                                    item.nameEn = translated;
+                                    needsUpdate = true;
+                                }
+                            });
+                            translationPromises.push(promise);
+                        }
+                        // Translate description
+                        if (item.descriptionEs && item.descriptionEs.trim() !== '' && (!item.descriptionEn || item.descriptionEn.trim() === '')) {
+                            const promise = translateTextAPI(item.descriptionEs, 'es', 'en').then(translated => {
+                                if (translated && translated.trim() !== '') {
+                                    item.descriptionEn = translated;
+                                    needsUpdate = true;
+                                }
+                            });
+                            translationPromises.push(promise);
+                        }
+                    } else {
+                        // Need Spanish translation
+                        if (item.nameEn && item.nameEn.trim() !== '' && (!item.nameEs || item.nameEs.trim() === '')) {
+                            const promise = translateTextAPI(item.nameEn, 'en', 'es').then(translated => {
+                                if (translated && translated.trim() !== '') {
+                                    item.nameEs = translated;
+                                    needsUpdate = true;
+                                }
+                            });
+                            translationPromises.push(promise);
+                        }
+                        // Translate description
+                        if (item.descriptionEn && item.descriptionEn.trim() !== '' && (!item.descriptionEs || item.descriptionEs.trim() === '')) {
+                            const promise = translateTextAPI(item.descriptionEn, 'en', 'es').then(translated => {
+                                if (translated && translated.trim() !== '') {
+                                    item.descriptionEs = translated;
+                                    needsUpdate = true;
+                                }
+                            });
+                            translationPromises.push(promise);
+                        }
+                    }
+                });
+            });
+            
+            // Wait for all translations to complete
+            if (translationPromises.length > 0) {
+                await Promise.all(translationPromises);
+                
+                if (needsUpdate) {
+                    // Save updated itemDatabase to localStorage
+                    localStorage.setItem('itemDatabase', JSON.stringify(itemDatabase));
+                    console.log('Category items translations saved to localStorage');
+                }
+            } else {
+                console.log('No category items needed translation.');
             }
         }
         
