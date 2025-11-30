@@ -1085,7 +1085,7 @@
                     <label style="display: block; margin-bottom: 5px; color: #2c3e50; font-weight: 600;">Password</label>
                     <input type="password" id="loginPassword" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box;" placeholder="••••••••">
                 </div>
-                <button onclick="handleLogin()" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px; margin-bottom: 15px;">Login</button>
+                <button onclick="if(typeof handleLogin === 'function') { handleLogin(); } else { alert('Login function not loaded. Please refresh the page.'); console.error('handleLogin is not defined'); }" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px; margin-bottom: 15px;">Login</button>
                 <button onclick="showSignupForm()" class="btn btn-secondary" style="width: 100%; padding: 12px; font-size: 16px;">Create Account</button>
                 <div id="loginError" style="color: #e74c3c; margin-top: 15px; text-align: center; display: none;"></div>
             </div>
