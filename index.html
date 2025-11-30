@@ -4695,6 +4695,11 @@
                 return translateText(text, fromLang, toLang);
             }
             
+            // Validate API key format (should contain a colon and end with :fx for free tier)
+            if (!apiKey.includes(':') && !apiKey.endsWith(':fx')) {
+                console.warn('DeepL API key format may be incorrect. Free tier keys should end with :fx');
+            }
+            
             // Use DeepL Translation API
             try {
                 // DeepL language codes: 'EN' for English, 'ES' for Spanish
@@ -4763,7 +4768,15 @@
                     throw new Error('No translation returned from DeepL API');
                 }
             } catch (error) {
-                console.warn('DeepL Translation API error:', error);
+                console.error('DeepL Translation API error:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    text: text,
+                    fromLang: fromLang,
+                    toLang: toLang,
+                    apiKeyPresent: !!apiKey,
+                    apiKeyLength: apiKey ? apiKey.length : 0
+                });
                 // Fallback to simple translation if API fails
                 return translateText(text, fromLang, toLang);
             }
@@ -9008,31 +9021,81 @@
                 const isLocalFile = window.location.protocol === 'file:';
                 let apiUrl = 'https://api-free.deepl.com/v2/translate';
                 
-                if (isLocalFile) {
-                    // Use CORS proxy for local files
-                    apiUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://api-free.deepl.com/v2/translate');
-                }
-                
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: formData
-                });
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`DeepL API error: ${response.status} ${response.statusText} - ${errorText}`);
-                }
-                
+                // Try direct API call first, then fallback to CORS proxy if needed
+                let response;
                 let data;
+                let lastError = null;
+                
                 try {
+                    // Direct API call
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`DeepL API error: ${response.status} ${response.statusText} - ${errorText}`);
+                    }
+                    
                     data = await response.json();
-                } catch (jsonError) {
-                    const responseText = await response.text();
-                    console.error('Failed to parse JSON response:', responseText);
-                    throw new Error(`Invalid response from DeepL API: ${responseText.substring(0, 100)}`);
+                } catch (directError) {
+                    console.warn('Direct API call failed, trying CORS proxy:', directError);
+                    lastError = directError;
+                    
+                    // Fallback to CORS proxy
+                    try {
+                        const proxyOptions = [
+                            'https://corsproxy.io/?' + encodeURIComponent('https://api-free.deepl.com/v2/translate'),
+                            'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api-free.deepl.com/v2/translate')
+                        ];
+                        
+                        let proxySuccess = false;
+                        for (const proxyUrl of proxyOptions) {
+                            try {
+                                response = await fetch(proxyUrl, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded',
+                                    },
+                                    body: formData
+                                });
+                                
+                                if (response.ok) {
+                                    const responseText = await response.text();
+                                    try {
+                                        data = JSON.parse(responseText);
+                                        proxySuccess = true;
+                                        break;
+                                    } catch (parseError) {
+                                        console.warn('Failed to parse proxy response, trying next proxy...');
+                                        continue;
+                                    }
+                                } else {
+                                    const errorText = await response.text();
+                                    console.warn(`Proxy returned error ${response.status}: ${errorText}`);
+                                }
+                            } catch (proxyError) {
+                                console.warn('Proxy failed, trying next...', proxyError);
+                                continue;
+                            }
+                        }
+                        
+                        if (!proxySuccess) {
+                            throw lastError || new Error('All CORS proxy attempts failed');
+                        }
+                    } catch (proxyError) {
+                        console.error('CORS proxy also failed:', proxyError);
+                        throw lastError || proxyError;
+                    }
+                }
+                
+                // Validate response
+                if (!data) {
+                    throw new Error('No data received from DeepL API');
                 }
                 
                 if (data.translations && data.translations.length > 0 && data.translations[0].text) {
