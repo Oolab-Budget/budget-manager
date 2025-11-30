@@ -1090,8 +1090,7 @@
             <button class="tab-button" onclick="switchTab('addItems')" data-en="Add Items" data-es="Agregar Artículos">Add Items</button>
             <button class="tab-button" onclick="switchTab('manageItems')" data-en="Manage Items" data-es="Gestionar Artículos">Manage Items</button>
             <button class="tab-button" onclick="switchTab('categories')" data-en="Categories" data-es="Categorías">Categories</button>
-            <button class="tab-button" onclick="switchTab('budgetReports')" data-en="Budget Reports" data-es="Reportes de Presupuesto">Budget Reports</button>
-            <button class="tab-button" onclick="switchTab('canadaReports')" data-en="Canada Reports" data-es="Reportes de Canadá">Canada Reports</button>
+            <button class="tab-button" onclick="switchTab('reports')" data-en="Reports" data-es="Reportes">Reports</button>
             <button class="tab-button" onclick="switchTab('monitor')" data-en="Monitor" data-es="Monitor">Monitor</button>
             <button class="tab-button" onclick="switchTab('alerts')" data-en="Alerts" data-es="Alertas">Alerts</button>
             <button class="tab-button" onclick="switchTab('canada')" data-en="Can/Mex" data-es="Can/Mex">Can/Mex</button>
@@ -1485,10 +1484,23 @@
         </div>
 
         <!-- Budget Reports Tab -->
-        <div id="budgetReportsTab" class="tab-content">
+        <div id="reportsTab" class="tab-content">
             <div class="form-section">
-                <h2 data-en="Budget Reports & Analytics" data-es="Reportes y Análisis de Presupuesto">Budget Reports & Analytics</h2>
-                <p data-en="View historical data, spending patterns, and detailed analytics for your budgets." data-es="Ve datos históricos, patrones de gasto y análisis detallados de tus presupuestos.">View historical data, spending patterns, and detailed analytics for your budgets.</p>
+                <h2 data-en="Reports & Analytics" data-es="Reportes y Análisis">Reports & Analytics</h2>
+                
+                <!-- Report Type Selector -->
+                <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #2c3e50;" data-en="Select Report Type:" data-es="Seleccionar Tipo de Reporte:">Select Report Type:</label>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button id="budgetReportsBtn" class="btn btn-primary" onclick="switchReportType('budget')" style="flex: 1; min-width: 150px;" data-en="Budget Reports" data-es="Reportes de Presupuesto">Budget Reports</button>
+                        <button id="canadaReportsBtn" class="btn" onclick="switchReportType('canada')" style="flex: 1; min-width: 150px; background: #6c757d; color: white;" data-en="Canada Reports" data-es="Reportes de Canadá">Canada Reports</button>
+                    </div>
+                </div>
+                
+                <!-- Budget Reports Section -->
+                <div id="budgetReportsSection">
+                    <h3 data-en="Budget Reports & Analytics" data-es="Reportes y Análisis de Presupuesto">Budget Reports & Analytics</h3>
+                    <p data-en="View historical data, spending patterns, and detailed analytics for your budgets." data-es="Ve datos históricos, patrones de gasto y análisis detallados de tus presupuestos.">View historical data, spending patterns, and detailed analytics for your budgets.</p>
                 
                 <div style="background: #e8f4fd; border: 1px solid #bee5eb; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
                     <h3 style="margin-top: 0; color: #0c5460;" data-en="Export All Items" data-es="Exportar Todos los Artículos">Export All Items</h3>
@@ -1535,47 +1547,6 @@
                 
                 <div id="reportContent" style="margin-top: 20px;">
                     <!-- Report content will be loaded here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Canada Reports Tab -->
-        <div id="canadaReportsTab" class="tab-content">
-            <div class="form-section">
-                <h2 data-en="Canada Reports & Analytics" data-es="Reportes y Análisis de Canadá">Canada Reports & Analytics</h2>
-                <p data-en="View reports and analytics for Canada material requests, shipping status, and backorders." data-es="Ve reportes y análisis para solicitudes de materiales de Canadá, estado de envío y pedidos pendientes.">View reports and analytics for Canada material requests, shipping status, and backorders.</p>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label data-en="Report Type" data-es="Tipo de Reporte">Report Type</label>
-                        <select id="canadaReportType" onchange="loadCanadaReport()">
-                            <option value="requestHistory" data-en="Request History Summary" data-es="Resumen del Historial de Solicitudes">Request History Summary</option>
-                            <option value="shippingStatus" data-en="Shipping Status Report" data-es="Reporte de Estado de Envío">Shipping Status Report</option>
-                            <option value="backorders" data-en="Backorders Report" data-es="Reporte de Pedidos Pendientes">Backorders Report</option>
-                            <option value="dutiesTaxes" data-en="Duties & Taxes Report" data-es="Reporte de Impuestos y Aranceles">Duties & Taxes Report</option>
-                            <option value="deliveryTimeline" data-en="Delivery Timeline" data-es="Línea de Tiempo de Entrega">Delivery Timeline</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label data-en="Date Range" data-es="Rango de Fechas">Date Range</label>
-                        <select id="canadaDateRange" onchange="loadCanadaReport()">
-                            <option value="all" data-en="All Time" data-es="Todo el Tiempo">All Time</option>
-                            <option value="last30" data-en="Last 30 Days" data-es="Últimos 30 Días">Last 30 Days</option>
-                            <option value="last90" data-en="Last 90 Days" data-es="Últimos 90 Días">Last 90 Days</option>
-                            <option value="lastYear" data-en="Last Year" data-es="Último Año">Last Year</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label data-en="Filter by Item" data-es="Filtrar por Artículo">Filter by Item</label>
-                        <select id="canadaReportItemFilter" onchange="loadCanadaReport()">
-                            <option value="all" data-en="All Items" data-es="Todos los Artículos">All Items</option>
-                            <!-- Items will be populated dynamically -->
-                        </select>
-                    </div>
-                </div>
-                
-                <div id="canadaReportContent" style="margin-top: 20px;">
-                    <!-- Canada report content will be loaded here -->
                 </div>
             </div>
         </div>
@@ -5270,16 +5241,21 @@
                     loadMexcanHistory(); // Always refresh history to show latest tracking status
                 }
                 
-                // Load Canada report when switching to canadaReports tab
-                if (tabName === 'canadaReports') {
-                    populateCanadaReportItemFilter(); // Populate filter before loading report
-                    loadCanadaReport();
-                }
-                
-                // Load budget report when switching to budgetReports tab
-                if (tabName === 'budgetReports') {
-                    populateBudgetReportItemFilter(); // Populate filter before loading report
-                    loadReport();
+                // Load reports when switching to reports tab
+                if (tabName === 'reports') {
+                    // Check which report type is currently selected (default to budget)
+                    const budgetSection = document.getElementById('budgetReportsSection');
+                    const canadaSection = document.getElementById('canadaReportsSection');
+                    if (budgetSection && budgetSection.style.display !== 'none') {
+                        populateBudgetReportItemFilter();
+                        loadReport();
+                    } else if (canadaSection && canadaSection.style.display !== 'none') {
+                        populateCanadaReportItemFilter();
+                        loadCanadaReport();
+                    } else {
+                        // Default to budget reports
+                        switchReportType('budget');
+                    }
                 }
             } else {
                 console.error('Tab content not found:', tabName + 'Tab');
@@ -5290,6 +5266,59 @@
                 console.log('Button activated');
             } else {
                 console.error('Button not found for tab:', tabName);
+            }
+        }
+        
+        function switchReportType(reportType) {
+            const budgetSection = document.getElementById('budgetReportsSection');
+            const canadaSection = document.getElementById('canadaReportsSection');
+            const budgetBtn = document.getElementById('budgetReportsBtn');
+            const canadaBtn = document.getElementById('canadaReportsBtn');
+            
+            if (reportType === 'budget') {
+                // Show budget reports, hide Canada reports
+                if (budgetSection) budgetSection.style.display = 'block';
+                if (canadaSection) canadaSection.style.display = 'none';
+                
+                // Update button styles
+                if (budgetBtn) {
+                    budgetBtn.classList.add('btn-primary');
+                    budgetBtn.classList.remove('btn-secondary');
+                    budgetBtn.style.background = '';
+                    budgetBtn.style.color = '';
+                }
+                if (canadaBtn) {
+                    canadaBtn.classList.remove('btn-primary');
+                    canadaBtn.classList.add('btn-secondary');
+                    canadaBtn.style.background = '#6c757d';
+                    canadaBtn.style.color = 'white';
+                }
+                
+                // Load budget report
+                populateBudgetReportItemFilter();
+                loadReport();
+            } else if (reportType === 'canada') {
+                // Show Canada reports, hide budget reports
+                if (budgetSection) budgetSection.style.display = 'none';
+                if (canadaSection) canadaSection.style.display = 'block';
+                
+                // Update button styles
+                if (canadaBtn) {
+                    canadaBtn.classList.add('btn-primary');
+                    canadaBtn.classList.remove('btn-secondary');
+                    canadaBtn.style.background = '';
+                    canadaBtn.style.color = '';
+                }
+                if (budgetBtn) {
+                    budgetBtn.classList.remove('btn-primary');
+                    budgetBtn.classList.add('btn-secondary');
+                    budgetBtn.style.background = '#6c757d';
+                    budgetBtn.style.color = 'white';
+                }
+                
+                // Load Canada report
+                populateCanadaReportItemFilter();
+                loadCanadaReport();
             }
         }
 
@@ -17410,8 +17439,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 await loadCanadaHistory();
                 
                 // Reload reports to exclude deleted request
-                const canadaReportsTab = document.getElementById('canadaReportsTab');
-                if (canadaReportsTab && canadaReportsTab.classList.contains('active')) {
+                const reportsTab = document.getElementById('reportsTab');
+                const canadaReportsSection = document.getElementById('canadaReportsSection');
+                if (reportsTab && reportsTab.classList.contains('active') && canadaReportsSection && canadaReportsSection.style.display !== 'none') {
                     loadCanadaReport();
                 }
                 
@@ -19840,7 +19870,8 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
 
         updateTotal();
         renderBudgetItems();
-        loadReport();
+        // Initialize reports tab with budget reports as default
+        switchReportType('budget');
         loadMonitorSettings();
         updateMonitorDashboard();
         refreshActivityLog();
