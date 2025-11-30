@@ -19101,44 +19101,26 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                             ` : '';
                             
                             // Show tracking shipments if they exist
-                            const trackingShipmentsHtml = request.trackingShipments && request.trackingShipments.length > 0 ? `
-                                <div style="margin-top: 10px;">
-                                    <div style="color: #2c3e50; font-weight: 600; margin-bottom: 5px;">
-                                        📦 ${currentLanguage === 'en' ? 'Tracking Shipments' : 'Envíos con Seguimiento'} (${request.trackingShipments.length}):
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                                        ${request.trackingShipments.map((shipment, idx) => {
-                                            const trackingLink = shipment.trackingNumber ? `
-                                                <a href="https://www.ups.com/track?tracknum=${shipment.trackingNumber}" 
-                                                   target="_blank" 
-                                                   rel="noopener noreferrer"
-                                                   style="color: #3498db; text-decoration: underline; font-weight: 600;">
-                                                    ${shipment.trackingNumber}
-                                                </a>
-                                            ` : '<span style="color: #7f8c8d;">No tracking number</span>';
-                                            
-                                            const statusBadge = shipment.upsStatus ? `
-                                                <span style="padding: 3px 8px; background: #3498db; color: white; border-radius: 3px; font-size: 0.75rem; margin-left: 8px;">
-                                                    ${shipment.upsStatus}
-                                                </span>
-                                            ` : '';
-                                            
-                                            return `
-                                                <div style="padding: 8px; background: #e8f4f8; border-left: 3px solid #3498db; border-radius: 4px;">
-                                                    <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 5px;">
-                                                        <strong>#${idx + 1}:</strong> ${trackingLink} ${statusBadge}
-                                                    </div>
-                                                    ${shipment.upsLastLocation ? `
-                                                        <div style="font-size: 0.8rem; color: #7f8c8d; margin-top: 3px;">
-                                                            📍 ${shipment.upsLastLocation}
-                                                        </div>
-                                                    ` : ''}
-                                                </div>
-                                            `;
-                                        }).join('')}
-                                    </div>
-                                </div>
-                            ` : '';
+                            let trackingShipmentsHtml = '';
+                            if (request.trackingShipments && request.trackingShipments.length > 0) {
+                                const shipmentsList = request.trackingShipments.map((shipment, idx) => {
+                                    const trackingLink = shipment.trackingNumber 
+                                        ? '<a href="https://www.ups.com/track?tracknum=' + shipment.trackingNumber + '" target="_blank" rel="noopener noreferrer" style="color: #3498db; text-decoration: underline; font-weight: 600;">' + shipment.trackingNumber + '</a>'
+                                        : '<span style="color: #7f8c8d;">No tracking number</span>';
+                                    
+                                    const statusBadge = shipment.upsStatus 
+                                        ? '<span style="padding: 3px 8px; background: #3498db; color: white; border-radius: 3px; font-size: 0.75rem; margin-left: 8px;">' + shipment.upsStatus + '</span>'
+                                        : '';
+                                    
+                                    const locationInfo = shipment.upsLastLocation 
+                                        ? '<div style="font-size: 0.8rem; color: #7f8c8d; margin-top: 3px;">📍 ' + shipment.upsLastLocation + '</div>'
+                                        : '';
+                                    
+                                    return '<div style="padding: 8px; background: #e8f4f8; border-left: 3px solid #3498db; border-radius: 4px;"><div style="display: flex; align-items: center; flex-wrap: wrap; gap: 5px;"><strong>#' + (idx + 1) + ':</strong> ' + trackingLink + ' ' + statusBadge + '</div>' + locationInfo + '</div>';
+                                }).join('');
+                                
+                                trackingShipmentsHtml = '<div style="margin-top: 10px;"><div style="color: #2c3e50; font-weight: 600; margin-bottom: 5px;">📦 ' + (currentLanguage === 'en' ? 'Tracking Shipments' : 'Envíos con Seguimiento') + ' (' + request.trackingShipments.length + '):</div><div style="display: flex; flex-direction: column; gap: 8px;">' + shipmentsList + '</div></div>';
+                            }
                             
                             return `
                                 <div style="margin-top: 10px;">
