@@ -5215,6 +5215,15 @@
                 
                 // Refresh monitor dashboard when switching to monitor tab
                 if (tabName === 'monitor') {
+                    // Ensure data is loaded from localStorage
+                    items = JSON.parse(localStorage.getItem('budgetItems')) || [];
+                    activityLog = JSON.parse(localStorage.getItem('activityLog')) || [];
+                    changeHistory = JSON.parse(localStorage.getItem('changeHistory')) || [];
+                    
+                    // Load settings
+                    loadMonitorSettings();
+                    
+                    // Update displays
                     updateMonitorDashboard();
                     refreshActivityLog();
                     loadChangeHistory();
@@ -5222,6 +5231,10 @@
                 
                 // Refresh alerts when switching to alerts tab
                 if (tabName === 'alerts') {
+                    // Ensure data is loaded from localStorage
+                    items = JSON.parse(localStorage.getItem('budgetItems')) || [];
+                    
+                    // Load alerts data
                     loadMissingReceipts();
                     calculateBudgetVsActual();
                     loadWeeklyBudgetsVsActual();
@@ -10150,6 +10163,8 @@ Budget Manager System`;
                     // Restore activity log (if present in backup)
                     if (data.activityLog && Array.isArray(data.activityLog) && data.activityLog.length > 0) {
                         localStorage.setItem('activityLog', JSON.stringify(data.activityLog));
+                        // Update global variable
+                        activityLog = data.activityLog;
                         // Migrate to Supabase if logged in
                         if (useSupabase && currentUser) {
                             data.activityLog.forEach(async (activity) => {
@@ -10167,6 +10182,8 @@ Budget Manager System`;
                     // Restore change history (if present in backup)
                     if (data.changeHistory && Array.isArray(data.changeHistory) && data.changeHistory.length > 0) {
                         localStorage.setItem('changeHistory', JSON.stringify(data.changeHistory));
+                        // Update global variable
+                        changeHistory = data.changeHistory;
                         // Migrate to Supabase if logged in
                         if (useSupabase && currentUser) {
                             data.changeHistory.forEach(async (change) => {
@@ -10182,6 +10199,11 @@ Budget Manager System`;
                                 }]);
                             });
                         }
+                    }
+                    
+                    // Restore budget items and update global variable
+                    if (data.budgetItems && Array.isArray(data.budgetItems) && data.budgetItems.length > 0) {
+                        items = data.budgetItems;
                     }
                     
                     // Restore Canada selected items (if present in backup)
@@ -10202,6 +10224,23 @@ Budget Manager System`;
                     // Refresh UI
                     populateCategoryDropdowns();
                     loadCategoriesList();
+                    renderBudgetItems();
+                    updateTotal();
+                    
+                    // Refresh monitor and alerts displays if data was restored
+                    if (data.activityLog && data.activityLog.length > 0) {
+                        if (typeof refreshActivityLog === 'function') {
+                            refreshActivityLog();
+                        }
+                    }
+                    if (data.changeHistory && data.changeHistory.length > 0) {
+                        if (typeof loadChangeHistory === 'function') {
+                            loadChangeHistory();
+                        }
+                    }
+                    if (typeof updateMonitorDashboard === 'function') {
+                        updateMonitorDashboard();
+                    }
                     
                     // Reload Canada history if it was restored
                     if (data.canadaRequestHistory && data.canadaRequestHistory.length > 0) {
@@ -10214,6 +10253,12 @@ Budget Manager System`;
                     successMessage += 'Restored: Categories, Items';
                     if (data.canadaRequestHistory && data.canadaRequestHistory.length > 0) {
                         successMessage += `, ${data.canadaRequestHistory.length} Canada request(s)`;
+                    }
+                    if (data.activityLog && data.activityLog.length > 0) {
+                        successMessage += `, ${data.activityLog.length} activity log entry/entries`;
+                    }
+                    if (data.changeHistory && data.changeHistory.length > 0) {
+                        successMessage += `, ${data.changeHistory.length} change history entry/entries`;
                     }
                     if (data.savedBudgets && data.savedBudgets.length > 0) {
                         successMessage += `, ${data.savedBudgets.length} saved budget(s)`;
