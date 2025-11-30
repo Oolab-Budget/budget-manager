@@ -19014,13 +19014,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                     request.trackingShipments.forEach((shipment, shipmentIdx) => {
                                         const shipmentItemIds = (shipment.itemIds || []).map(id => String(id));
                                         if (shipmentItemIds.includes(String(itemId))) {
-                                            const trackingLink = `<a href="https://www.ups.com/track?tracknum=${shipment.trackingNumber}" 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
-                                                style="color: #3498db; text-decoration: underline; font-size: 0.8rem; margin-left: 5px;"
-                                                title="${currentLanguage === 'en' ? 'Click to track on UPS website' : 'Haz clic para rastrear en el sitio web de UPS'}">
-                                                📦 ${currentLanguage === 'en' ? 'Tracking' : 'Seguimiento'} #${shipmentIdx + 1}: ${shipment.trackingNumber}
-                                            </a>`;
+                                            const trackingText = (currentLanguage === 'en' ? 'Tracking' : 'Seguimiento') + ' #' + (shipmentIdx + 1) + ': ' + shipment.trackingNumber;
+                                            const titleText = currentLanguage === 'en' ? 'Click to track on UPS website' : 'Haz clic para rastrear en el sitio web de UPS';
+                                            const trackingLink = '<a href="https://www.ups.com/track?tracknum=' + shipment.trackingNumber + '" target="_blank" rel="noopener noreferrer" style="color: #3498db; text-decoration: underline; font-size: 0.8rem; margin-left: 5px;" title="' + titleText + '">📦 ' + trackingText + '</a>';
                                             trackingInfo = trackingLink;
                                         }
                                     });
@@ -19039,66 +19035,57 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                     return String(boId) === String(itemId);
                                 });
                                 
-                                let itemDisplay = `<div style="padding: 5px; background: #f8f9fa; border-radius: 4px; font-size: 0.85rem;">`;
-                                itemDisplay += `• ${itemName} `;
+                                let itemDisplay = '<div style="padding: 5px; background: #f8f9fa; border-radius: 4px; font-size: 0.85rem;">';
+                                itemDisplay += '• ' + itemName + ' ';
                                 
                                 // Add tracking info if this item is in a tracking shipment
                                 if (trackingInfo) {
-                                    itemDisplay += `<br>${trackingInfo}`;
+                                    itemDisplay += '<br>' + trackingInfo;
                                 }
                                 
                                 if (sentItem && request.status === 'sent') {
                                     const sentUnitLabel = unitLabels[sentItem.unit] || unitLabels['pieces'];
-                                    itemDisplay += `<span style="color: #2c3e50;">(${currentLanguage === 'en' ? 'Requested' : 'Solicitado'}: ${item.quantity} ${unitLabel}, ${currentLanguage === 'en' ? 'Sent' : 'Enviado'}: ${sentItem.quantity} ${sentUnitLabel})</span>`;
+                                    const requestedText = currentLanguage === 'en' ? 'Requested' : 'Solicitado';
+                                    const sentText = currentLanguage === 'en' ? 'Sent' : 'Enviado';
+                                    itemDisplay += '<span style="color: #2c3e50;">(' + requestedText + ': ' + item.quantity + ' ' + unitLabel + ', ' + sentText + ': ' + sentItem.quantity + ' ' + sentUnitLabel + ')</span>';
                                     if (backorder) {
                                         const dismissedBackorders = JSON.parse(localStorage.getItem('dismissedMexcanBackorders')) || {};
-                                        const boGroupKey = `${backorder.nameEn}_${backorder.category}`;
+                                        const boGroupKey = backorder.nameEn + '_' + backorder.category;
                                         const isDismissed = dismissedBackorders[boGroupKey] === true;
                                         
                                         if (!isDismissed) {
-                                            itemDisplay += ` <span style="color: #e74c3c; font-weight: 600;">⚠️ ${currentLanguage === 'en' ? 'Backorder' : 'Pedido Pendiente'}: ${backorder.backorderQty} ${unitLabel}</span>`;
+                                            const backorderText = currentLanguage === 'en' ? 'Backorder' : 'Pedido Pendiente';
+                                            itemDisplay += ' <span style="color: #e74c3c; font-weight: 600;">⚠️ ' + backorderText + ': ' + backorder.backorderQty + ' ' + unitLabel + '</span>';
                                         }
                                     }
                                 } else {
-                                    itemDisplay += `<span style="color: #2c3e50;">(${currentLanguage === 'en' ? 'Qty' : 'Cant'}: ${item.quantity} ${unitLabel})</span>`;
+                                    const qtyText = currentLanguage === 'en' ? 'Qty' : 'Cant';
+                                    itemDisplay += '<span style="color: #2c3e50;">(' + qtyText + ': ' + item.quantity + ' ' + unitLabel + ')</span>';
                                 }
                                 
-                                itemDisplay += `</div>`;
+                                itemDisplay += '</div>';
                                 return itemDisplay;
                             }).join('')}
                             
                             // Filter out dismissed backorders
                             const dismissedBackorders = JSON.parse(localStorage.getItem('dismissedMexcanBackorders')) || {};
                             const visibleBackorders = request.backorders ? request.backorders.filter(bo => {
-                                const boGroupKey = `${bo.nameEn}_${bo.category}`;
+                                const boGroupKey = bo.nameEn + '_' + bo.category;
                                 return dismissedBackorders[boGroupKey] !== true;
                             }) : [];
                             
-                            const backordersHtml = visibleBackorders.length > 0 ? `
-                                <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-left: 4px solid #f39c12; border-radius: 4px;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                                        <div style="font-weight: 600; color: #d68910; font-size: 0.9rem;">
-                                            ⚠️ ${currentLanguage === 'en' ? 'Backorders' : 'Pedidos Pendientes'}:
-                                        </div>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                                        ${visibleBackorders.map(bo => {
-                                            const boName = currentLanguage === 'en' ? bo.nameEn : bo.nameEs;
-                                            const boUnitLabel = unitLabels[bo.unit] || unitLabels['pieces'];
-                                            const boGroupKey = `${bo.nameEn}_${bo.category}`;
-                                            return `
-                                                <div style="padding: 5px; background: white; border-radius: 4px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
-                                                    <span>${boName}: ${bo.backorderQty} ${boUnitLabel}</span>
-                                                    <button onclick="dismissMexcanBackorder('${boGroupKey}')" 
-                                                            style="background: #95a5a6; color: white; border: none; padding: 3px 8px; border-radius: 3px; font-size: 0.75rem; cursor: pointer;">
-                                                        ${currentLanguage === 'en' ? 'Dismiss' : 'Descartar'}
-                                                    </button>
-                                                </div>
-                                            `;
-                                        }).join('')}
-                                    </div>
-                                </div>
-                            ` : '';
+                            let backordersHtml = '';
+                            if (visibleBackorders.length > 0) {
+                                const backordersList = visibleBackorders.map(bo => {
+                                    const boName = currentLanguage === 'en' ? bo.nameEn : bo.nameEs;
+                                    const boUnitLabel = unitLabels[bo.unit] || unitLabels['pieces'];
+                                    const boGroupKey = bo.nameEn + '_' + bo.category;
+                                    const dismissText = currentLanguage === 'en' ? 'Dismiss' : 'Descartar';
+                                    return '<div style="padding: 5px; background: white; border-radius: 4px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;"><span>' + boName + ': ' + bo.backorderQty + ' ' + boUnitLabel + '</span><button onclick="dismissMexcanBackorder(\'' + boGroupKey + '\')" style="background: #95a5a6; color: white; border: none; padding: 3px 8px; border-radius: 3px; font-size: 0.75rem; cursor: pointer;">' + dismissText + '</button></div>';
+                                }).join('');
+                                const backordersTitle = currentLanguage === 'en' ? 'Backorders' : 'Pedidos Pendientes';
+                                backordersHtml = '<div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-left: 4px solid #f39c12; border-radius: 4px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;"><div style="font-weight: 600; color: #d68910; font-size: 0.9rem;">⚠️ ' + backordersTitle + ':</div></div><div style="display: flex; flex-direction: column; gap: 5px;">' + backordersList + '</div></div>';
+                            }
                             
                             // Show tracking shipments if they exist
                             let trackingShipmentsHtml = '';
@@ -19122,18 +19109,8 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 trackingShipmentsHtml = '<div style="margin-top: 10px;"><div style="color: #2c3e50; font-weight: 600; margin-bottom: 5px;">📦 ' + (currentLanguage === 'en' ? 'Tracking Shipments' : 'Envíos con Seguimiento') + ' (' + request.trackingShipments.length + '):</div><div style="display: flex; flex-direction: column; gap: 8px;">' + shipmentsList + '</div></div>';
                             }
                             
-                            return `
-                                <div style="margin-top: 10px;">
-                                    <div style="color: #2c3e50; font-weight: 600; margin-bottom: 5px;">
-                                        ${currentLanguage === 'en' ? 'Items' : 'Artículos'} (${request.items.length}):
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                                        ${itemsHtml}
-                                    </div>
-                                    ${trackingShipmentsHtml}
-                                    ${backordersHtml}
-                                </div>
-                            `;
+                            const itemsTitle = currentLanguage === 'en' ? 'Items' : 'Artículos';
+                            return '<div style="margin-top: 10px;"><div style="color: #2c3e50; font-weight: 600; margin-bottom: 5px;">' + itemsTitle + ' (' + request.items.length + '):</div><div style="display: flex; flex-direction: column; gap: 5px;">' + itemsHtml + '</div>' + trackingShipmentsHtml + backordersHtml + '</div>';
                         })()}
                     </div>
                 `;
