@@ -16547,18 +16547,10 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                         }
                     });
                     
-                    // Get PDF as base64 (using same method as budget emails)
-                    const pdfOutput = doc.output('arraybuffer');
-                    const pdfData = new Uint8Array(pdfOutput);
-                    
-                    // More efficient base64 conversion for large files
-                    const chunkSize = 8192;
-                    let pdfBase64 = '';
-                    for (let i = 0; i < pdfData.length; i += chunkSize) {
-                        const chunk = pdfData.slice(i, i + chunkSize);
-                        pdfBase64 += String.fromCharCode.apply(null, chunk);
-                    }
-                    pdfBase64 = btoa(pdfBase64);
+                    // Get PDF as base64 using jsPDF's built-in method (more reliable for email attachments)
+                    const pdfDataUri = doc.output('datauristring');
+                    // Extract base64 part (remove "data:application/pdf;base64," prefix)
+                    const pdfBase64 = pdfDataUri.split(',')[1];
                     
                     const pdfFileName = `Canada_Request_${request.id}_${new Date().toISOString().split('T')[0]}.pdf`;
                     
@@ -19013,18 +19005,10 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                         }
                     });
                     
-                    // Get PDF as base64
-                    const pdfOutput = doc.output('arraybuffer');
-                    const pdfData = new Uint8Array(pdfOutput);
-                    
-                    // More efficient base64 conversion for large files
-                    const chunkSize = 8192;
-                    let pdfBase64 = '';
-                    for (let i = 0; i < pdfData.length; i += chunkSize) {
-                        const chunk = pdfData.slice(i, i + chunkSize);
-                        pdfBase64 += String.fromCharCode.apply(null, chunk);
-                    }
-                    pdfBase64 = btoa(pdfBase64);
+                    // Get PDF as base64 using jsPDF's built-in method (more reliable for email attachments)
+                    const pdfDataUri = doc.output('datauristring');
+                    // Extract base64 part (remove "data:application/pdf;base64," prefix)
+                    const pdfBase64 = pdfDataUri.split(',')[1];
                     
                     const pdfFileName = `Mexcan_Request_${request.id}_${new Date().toISOString().split('T')[0]}.pdf`;
                     

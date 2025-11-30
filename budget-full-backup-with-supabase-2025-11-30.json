@@ -1,5 +1,5 @@
 {
-  "exportDate": "2025-11-30T13:58:48.411Z",
+  "exportDate": "2025-11-30T15:00:26.850Z",
   "version": "2.0",
   "exportSource": "complete_with_supabase",
   "categories": {
@@ -2204,7 +2204,7 @@
           "upsStatusCode": "005",
           "upsLastLocation": "Leon",
           "upsLastDate": "20251129",
-          "upsLastChecked": "2025-11-30T13:57:40.864Z"
+          "upsLastChecked": "2025-11-30T14:58:55.326Z"
         }
       ],
       "trackingNumbers": [
@@ -2299,7 +2299,7 @@
           "upsStatusCode": "011",
           "upsLastLocation": "LEON",
           "upsLastDate": "20251126",
-          "upsLastChecked": "2025-11-30T13:57:42.137Z",
+          "upsLastChecked": "2025-11-30T14:58:56.589Z",
           "dutiesAlerted": false
         }
       ],
@@ -2354,7 +2354,7 @@
           "upsStatusCode": "011",
           "upsLastLocation": "LEON",
           "upsLastDate": "20251126",
-          "upsLastChecked": "2025-11-30T13:57:43.414Z",
+          "upsLastChecked": "2025-11-30T14:58:57.710Z",
           "dutiesAlerted": false
         },
         {
@@ -2374,7 +2374,7 @@
           "upsStatusCode": "011",
           "upsLastLocation": "LEON",
           "upsLastDate": "20251128",
-          "upsLastChecked": "2025-11-30T13:57:44.807Z",
+          "upsLastChecked": "2025-11-30T14:58:58.784Z",
           "dutiesAlerted": false
         }
       ],
