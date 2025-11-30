@@ -2507,15 +2507,30 @@
             });
             
             // Listen for auth changes
-            supabase.auth.onAuthStateChange((event, session) => {
+            supabase.auth.onAuthStateChange(async (event, session) => {
                 currentUser = session?.user || null;
                 if (event === 'SIGNED_IN' && currentUser) {
                     useSupabase = true;
+                    // Refresh user session to get latest metadata (including role)
+                    const { data: { user: refreshedUser } } = await supabase.auth.getUser();
+                    if (refreshedUser) {
+                        currentUser = refreshedUser;
+                        // Get user role from metadata (default to 'user' if not set)
+                        userRole = refreshedUser.user_metadata?.role || 'user';
+                        console.log('User role loaded (auth state change):', userRole);
+                    } else {
+                        // Fallback to session user
+                        userRole = currentUser.user_metadata?.role || 'user';
+                        console.log('User role (fallback):', userRole);
+                    }
                     hideLoginScreen();
+                    updateTabVisibility(); // Hide/show tabs based on role
                     loadUserData();
                 } else if (event === 'SIGNED_OUT') {
                     useSupabase = false;
+                    userRole = 'user'; // Reset role
                     showLoginScreen();
+                    updateTabVisibility(); // Reset tab visibility
                     loadFromLocalStorage();
                 }
             });
@@ -2672,9 +2687,18 @@
             }
             
             try {
+                // Use production URL for email confirmation redirect
+                const productionUrl = 'https://oolab-budget.github.io';
+                const redirectUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                    ? productionUrl 
+                    : window.location.origin;
+                
                 const { error } = await supabase.auth.resend({
                     type: 'signup',
-                    email: email
+                    email: email,
+                    options: {
+                        emailRedirectTo: redirectUrl
+                    }
                 });
                 
                 if (error) throw error;
