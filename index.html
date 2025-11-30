@@ -7809,6 +7809,12 @@
                 language: currentLanguage
             };
             
+            // Check for existing budget with same week_start in localStorage and remove it
+            const existingIndex = savedBudgets.findIndex(b => b.weekStart === snapshot.weekStart);
+            if (existingIndex !== -1) {
+                savedBudgets.splice(existingIndex, 1);
+            }
+            
             // Add to saved budgets
             savedBudgets.push(snapshot);
             
@@ -12868,24 +12874,116 @@ Budget Manager System`;
                             })
                         );
                         
+                        // Deduplicate budgets by week_start, keeping only the most recent one
+                        const deduplicatedBudgets = [];
+                        const weekStartMap = new Map();
+                        
+                        budgetsWithItems.forEach(budget => {
+                            const weekStartKey = budget.weekStart;
+                            const existing = weekStartMap.get(weekStartKey);
+                            
+                            if (!existing || new Date(budget.savedDate) > new Date(existing.savedDate)) {
+                                // Remove old duplicate if exists
+                                if (existing) {
+                                    const index = deduplicatedBudgets.findIndex(b => b.id === existing.id);
+                                    if (index !== -1) {
+                                        deduplicatedBudgets.splice(index, 1);
+                                    }
+                                }
+                                // Add/update with most recent
+                                weekStartMap.set(weekStartKey, budget);
+                                deduplicatedBudgets.push(budget);
+                            }
+                        });
+                        
                         // Update localStorage to match Supabase (to keep them in sync and prevent duplicates)
-                        localStorage.setItem('savedBudgets', JSON.stringify(budgetsWithItems));
-                        return budgetsWithItems;
+                        localStorage.setItem('savedBudgets', JSON.stringify(deduplicatedBudgets));
+                        return deduplicatedBudgets;
                     } else {
-                        // If Supabase is empty but localStorage has data, return localStorage
-                        console.log('Supabase empty, using localStorage budgets:', localBudgets.length);
-                        return localBudgets;
+                        // If Supabase is empty but localStorage has data, deduplicate and return localStorage
+                        const deduplicatedLocal = [];
+                        const weekStartMap = new Map();
+                        
+                        localBudgets.forEach(budget => {
+                            const weekStartKey = budget.weekStart;
+                            const existing = weekStartMap.get(weekStartKey);
+                            
+                            if (!existing || new Date(budget.savedDate) > new Date(existing.savedDate)) {
+                                if (existing) {
+                                    const index = deduplicatedLocal.findIndex(b => b.id === existing.id);
+                                    if (index !== -1) {
+                                        deduplicatedLocal.splice(index, 1);
+                                    }
+                                }
+                                weekStartMap.set(weekStartKey, budget);
+                                deduplicatedLocal.push(budget);
+                            }
+                        });
+                        
+                        // Update localStorage with deduplicated data
+                        if (deduplicatedLocal.length !== localBudgets.length) {
+                            localStorage.setItem('savedBudgets', JSON.stringify(deduplicatedLocal));
+                        }
+                        
+                        console.log('Supabase empty, using localStorage budgets:', deduplicatedLocal.length, '(deduplicated from', localBudgets.length, ')');
+                        return deduplicatedLocal;
                     }
                 } catch (error) {
                     console.error('Error loading saved budgets from Supabase:', error);
-                    // Fallback to localStorage
-                    console.log('Falling back to localStorage budgets:', localBudgets.length);
-                    return localBudgets;
+                    // Fallback to localStorage with deduplication
+                    const deduplicatedLocal = [];
+                    const weekStartMap = new Map();
+                    
+                    localBudgets.forEach(budget => {
+                        const weekStartKey = budget.weekStart;
+                        const existing = weekStartMap.get(weekStartKey);
+                        
+                        if (!existing || new Date(budget.savedDate) > new Date(existing.savedDate)) {
+                            if (existing) {
+                                const index = deduplicatedLocal.findIndex(b => b.id === existing.id);
+                                if (index !== -1) {
+                                    deduplicatedLocal.splice(index, 1);
+                                }
+                            }
+                            weekStartMap.set(weekStartKey, budget);
+                            deduplicatedLocal.push(budget);
+                        }
+                    });
+                    
+                    if (deduplicatedLocal.length !== localBudgets.length) {
+                        localStorage.setItem('savedBudgets', JSON.stringify(deduplicatedLocal));
+                    }
+                    
+                    console.log('Falling back to localStorage budgets:', deduplicatedLocal.length, '(deduplicated from', localBudgets.length, ')');
+                    return deduplicatedLocal;
                 }
             }
             
-            // Fallback to localStorage
-            return localBudgets;
+            // Fallback to localStorage with deduplication
+            const deduplicatedLocal = [];
+            const weekStartMap = new Map();
+            
+            localBudgets.forEach(budget => {
+                const weekStartKey = budget.weekStart;
+                const existing = weekStartMap.get(weekStartKey);
+                
+                if (!existing || new Date(budget.savedDate) > new Date(existing.savedDate)) {
+                    if (existing) {
+                        const index = deduplicatedLocal.findIndex(b => b.id === existing.id);
+                        if (index !== -1) {
+                            deduplicatedLocal.splice(index, 1);
+                        }
+                    }
+                    weekStartMap.set(weekStartKey, budget);
+                    deduplicatedLocal.push(budget);
+                }
+            });
+            
+            if (deduplicatedLocal.length !== localBudgets.length) {
+                localStorage.setItem('savedBudgets', JSON.stringify(deduplicatedLocal));
+            }
+            
+            return deduplicatedLocal;
         }
 
         async function getSavedBudgetsByDateRange(dateRange) {
