@@ -18632,41 +18632,56 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 const selected = mexcanSelectedItems[itemId] || {selected: false, quantity: 1, unit: 'pieces', note: ''};
                 
                 html += `
-                    <div style="padding: 15px; background: white; border: 2px solid ${selected.selected ? '#3498db' : '#e1e8ed'}; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
-                        <div style="flex: 1;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <input type="checkbox" id="mexcan_${itemId}" 
-                                       ${selected.selected ? 'checked' : ''} 
-                                       onchange="toggleMexcanItem('${itemId}')"
-                                       style="width: 20px; height: 20px; cursor: pointer;">
-                                <div>
-                                    <strong style="color: #2c3e50; font-size: 1.1rem;">${itemName}</strong>
-                                    ${itemDescription ? `<div style="color: #7f8c8d; font-size: 0.9rem; margin-top: 3px;">${itemDescription}</div>` : ''}
-                                    <div style="color: #95a5a6; font-size: 0.85rem; margin-top: 5px;">
-                                        ${currentLanguage === 'en' ? 'Category' : 'Categoría'}: ${categoryName}
+                    <div style="padding: 15px; background: white; border: 2px solid ${selected.selected ? '#3498db' : '#e1e8ed'}; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="checkbox" id="mexcan_${itemId}" 
+                                           ${selected.selected ? 'checked' : ''} 
+                                           onchange="toggleMexcanItem('${itemId}')"
+                                           style="width: 20px; height: 20px; cursor: pointer;">
+                                    <div>
+                                        <strong style="color: #2c3e50; font-size: 1.1rem;">${itemName}</strong>
+                                        ${itemDescription ? `<div style="color: #7f8c8d; font-size: 0.9rem; margin-top: 3px;">${itemDescription}</div>` : ''}
+                                        <div style="color: #95a5a6; font-size: 0.85rem; margin-top: 5px;">
+                                            ${currentLanguage === 'en' ? 'Category' : 'Categoría'}: ${categoryName}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <label style="display: flex; align-items: center; gap: 5px;">
+                                    <span style="font-size: 0.9rem; color: #7f8c8d;">${currentLanguage === 'en' ? 'Qty:' : 'Cant:'}</span>
+                                    <input type="number" id="mexcan_qty_${itemId}" 
+                                           value="${selected.quantity}" 
+                                           min="1" 
+                                           style="width: 60px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; text-align: center;"
+                                           onchange="updateMexcanQuantity('${itemId}', this.value)"
+                                           ${!selected.selected ? 'disabled' : ''}>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 5px;">
+                                    <select id="mexcan_unit_${itemId}" 
+                                            style="width: 100px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem;"
+                                            onchange="updateMexcanUnit('${itemId}', this.value)"
+                                            ${!selected.selected ? 'disabled' : ''}>
+                                        <option value="pieces" ${(selected.unit || 'pieces') === 'pieces' ? 'selected' : ''}>${currentLanguage === 'en' ? 'Pieces' : 'Piezas'}</option>
+                                        <option value="pairs" ${(selected.unit || 'pieces') === 'pairs' ? 'selected' : ''}>${currentLanguage === 'en' ? 'Pairs' : 'Pares'}</option>
+                                    </select>
+                                </label>
+                            </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <label style="display: flex; align-items: center; gap: 5px;">
-                                <span style="font-size: 0.9rem; color: #7f8c8d;">${currentLanguage === 'en' ? 'Qty:' : 'Cant:'}</span>
-                                <input type="number" id="mexcan_qty_${itemId}" 
-                                       value="${selected.quantity}" 
-                                       min="1" 
-                                       style="width: 60px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; text-align: center;"
-                                       onchange="updateMexcanQuantity('${itemId}', this.value)"
-                                       ${!selected.selected ? 'disabled' : ''}>
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 5px;">
-                                <select id="mexcan_unit_${itemId}" 
-                                        style="width: 80px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem;"
-                                        onchange="updateMexcanUnit('${itemId}', this.value)"
-                                        ${!selected.selected ? 'disabled' : ''}>
-                                    <option value="pieces" ${(selected.unit || 'pieces') === 'pieces' ? 'selected' : ''}>${currentLanguage === 'en' ? 'Pieces' : 'Piezas'}</option>
-                                </select>
-                            </label>
+                        ${selected.selected ? `
+                        <div style="margin-top: 12px; width: 100%;">
+                            <label style="display: block; font-size: 0.85rem; color: #666; margin-bottom: 4px;" data-en="Note (optional)" data-es="Nota (opcional)">Note (optional):</label>
+                            <input type="text" 
+                                   id="mexcan_note_${itemId}" 
+                                   placeholder="${currentLanguage === 'en' ? 'Add a note for this item...' : 'Agregar una nota para este artículo...'}"
+                                   value="${(selected.note || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
+                                   onchange="updateMexcanNote('${itemId}', this.value)"
+                                   style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem;"
+                                   maxlength="200">
                         </div>
+                        ` : ''}
                     </div>
                 `;
             });
