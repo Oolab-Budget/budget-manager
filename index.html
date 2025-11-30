@@ -10195,8 +10195,10 @@ Budget Manager System`;
                 // Try to use File System Access API to save to a specific folder (modern browsers)
                 if ('showSaveFilePicker' in window) {
                     try {
+                        // Include date and time in filename to avoid overwriting same-day backups
+                        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T').join('_').slice(0, -5); // Format: YYYY-MM-DD_HH-MM-SS
                         const fileHandle = await window.showSaveFilePicker({
-                            suggestedName: `budget-full-backup-with-supabase-${new Date().toISOString().split('T')[0]}.json`,
+                            suggestedName: `budget-full-backup-with-supabase-${timestamp}.json`,
                             types: [{
                                 description: 'JSON Backup File',
                                 accept: { 'application/json': ['.json'] }
@@ -10232,7 +10234,9 @@ Budget Manager System`;
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `budget-full-backup-with-supabase-${new Date().toISOString().split('T')[0]}.json`;
+                // Include date and time in filename to avoid overwriting same-day backups
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T').join('_').slice(0, -5); // Format: YYYY-MM-DD_HH-MM-SS
+                a.download = `budget-full-backup-with-supabase-${timestamp}.json`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);

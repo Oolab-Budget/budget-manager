@@ -1,5 +1,5 @@
 {
-  "exportDate": "2025-11-30T17:03:36.612Z",
+  "exportDate": "2025-11-30T17:18:32.232Z",
   "version": "2.0",
   "exportSource": "complete_with_supabase",
   "categories": {
@@ -889,7 +889,7 @@
       "nameEn": "Mexico",
       "nameEs": "Mexico",
       "descriptionEn": "Mexico",
-      "descriptionEs": "Mexico",
+      "descriptionEs": "",
       "pricingType": "fixed",
       "recurringWeekly": false,
       "recurringMonthly": false,
@@ -1145,7 +1145,7 @@
       "nameEn": "Test 2",
       "nameEs": "Test 2",
       "descriptionEn": "Test 2",
-      "descriptionEs": "Test 2",
+      "descriptionEs": "",
       "pricingType": "fixed",
       "recurringWeekly": false,
       "recurringMonthly": false,
@@ -2589,7 +2589,7 @@
           "upsStatusCode": "005",
           "upsLastLocation": "Leon",
           "upsLastDate": "20251129",
-          "upsLastChecked": "2025-11-30T17:01:45.468Z"
+          "upsLastChecked": "2025-11-30T17:17:25.303Z"
         }
       ],
       "trackingNumbers": [
@@ -2781,7 +2781,7 @@
           "upsStatusCode": "011",
           "upsLastLocation": "LEON",
           "upsLastDate": "20251126",
-          "upsLastChecked": "2025-11-30T17:01:46.578Z",
+          "upsLastChecked": "2025-11-30T17:17:27.282Z",
           "dutiesAlerted": false
         }
       ],
@@ -2869,7 +2869,7 @@
           "upsStatusCode": "011",
           "upsLastLocation": "LEON",
           "upsLastDate": "20251126",
-          "upsLastChecked": "2025-11-30T17:01:47.914Z",
+          "upsLastChecked": "2025-11-30T17:17:29.415Z",
           "dutiesAlerted": false
         },
         {
@@ -2889,7 +2889,7 @@
           "upsStatusCode": "011",
           "upsLastLocation": "LEON",
           "upsLastDate": "20251128",
-          "upsLastChecked": "2025-11-30T17:01:49.130Z",
+          "upsLastChecked": "2025-11-30T17:17:31.448Z",
           "dutiesAlerted": false
         }
       ],
