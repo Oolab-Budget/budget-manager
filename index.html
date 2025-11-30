@@ -9,67 +9,64 @@
     <!-- PDF generation library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <!-- Fix MutationObserver error from Supabase - MUST run BEFORE Supabase library loads -->
+    <script>
+        // Patch MutationObserver BEFORE Supabase loads to prevent errors
+        (function() {
+            if (typeof MutationObserver !== 'undefined' && MutationObserver.prototype) {
+                const originalObserve = MutationObserver.prototype.observe;
+                if (originalObserve && !MutationObserver.prototype.observe._patched) {
+                    MutationObserver.prototype.observe = function(target, options) {
+                        if (!target || typeof target !== 'object' || typeof target.nodeType !== 'number') {
+                            return;
+                        }
+                        if (target.nodeType === 1 || target.nodeType === 9 || target.nodeType === 11) {
+                            try {
+                                return originalObserve.call(this, target, options);
+                            } catch (e) {
+                                return;
+                            }
+                        }
+                        return;
+                    };
+                    MutationObserver.prototype.observe._patched = true;
+                }
+            }
+        })();
+    </script>
     <!-- EmailJS library for sending emails -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <!-- Supabase client library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Fix MutationObserver error from Supabase - must run immediately after library loads -->
+    <!-- Additional MutationObserver patch after Supabase loads (backup) -->
     <script>
-        // Fix for MutationObserver error from Supabase library
-        // This must run immediately after Supabase script loads to intercept errors
+        // Backup patch in case Supabase library modifies MutationObserver after loading
         (function() {
-            // Wait for MutationObserver to be available (in case script loads async)
             function patchMutationObserver() {
                 if (typeof MutationObserver !== 'undefined' && MutationObserver.prototype) {
                     const originalObserve = MutationObserver.prototype.observe;
-                    if (originalObserve) {
+                    if (originalObserve && !MutationObserver.prototype.observe._patched) {
                         MutationObserver.prototype.observe = function(target, options) {
-                            // Check if target is a valid DOM Node
-                            // nodeType 1 = Element, 11 = DocumentFragment, 9 = Document
                             if (!target || typeof target !== 'object' || typeof target.nodeType !== 'number') {
-                                // Silently ignore invalid targets (null, undefined, or non-Node objects)
-                                console.warn('MutationObserver.observe called with invalid target:', target);
                                 return;
                             }
-                            
-                            // Only observe if target is a valid DOM Node type
                             if (target.nodeType === 1 || target.nodeType === 9 || target.nodeType === 11) {
                                 try {
                                     return originalObserve.call(this, target, options);
                                 } catch (e) {
-                                    // Silently ignore observation errors
-                                    if (e && (e.message && (e.message.includes('observe') || e.message.includes('Node') || e.message.includes('not of type')) || e.name === 'TypeError')) {
-                                        console.warn('MutationObserver.observe error (ignored):', e.message);
-                                        return;
-                                    }
-                                    throw e;
+                                    return;
                                 }
-                            } else {
-                                // Invalid nodeType
-                                console.warn('MutationObserver.observe called with invalid nodeType:', target.nodeType);
-                                return;
                             }
+                            return;
                         };
+                        MutationObserver.prototype.observe._patched = true;
                     }
                 }
             }
-            
-            // Try immediately
-            patchMutationObserver();
-            
-            // Also try after a short delay in case MutationObserver isn't ready yet
-            if (typeof MutationObserver === 'undefined') {
-                setTimeout(patchMutationObserver, 0);
-                setTimeout(patchMutationObserver, 10);
-                setTimeout(patchMutationObserver, 50);
-            }
-            
-            // Also patch when DOM is ready
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', patchMutationObserver);
-            } else {
-                setTimeout(patchMutationObserver, 0);
-            }
+            // Apply backup patch after Supabase loads
+            setTimeout(patchMutationObserver, 0);
+            setTimeout(patchMutationObserver, 50);
+            setTimeout(patchMutationObserver, 100);
         })();
     </script>
     <style>
