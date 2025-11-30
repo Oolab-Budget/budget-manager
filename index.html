@@ -2688,10 +2688,10 @@
             
             try {
                 // Use production URL for email confirmation redirect
-                const productionUrl = 'https://oolab-budget.github.io';
+                const productionUrl = 'https://oolab-budget.github.io/budget-manager/';
                 const redirectUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
                     ? productionUrl 
-                    : window.location.origin;
+                    : window.location.origin + window.location.pathname;
                 
                 const { error } = await supabase.auth.resend({
                     type: 'signup',
@@ -2741,6 +2741,12 @@
             try {
                 // New users default to 'user' role (limited access)
                 // Admins can be set manually in Supabase dashboard by updating user metadata
+                // Use production URL for email confirmation redirect (works for both local and production signups)
+                const productionUrl = 'https://oolab-budget.github.io/budget-manager/';
+                const redirectUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                    ? productionUrl 
+                    : window.location.origin + window.location.pathname;
+                
                 const { data, error } = await supabase.auth.signUp({
                     email: email,
                     password: password,
@@ -2748,7 +2754,7 @@
                         data: {
                             role: 'user' // Default role - admin can be set manually in Supabase
                         },
-                        emailRedirectTo: window.location.origin // For email confirmation
+                        emailRedirectTo: redirectUrl // For email confirmation - always use production URL
                     }
                 });
                 
