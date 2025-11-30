@@ -5301,16 +5301,20 @@
 
         function switchTab(tabName) {
             console.log('Switching to tab:', tabName);
+            // First, hide ALL tabs explicitly
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
+                tab.style.display = 'none'; // Explicitly hide all tabs
             });
+            // Remove active class from all buttons
             document.querySelectorAll('.tab-button').forEach(button => {
                 button.classList.remove('active');
             });
+            // Now show only the target tab
             const targetTab = document.getElementById(tabName + 'Tab');
             if (targetTab) {
                 targetTab.classList.add('active');
-                targetTab.style.display = 'block'; // Ensure tab is visible
+                targetTab.style.display = 'block'; // Explicitly show the target tab
                 console.log('Tab content found and activated:', tabName);
                 
                 // Refresh monitor dashboard when switching to monitor tab
