@@ -19029,13 +19029,6 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                         base64Preview: pdfBase64.substring(0, 50) + '...'
                     });
                     
-                    // Test PDF download - verify PDF is valid before sending email
-                    const link = document.createElement('a');
-                    link.href = 'data:application/pdf;base64,' + pdfBase64;
-                    link.download = pdfFileName;
-                    link.click();
-                    console.log('Test PDF downloaded - please verify it opens correctly');
-                    
                     // Send email
                     sendMexcanRequestEmail(request, pdfBase64, pdfFileName).then(resolve).catch(reject);
                 } catch (error) {
