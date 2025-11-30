@@ -2472,16 +2472,30 @@
             }
             
             // Initialize auth check
-            supabase.auth.getSession().then(({ data: { session } }) => {
+            supabase.auth.getSession().then(async ({ data: { session } }) => {
                 currentUser = session?.user || null;
                 if (currentUser) {
                     console.log('User logged in:', currentUser.email);
                     useSupabase = true;
+                    // Refresh user session to get latest metadata (including role)
+                    const { data: { user: refreshedUser } } = await supabase.auth.getUser();
+                    if (refreshedUser) {
+                        currentUser = refreshedUser;
+                        // Get user role from metadata (default to 'user' if not set)
+                        userRole = refreshedUser.user_metadata?.role || 'user';
+                        console.log('User role loaded (session check):', userRole);
+                    } else {
+                        // Fallback to session user
+                        userRole = currentUser.user_metadata?.role || 'user';
+                        console.log('User role (fallback):', userRole);
+                    }
                     hideLoginScreen();
+                    updateTabVisibility(); // Hide/show tabs based on role
                     loadUserData();
                 } else {
                     // Show login screen if not logged in
                     useSupabase = false;
+                    userRole = 'user'; // Reset role
                     showLoginScreen();
                     // Still load from localStorage as fallback
                     loadFromLocalStorage();
@@ -2605,9 +2619,18 @@
                 currentUser = data.user;
                 useSupabase = true;
                 
-                // Get user role from metadata (default to 'user' if not set)
-                userRole = data.user.user_metadata?.role || 'user';
-                console.log('User role:', userRole);
+                // Refresh user session to get latest metadata (including role)
+                const { data: { user: refreshedUser } } = await supabase.auth.getUser();
+                if (refreshedUser) {
+                    currentUser = refreshedUser;
+                    // Get user role from metadata (default to 'user' if not set)
+                    userRole = refreshedUser.user_metadata?.role || 'user';
+                    console.log('User role loaded:', userRole);
+                } else {
+                    // Fallback to original user data
+                    userRole = data.user.user_metadata?.role || 'user';
+                    console.log('User role (fallback):', userRole);
+                }
                 
                 hideLoginScreen();
                 updateTabVisibility(); // Hide/show tabs based on role
