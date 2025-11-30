@@ -12835,10 +12835,16 @@ Budget Manager System`;
         
         // Helper function to deduplicate budgets by week_start
         function deduplicateBudgets(budgets) {
+            if (!Array.isArray(budgets)) {
+                return [];
+            }
+            
             const deduplicated = [];
             const weekStartMap = new Map();
             
             budgets.forEach(budget => {
+                if (!budget || !budget.weekStart) return;
+                
                 const weekStartKey = budget.weekStart;
                 const existing = weekStartMap.get(weekStartKey);
                 
@@ -12913,7 +12919,6 @@ Budget Manager System`;
                             localStorage.setItem('savedBudgets', JSON.stringify(deduplicatedLocal));
                         }
                         
-                        console.log('getAllSavedBudgets: Supabase empty, using localStorage budgets:', deduplicatedLocal.length, '(deduplicated from', localBudgets.length, ')');
                         return deduplicatedLocal;
                     }
                 } catch (error) {
