@@ -2637,12 +2637,17 @@
                     password: password
                 });
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('Login error:', error);
+                    throw error;
+                }
                 
+                console.log('Login successful, user:', data.user?.email);
                 currentUser = data.user;
                 useSupabase = true;
                 
                 // Refresh user session to get latest metadata (including role)
+                console.log('Refreshing user session...');
                 const { data: { user: refreshedUser } } = await supabase.auth.getUser();
                 if (refreshedUser) {
                     currentUser = refreshedUser;
@@ -2655,9 +2660,12 @@
                     console.log('User role (fallback):', userRole);
                 }
                 
+                console.log('Hiding login screen...');
                 hideLoginScreen();
                 updateTabVisibility(); // Hide/show tabs based on role
+                console.log('Loading user data...');
                 await loadUserData();
+                console.log('Login complete!');
             } catch (error) {
                 const errorMessage = error.message || 'Login failed';
                 errorDiv.textContent = errorMessage;
