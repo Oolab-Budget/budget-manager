@@ -2746,16 +2746,26 @@
                         if (raceError.message && raceError.message.includes('too long')) {
                             console.log('Timeout occurred - checking if login succeeded...');
                             try {
-                                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-                                if (session && session.user) {
+                                // Use a quick timeout for session check too
+                                const sessionPromise = supabase.auth.getSession();
+                                const quickTimeout = new Promise((_, reject) => 
+                                    setTimeout(() => reject(new Error('Session check timeout')), 2000)
+                                );
+                                
+                                const sessionResult = await Promise.race([sessionPromise, quickTimeout]);
+                                console.log('Session check completed:', sessionResult);
+                                
+                                if (sessionResult && sessionResult.data && sessionResult.data.session && sessionResult.data.session.user) {
                                     console.log('Session found - login actually succeeded!');
-                                    result = { data: { user: session.user }, error: null };
+                                    result = { data: { user: sessionResult.data.session.user }, error: null };
                                 } else {
                                     // No session - login failed
+                                    console.log('No session found - login failed');
                                     throw new Error('Invalid login credentials - please check your email and password');
                                 }
                             } catch (checkError) {
                                 console.error('Session check error:', checkError);
+                                // If session check also fails, assume login failed
                                 throw new Error('Invalid login credentials - please check your email and password');
                             }
                         } else {
