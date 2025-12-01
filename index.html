@@ -2675,25 +2675,35 @@
         }
         
         async function handleLogin() {
+            if (isLoggingIn) {
+                console.log('Login already in progress, ignoring duplicate call');
+                return;
+            }
+            
             console.log('handleLogin called');
+            isLoggingIn = true;
+            
             try {
                 const email = document.getElementById('loginEmail').value;
                 const password = document.getElementById('loginPassword').value;
                 const errorDiv = document.getElementById('loginError');
+                const loginButton = document.querySelector('button[onclick*="handleLogin"]');
                 
-                console.log('Email:', email ? 'provided' : 'missing');
+                if (loginButton) {
+                    loginButton.disabled = true;
+                    loginButton.textContent = 'Logging in...';
+                }
                 
                 if (!email || !password) {
                     errorDiv.textContent = 'Please enter email and password';
                     errorDiv.style.display = 'block';
+                    isLoggingIn = false;
+                    if (loginButton) {
+                        loginButton.disabled = false;
+                        loginButton.textContent = 'Login';
+                    }
                     return;
                 }
-                
-                console.log('Supabase client check:', { 
-                    supabase: !!supabase, 
-                    auth: !!supabase?.auth,
-                    url: supabase?.supabaseUrl 
-                });
                 
                 if (!supabase || !supabase.auth) {
                     console.error('Supabase client not initialized');
@@ -2707,83 +2717,14 @@
                     return;
                 }
                 
-                console.log('Attempting login to:', supabase.supabaseUrl);
-                
-                // Call Supabase login directly
-                let result;
-                let timeoutId = null;
-                try {
-                    const loginPromise = supabase.auth.signInWithPassword({
-                        email: email,
-                        password: password
-                    });
-                    
-                    // Create a warning timeout (doesn't break the promise)
-                    timeoutId = setTimeout(() => {
-                        console.warn('Login taking longer than expected...');
-                    }, 5000);
-                    
-                    // Wait for login with a longer timeout as fallback
-                    const timeoutPromise = new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error('Request taking too long - please check your connection and try again')), 15000)
-                    );
-                    
-                    // Try to get the response - if it times out, check network response
-                    try {
-                        result = await Promise.race([
-                            loginPromise.catch(err => {
-                                console.log('Login promise rejected with error:', err);
-                                throw err;
-                            }),
-                            timeoutPromise
-                        ]);
-                        if (timeoutId) clearTimeout(timeoutId);
-                        console.log('Login promise resolved:', result);
-                    } catch (raceError) {
-                        if (timeoutId) clearTimeout(timeoutId);
-                        
-                        // If timeout, check if login actually succeeded despite the promise hanging
-                        if (raceError.message && raceError.message.includes('too long')) {
-                            console.log('Timeout occurred - checking if login succeeded...');
-                            try {
-                                // Use a quick timeout for session check too
-                                const sessionPromise = supabase.auth.getSession();
-                                const quickTimeout = new Promise((_, reject) => 
-                                    setTimeout(() => reject(new Error('Session check timeout')), 2000)
-                                );
-                                
-                                const sessionResult = await Promise.race([sessionPromise, quickTimeout]);
-                                console.log('Session check completed:', sessionResult);
-                                
-                                if (sessionResult && sessionResult.data && sessionResult.data.session && sessionResult.data.session.user) {
-                                    console.log('Session found - login actually succeeded!');
-                                    result = { data: { user: sessionResult.data.session.user }, error: null };
-                                } else {
-                                    // No session - login failed
-                                    console.log('No session found - login failed');
-                                    throw new Error('Invalid login credentials - please check your email and password');
-                                }
-                            } catch (checkError) {
-                                console.error('Session check error:', checkError);
-                                // If session check also fails, assume login failed
-                                throw new Error('Invalid login credentials - please check your email and password');
-                            }
-                        } else {
-                            // Re-throw the actual error
-                            throw raceError;
-                        }
-                    }
-                } catch (loginError) {
-                    console.error('Login error caught:', loginError);
-                    // Re-throw to be handled by outer catch
-                    throw loginError;
-                }
-                
-                const { data, error } = result;
+                // Simple direct call to Supabase - let it handle everything
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
                 
                 if (error) {
                     console.error('Login error from Supabase:', error);
-                    // Display the actual error message from Supabase
                     throw error;
                 }
                 
@@ -2792,23 +2733,18 @@
                 useSupabase = true;
                 
                 // Refresh user session to get latest metadata (including role)
-                console.log('Refreshing user session...');
                 const { data: { user: refreshedUser } } = await supabase.auth.getUser();
                 if (refreshedUser) {
                     currentUser = refreshedUser;
-                    // Get user role from metadata (default to 'user' if not set)
                     userRole = refreshedUser.user_metadata?.role || 'user';
                     console.log('User role loaded:', userRole);
                 } else {
-                    // Fallback to original user data
                     userRole = data.user.user_metadata?.role || 'user';
                     console.log('User role (fallback):', userRole);
                 }
                 
-                console.log('Hiding login screen...');
                 hideLoginScreen();
-                updateTabVisibility(); // Hide/show tabs based on role
-                console.log('Loading user data...');
+                updateTabVisibility();
                 await loadUserData();
                 console.log('Login complete!');
                 isLoggingIn = false;
@@ -2823,14 +2759,13 @@
                     errorDiv.style.display = 'block';
                 }
                 
-                // Re-enable login button
                 const loginButton = document.querySelector('button[onclick*="handleLogin"]');
                 if (loginButton) {
                     loginButton.disabled = false;
                     loginButton.textContent = 'Login';
                 }
                 
-                // Show resend confirmation button if email not confirmed (check various error message formats)
+                // Show resend confirmation button if email not confirmed
                 const errorLower = errorMessage.toLowerCase();
                 const resendDiv = document.getElementById('resendConfirmationDiv');
                 if (resendDiv) {
@@ -2838,15 +2773,11 @@
                         errorLower.includes('email_not_confirmed') ||
                         errorLower.includes('email not verified') ||
                         errorLower.includes('email_not_verified') ||
-                        (errorLower.includes('confirm') && errorLower.includes('email')) ||
-                        errorLower.includes('email_not_confirmed')) {
+                        (errorLower.includes('confirm') && errorLower.includes('email'))) {
                         resendDiv.style.display = 'block';
-                        console.log('Showing resend confirmation button');
                     } else {
                         resendDiv.style.display = 'none';
                     }
-                } else {
-                    console.warn('resendConfirmationDiv element not found');
                 }
             }
         }
