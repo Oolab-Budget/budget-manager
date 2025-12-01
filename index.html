@@ -2676,109 +2676,82 @@
         }
         
         async function handleLogin() {
-            if (isLoggingIn) {
-                console.log('Login already in progress, ignoring duplicate call');
-                return;
-            }
-            
-            console.log('handleLogin called');
+            if (isLoggingIn) return;
             isLoggingIn = true;
             
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            const loginButton = document.querySelector('button[onclick*="handleLogin"]');
+            
+            // Disable button
+            if (loginButton) {
+                loginButton.disabled = true;
+                loginButton.textContent = 'Logging in...';
+            }
+            
             try {
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                const errorDiv = document.getElementById('loginError');
-                const loginButton = document.querySelector('button[onclick*="handleLogin"]');
-                
-                if (loginButton) {
-                    loginButton.disabled = true;
-                    loginButton.textContent = 'Logging in...';
-                }
-                
+                // Validate input
                 if (!email || !password) {
                     errorDiv.textContent = 'Please enter email and password';
                     errorDiv.style.display = 'block';
-                    isLoggingIn = false;
-                    if (loginButton) {
-                        loginButton.disabled = false;
-                        loginButton.textContent = 'Login';
-                    }
                     return;
                 }
                 
+                // Check Supabase is ready
                 if (!supabase || !supabase.auth) {
-                    console.error('Supabase client not initialized');
                     errorDiv.textContent = 'Error: Application not ready. Please refresh the page.';
                     errorDiv.style.display = 'block';
-                    isLoggingIn = false;
-                    if (loginButton) {
-                        loginButton.disabled = false;
-                        loginButton.textContent = 'Login';
-                    }
                     return;
                 }
                 
-                // Simple direct call to Supabase - let it handle everything
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
+                // Login
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
                 
-                if (error) {
-                    console.error('Login error from Supabase:', error);
-                    throw error;
-                }
+                if (error) throw error;
                 
-                console.log('Login successful, user:', data.user?.email);
+                // Set user and role
                 currentUser = data.user;
                 useSupabase = true;
+                userRole = data.user.user_metadata?.role || 'user';
                 
-                // Refresh user session to get latest metadata (including role)
-                const { data: { user: refreshedUser } } = await supabase.auth.getUser();
-                if (refreshedUser) {
-                    currentUser = refreshedUser;
-                    userRole = refreshedUser.user_metadata?.role || 'user';
-                    console.log('User role loaded:', userRole);
-                } else {
-                    userRole = data.user.user_metadata?.role || 'user';
-                    console.log('User role (fallback):', userRole);
+                // Get fresh user data for role
+                try {
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (user) {
+                        currentUser = user;
+                        userRole = user.user_metadata?.role || 'user';
+                    }
+                } catch (e) {
+                    // Ignore - use data from login
                 }
                 
+                // Show app
                 hideLoginScreen();
                 updateTabVisibility();
                 await loadUserData();
-                console.log('Login complete!');
-                isLoggingIn = false;
+                
             } catch (error) {
-                isLoggingIn = false;
                 const errorMessage = error.message || 'Login failed';
-                console.error('Login failed:', error);
+                errorDiv.textContent = errorMessage;
+                errorDiv.style.display = 'block';
                 
-                const errorDiv = document.getElementById('loginError');
-                if (errorDiv) {
-                    errorDiv.textContent = errorMessage;
-                    errorDiv.style.display = 'block';
+                // Show resend button if email not confirmed
+                const resendDiv = document.getElementById('resendConfirmationDiv');
+                if (resendDiv) {
+                    const errorLower = errorMessage.toLowerCase();
+                    resendDiv.style.display = (
+                        errorLower.includes('email not confirmed') || 
+                        errorLower.includes('email_not_confirmed') ||
+                        errorLower.includes('email not verified') ||
+                        errorLower.includes('email_not_verified')
+                    ) ? 'block' : 'none';
                 }
-                
-                const loginButton = document.querySelector('button[onclick*="handleLogin"]');
+            } finally {
+                isLoggingIn = false;
                 if (loginButton) {
                     loginButton.disabled = false;
                     loginButton.textContent = 'Login';
-                }
-                
-                // Show resend confirmation button if email not confirmed
-                const errorLower = errorMessage.toLowerCase();
-                const resendDiv = document.getElementById('resendConfirmationDiv');
-                if (resendDiv) {
-                    if (errorLower.includes('email not confirmed') || 
-                        errorLower.includes('email_not_confirmed') ||
-                        errorLower.includes('email not verified') ||
-                        errorLower.includes('email_not_verified') ||
-                        (errorLower.includes('confirm') && errorLower.includes('email'))) {
-                        resendDiv.style.display = 'block';
-                    } else {
-                        resendDiv.style.display = 'none';
-                    }
                 }
             }
         }
