@@ -2590,11 +2590,15 @@
                     updateTabVisibility(); // Hide/show tabs based on role
                     loadUserData();
                     
-                    // Start UPS tracking polling if credentials are set
-                    const clientId = localStorage.getItem('upsClientId');
-                    const clientSecret = localStorage.getItem('upsClientSecret');
-                    if (clientId && clientSecret) {
-                        startUPSTrackingPolling();
+                    // Start UPS tracking polling if credentials are set (don't let this break login)
+                    try {
+                        const clientId = localStorage.getItem('upsClientId');
+                        const clientSecret = localStorage.getItem('upsClientSecret');
+                        if (clientId && clientSecret && typeof startUPSTrackingPolling === 'function') {
+                            startUPSTrackingPolling();
+                        }
+                    } catch (e) {
+                        console.warn('Error starting UPS tracking polling:', e);
                     }
                 } else if (event === 'SIGNED_OUT') {
                     useSupabase = false;
@@ -2702,6 +2706,11 @@
                 if (!email || !password) {
                     errorDiv.textContent = 'Please enter email and password';
                     errorDiv.style.display = 'block';
+                    isLoggingIn = false;
+                    if (loginButton) {
+                        loginButton.disabled = false;
+                        loginButton.textContent = 'Login';
+                    }
                     return;
                 }
                 
@@ -2709,6 +2718,11 @@
                 if (!supabase || !supabase.auth) {
                     errorDiv.textContent = 'Error: Application not ready. Please refresh the page.';
                     errorDiv.style.display = 'block';
+                    isLoggingIn = false;
+                    if (loginButton) {
+                        loginButton.disabled = false;
+                        loginButton.textContent = 'Login';
+                    }
                     return;
                 }
                 
@@ -2738,11 +2752,15 @@
                 updateTabVisibility();
                 await loadUserData();
                 
-                // Start UPS tracking polling if credentials are set
-                const clientId = localStorage.getItem('upsClientId');
-                const clientSecret = localStorage.getItem('upsClientSecret');
-                if (clientId && clientSecret) {
-                    startUPSTrackingPolling();
+                // Start UPS tracking polling if credentials are set (don't let this break login)
+                try {
+                    const clientId = localStorage.getItem('upsClientId');
+                    const clientSecret = localStorage.getItem('upsClientSecret');
+                    if (clientId && clientSecret && typeof startUPSTrackingPolling === 'function') {
+                        startUPSTrackingPolling();
+                    }
+                } catch (e) {
+                    console.warn('Error starting UPS tracking polling:', e);
                 }
                 
             } catch (error) {
