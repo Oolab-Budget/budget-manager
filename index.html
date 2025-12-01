@@ -15,58 +15,63 @@
         // This must run immediately, before any other scripts
         (function() {
             'use strict';
-            // Patch immediately if MutationObserver exists
-            if (typeof MutationObserver !== 'undefined') {
-                const originalObserve = MutationObserver.prototype.observe;
-                if (originalObserve) {
+            
+            // Store original observe function
+            let originalObserve = null;
+            
+            // Function to patch MutationObserver
+            function patchMutationObserver() {
+                if (typeof MutationObserver === 'undefined' || !MutationObserver.prototype) {
+                    return;
+                }
+                
+                // Get original if not stored yet
+                if (!originalObserve) {
+                    originalObserve = MutationObserver.prototype.observe;
+                }
+                
+                // Only patch if not already patched
+                if (originalObserve && MutationObserver.prototype.observe === originalObserve) {
                     MutationObserver.prototype.observe = function(target, options) {
-                        // Validate target is a valid Node
+                        // Validate target is a valid Node - if not, silently return
                         if (!target || typeof target !== 'object' || typeof target.nodeType !== 'number') {
                             return; // Silently ignore invalid targets
                         }
+                        
                         // Only valid Node types: 1=Element, 9=Document, 11=DocumentFragment
                         if (target.nodeType === 1 || target.nodeType === 9 || target.nodeType === 11) {
                             try {
                                 return originalObserve.call(this, target, options);
                             } catch (e) {
-                                // Silently ignore all errors
+                                // Silently ignore all errors - don't break Supabase
                                 return;
                             }
                         }
-                        return; // Invalid nodeType
+                        // Invalid nodeType - silently ignore
+                        return;
                     };
                 }
             }
             
-            // Also patch when MutationObserver becomes available (if not yet)
-            const checkAndPatch = function() {
-                if (typeof MutationObserver !== 'undefined' && MutationObserver.prototype) {
-                    const originalObserve = MutationObserver.prototype.observe;
-                    if (originalObserve && originalObserve.toString().indexOf('_patched') === -1) {
-                        MutationObserver.prototype.observe = function(target, options) {
-                            if (!target || typeof target !== 'object' || typeof target.nodeType !== 'number') {
-                                return;
-                            }
-                            if (target.nodeType === 1 || target.nodeType === 9 || target.nodeType === 11) {
-                                try {
-                                    return originalObserve.call(this, target, options);
-                                } catch (e) {
-                                    return;
-                                }
-                            }
-                            return;
-                        };
-                    }
-                }
-            };
+            // Patch immediately
+            patchMutationObserver();
             
-            // Check multiple times to catch it
-            setTimeout(checkAndPatch, 0);
-            setTimeout(checkAndPatch, 10);
-            setTimeout(checkAndPatch, 50);
+            // Patch multiple times to ensure it's applied
+            setTimeout(patchMutationObserver, 0);
+            setTimeout(patchMutationObserver, 10);
+            setTimeout(patchMutationObserver, 50);
+            setTimeout(patchMutationObserver, 100);
+            setTimeout(patchMutationObserver, 200);
+            
+            // Patch when DOM is ready
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', checkAndPatch);
+                document.addEventListener('DOMContentLoaded', patchMutationObserver);
+            } else {
+                patchMutationObserver();
             }
+            
+            // Patch after window loads
+            window.addEventListener('load', patchMutationObserver);
         })();
     </script>
     <!-- EmailJS library for sending emails -->
@@ -2691,34 +2696,57 @@
                 
                 console.log('Attempting login to:', supabase.supabaseUrl);
                 
-                // Add timeout to prevent hanging
-                const loginPromise = supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                }).then(result => {
-                    console.log('Login promise resolved');
-                    return result;
-                }).catch(err => {
-                    console.error('Login promise error:', err);
-                    throw err;
-                });
-                
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Login timeout - please try again')), 10000)
-                );
-                
+                // Call Supabase login directly - don't use Promise.race as it can mask real errors
                 let result;
                 try {
+                    // Use a timeout wrapper that doesn't mask the actual error
+                    const loginPromise = supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+                    
+                    // Create a timeout that only triggers if loginPromise never resolves/rejects
+                    const timeoutId = setTimeout(() => {
+                        console.warn('Login taking longer than expected...');
+                    }, 5000);
+                    
+                    // Wait for login with a longer timeout as fallback
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Request taking too long - please check your connection and try again')), 15000)
+                    );
+                    
                     result = await Promise.race([loginPromise, timeoutPromise]);
-                } catch (raceError) {
-                    console.error('Login promise error:', raceError);
-                    throw raceError;
+                    clearTimeout(timeoutId);
+                    console.log('Login promise resolved:', result);
+                } catch (loginError) {
+                    clearTimeout(timeoutId);
+                    console.error('Login error caught:', loginError);
+                    
+                    // If it's a timeout, try to get the actual error from Supabase
+                    if (loginError.message && loginError.message.includes('too long')) {
+                        // Check if there's a session (login might have succeeded)
+                        try {
+                            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                            if (session && session.user) {
+                                console.log('Session found - login actually succeeded');
+                                result = { data: { user: session.user }, error: null };
+                            } else {
+                                throw new Error('Login failed - please check your credentials and try again');
+                            }
+                        } catch (checkError) {
+                            throw new Error('Login failed - please check your credentials and try again');
+                        }
+                    } else {
+                        // Re-throw the actual error so it can be displayed
+                        throw loginError;
+                    }
                 }
                 
                 const { data, error } = result;
                 
                 if (error) {
-                    console.error('Login error:', error);
+                    console.error('Login error from Supabase:', error);
+                    // Display the actual error message from Supabase
                     throw error;
                 }
                 
