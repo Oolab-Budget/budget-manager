@@ -12,25 +12,60 @@
     <!-- Fix MutationObserver error from Supabase - MUST run BEFORE Supabase library loads -->
     <script>
         // Patch MutationObserver BEFORE Supabase loads to prevent errors
+        // This must run immediately, before any other scripts
         (function() {
-            if (typeof MutationObserver !== 'undefined' && MutationObserver.prototype) {
+            'use strict';
+            // Patch immediately if MutationObserver exists
+            if (typeof MutationObserver !== 'undefined') {
                 const originalObserve = MutationObserver.prototype.observe;
-                if (originalObserve && !MutationObserver.prototype.observe._patched) {
+                if (originalObserve) {
                     MutationObserver.prototype.observe = function(target, options) {
+                        // Validate target is a valid Node
                         if (!target || typeof target !== 'object' || typeof target.nodeType !== 'number') {
-                            return;
+                            return; // Silently ignore invalid targets
                         }
+                        // Only valid Node types: 1=Element, 9=Document, 11=DocumentFragment
                         if (target.nodeType === 1 || target.nodeType === 9 || target.nodeType === 11) {
                             try {
                                 return originalObserve.call(this, target, options);
                             } catch (e) {
+                                // Silently ignore all errors
                                 return;
                             }
                         }
-                        return;
+                        return; // Invalid nodeType
                     };
-                    MutationObserver.prototype.observe._patched = true;
                 }
+            }
+            
+            // Also patch when MutationObserver becomes available (if not yet)
+            const checkAndPatch = function() {
+                if (typeof MutationObserver !== 'undefined' && MutationObserver.prototype) {
+                    const originalObserve = MutationObserver.prototype.observe;
+                    if (originalObserve && originalObserve.toString().indexOf('_patched') === -1) {
+                        MutationObserver.prototype.observe = function(target, options) {
+                            if (!target || typeof target !== 'object' || typeof target.nodeType !== 'number') {
+                                return;
+                            }
+                            if (target.nodeType === 1 || target.nodeType === 9 || target.nodeType === 11) {
+                                try {
+                                    return originalObserve.call(this, target, options);
+                                } catch (e) {
+                                    return;
+                                }
+                            }
+                            return;
+                        };
+                    }
+                }
+            };
+            
+            // Check multiple times to catch it
+            setTimeout(checkAndPatch, 0);
+            setTimeout(checkAndPatch, 10);
+            setTimeout(checkAndPatch, 50);
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', checkAndPatch);
             }
         })();
     </script>
@@ -2632,10 +2667,26 @@
                 }
                 
                 console.log('Attempting login...');
-                const { data, error } = await supabase.auth.signInWithPassword({
+                
+                // Add timeout to prevent hanging
+                const loginPromise = supabase.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
+                
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Login timeout - please try again')), 10000)
+                );
+                
+                let result;
+                try {
+                    result = await Promise.race([loginPromise, timeoutPromise]);
+                } catch (raceError) {
+                    console.error('Login promise error:', raceError);
+                    throw raceError;
+                }
+                
+                const { data, error } = result;
                 
                 if (error) {
                     console.error('Login error:', error);
@@ -2666,10 +2717,20 @@
                 console.log('Loading user data...');
                 await loadUserData();
                 console.log('Login complete!');
+                isLoggingIn = false;
             } catch (error) {
+                isLoggingIn = false;
                 const errorMessage = error.message || 'Login failed';
+                console.error('Login failed:', error);
                 errorDiv.textContent = errorMessage;
                 errorDiv.style.display = 'block';
+                
+                // Re-enable login button
+                const loginButton = document.querySelector('button[onclick*="handleLogin"]');
+                if (loginButton) {
+                    loginButton.disabled = false;
+                    loginButton.textContent = 'Login';
+                }
                 
                 // Show resend confirmation button if email not confirmed (check various error message formats)
                 const errorLower = errorMessage.toLowerCase();
