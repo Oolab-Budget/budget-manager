@@ -2524,6 +2524,7 @@
         let currentUser = null;
         let useSupabase = false;
         let userRole = 'user'; // 'admin' or 'user' - default to 'user' for limited access // Flag to toggle between localStorage and Supabase
+        let isLoggingIn = false; // Prevent multiple simultaneous login attempts
         
         // Function to initialize auth (can be called after library loads)
         function initializeAuth() {
