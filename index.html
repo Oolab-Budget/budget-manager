@@ -2659,19 +2659,36 @@
                     return;
                 }
                 
-                if (!supabase) {
+                console.log('Supabase client check:', { 
+                    supabase: !!supabase, 
+                    auth: !!supabase?.auth,
+                    url: supabase?.supabaseUrl 
+                });
+                
+                if (!supabase || !supabase.auth) {
                     console.error('Supabase client not initialized');
                     errorDiv.textContent = 'Error: Application not ready. Please refresh the page.';
                     errorDiv.style.display = 'block';
+                    isLoggingIn = false;
+                    if (loginButton) {
+                        loginButton.disabled = false;
+                        loginButton.textContent = 'Login';
+                    }
                     return;
                 }
                 
-                console.log('Attempting login...');
+                console.log('Attempting login to:', supabase.supabaseUrl);
                 
                 // Add timeout to prevent hanging
                 const loginPromise = supabase.auth.signInWithPassword({
                     email: email,
                     password: password
+                }).then(result => {
+                    console.log('Login promise resolved');
+                    return result;
+                }).catch(err => {
+                    console.error('Login promise error:', err);
+                    throw err;
                 });
                 
                 const timeoutPromise = new Promise((_, reject) => 
@@ -2722,8 +2739,12 @@
                 isLoggingIn = false;
                 const errorMessage = error.message || 'Login failed';
                 console.error('Login failed:', error);
-                errorDiv.textContent = errorMessage;
-                errorDiv.style.display = 'block';
+                
+                const errorDiv = document.getElementById('loginError');
+                if (errorDiv) {
+                    errorDiv.textContent = errorMessage;
+                    errorDiv.style.display = 'block';
+                }
                 
                 // Re-enable login button
                 const loginButton = document.querySelector('button[onclick*="handleLogin"]');
