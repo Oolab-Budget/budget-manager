@@ -2413,6 +2413,18 @@
     </div>
 
     <script>
+        // Global error handler to catch unhandled promise rejections that might break Supabase
+        window.addEventListener('unhandledrejection', function(event) {
+            // If it's a MutationObserver error, prevent it from breaking the app
+            if (event.reason && event.reason.message && event.reason.message.includes('MutationObserver')) {
+                console.warn('Suppressed MutationObserver error in promise:', event.reason);
+                event.preventDefault(); // Prevent the error from breaking the app
+                return;
+            }
+            // Log other unhandled rejections but don't break
+            console.warn('Unhandled promise rejection:', event.reason);
+        });
+        
         // Fix for MutationObserver error from Supabase library
         // This suppresses the error when Supabase tries to observe DOM elements before they're ready
         (function() {
