@@ -2696,17 +2696,17 @@
                 
                 console.log('Attempting login to:', supabase.supabaseUrl);
                 
-                // Call Supabase login directly - don't use Promise.race as it can mask real errors
+                // Call Supabase login directly
                 let result;
+                let timeoutId = null;
                 try {
-                    // Use a timeout wrapper that doesn't mask the actual error
                     const loginPromise = supabase.auth.signInWithPassword({
                         email: email,
                         password: password
                     });
                     
-                    // Create a timeout that only triggers if loginPromise never resolves/rejects
-                    const timeoutId = setTimeout(() => {
+                    // Create a warning timeout (doesn't break the promise)
+                    timeoutId = setTimeout(() => {
                         console.warn('Login taking longer than expected...');
                     }, 5000);
                     
@@ -2715,11 +2715,18 @@
                         setTimeout(() => reject(new Error('Request taking too long - please check your connection and try again')), 15000)
                     );
                     
-                    result = await Promise.race([loginPromise, timeoutPromise]);
-                    clearTimeout(timeoutId);
+                    // Use Promise.race but prioritize the actual login response
+                    result = await Promise.race([
+                        loginPromise.catch(err => {
+                            console.log('Login promise rejected with error:', err);
+                            throw err; // Re-throw to be caught by outer catch
+                        }),
+                        timeoutPromise
+                    ]);
+                    if (timeoutId) clearTimeout(timeoutId);
                     console.log('Login promise resolved:', result);
                 } catch (loginError) {
-                    clearTimeout(timeoutId);
+                    if (timeoutId) clearTimeout(timeoutId);
                     console.error('Login error caught:', loginError);
                     
                     // If it's a timeout, try to get the actual error from Supabase
