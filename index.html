@@ -1129,7 +1129,7 @@
                         <img src="images/logo2.png" alt="Company Logo 2" class="header-logo" id="headerLogo2">
                         <img src="images/logo3.png" alt="Company Logo 3" class="header-logo" id="headerLogo3">
                     </div>
-                    <button onclick="handleLogout()" id="logoutBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 25px; cursor: pointer; display: none;" data-en="Logout" data-es="Cerrar Sesión">Logout</button>
+                    <button onclick="if(typeof handleLogout === 'function') { handleLogout(); } else { alert('Logout function not loaded. Please refresh the page.'); console.error('handleLogout is not defined'); }" id="logoutBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 25px; cursor: pointer; display: none;" data-en="Logout" data-es="Cerrar Sesión">Logout</button>
                 </div>
             </div>
         </div>
@@ -2790,6 +2790,7 @@
         }
         
         async function handleLogout() {
+            console.log('handleLogout called');
             await supabase.auth.signOut();
             currentUser = null;
             useSupabase = false;
