@@ -2421,7 +2421,11 @@
         // Global error handler to catch unhandled promise rejections that might break Supabase
         window.addEventListener('unhandledrejection', function(event) {
             // If it's a MutationObserver error, prevent it from breaking the app
-            if (event.reason && event.reason.message && event.reason.message.includes('MutationObserver')) {
+            if (event.reason && (
+                (event.reason.message && event.reason.message.includes('MutationObserver')) ||
+                (event.reason.toString && event.reason.toString().includes('MutationObserver')) ||
+                (event.reason.name === 'TypeError' && event.reason.message && event.reason.message.includes('observe'))
+            )) {
                 console.warn('Suppressed MutationObserver error in promise:', event.reason);
                 event.preventDefault(); // Prevent the error from breaking the app
                 return;
@@ -2429,6 +2433,15 @@
             // Log other unhandled rejections but don't break
             console.warn('Unhandled promise rejection:', event.reason);
         });
+        
+        // Also catch errors globally
+        window.addEventListener('error', function(event) {
+            if (event.error && event.error.message && event.error.message.includes('MutationObserver')) {
+                console.warn('Suppressed MutationObserver error:', event.error);
+                event.preventDefault();
+                return false;
+            }
+        }, true);
         
         // Fix for MutationObserver error from Supabase library
         // This suppresses the error when Supabase tries to observe DOM elements before they're ready
@@ -2715,38 +2728,45 @@
                         setTimeout(() => reject(new Error('Request taking too long - please check your connection and try again')), 15000)
                     );
                     
-                    // Use Promise.race but prioritize the actual login response
-                    result = await Promise.race([
-                        loginPromise.catch(err => {
-                            console.log('Login promise rejected with error:', err);
-                            throw err; // Re-throw to be caught by outer catch
-                        }),
-                        timeoutPromise
-                    ]);
-                    if (timeoutId) clearTimeout(timeoutId);
-                    console.log('Login promise resolved:', result);
-                } catch (loginError) {
-                    if (timeoutId) clearTimeout(timeoutId);
-                    console.error('Login error caught:', loginError);
-                    
-                    // If it's a timeout, try to get the actual error from Supabase
-                    if (loginError.message && loginError.message.includes('too long')) {
-                        // Check if there's a session (login might have succeeded)
-                        try {
-                            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-                            if (session && session.user) {
-                                console.log('Session found - login actually succeeded');
-                                result = { data: { user: session.user }, error: null };
-                            } else {
-                                throw new Error('Login failed - please check your credentials and try again');
+                    // Try to get the response - if it times out, check network response
+                    try {
+                        result = await Promise.race([
+                            loginPromise.catch(err => {
+                                console.log('Login promise rejected with error:', err);
+                                throw err;
+                            }),
+                            timeoutPromise
+                        ]);
+                        if (timeoutId) clearTimeout(timeoutId);
+                        console.log('Login promise resolved:', result);
+                    } catch (raceError) {
+                        if (timeoutId) clearTimeout(timeoutId);
+                        
+                        // If timeout, check if login actually succeeded despite the promise hanging
+                        if (raceError.message && raceError.message.includes('too long')) {
+                            console.log('Timeout occurred - checking if login succeeded...');
+                            try {
+                                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                                if (session && session.user) {
+                                    console.log('Session found - login actually succeeded!');
+                                    result = { data: { user: session.user }, error: null };
+                                } else {
+                                    // No session - login failed
+                                    throw new Error('Invalid login credentials - please check your email and password');
+                                }
+                            } catch (checkError) {
+                                console.error('Session check error:', checkError);
+                                throw new Error('Invalid login credentials - please check your email and password');
                             }
-                        } catch (checkError) {
-                            throw new Error('Login failed - please check your credentials and try again');
+                        } else {
+                            // Re-throw the actual error
+                            throw raceError;
                         }
-                    } else {
-                        // Re-throw the actual error so it can be displayed
-                        throw loginError;
                     }
+                } catch (loginError) {
+                    console.error('Login error caught:', loginError);
+                    // Re-throw to be handled by outer catch
+                    throw loginError;
                 }
                 
                 const { data, error } = result;
