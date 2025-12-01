@@ -2687,13 +2687,19 @@
         }
         
         async function handleLogin() {
-            if (isLoggingIn) return;
+            console.log('handleLogin called');
+            if (isLoggingIn) {
+                console.log('Login already in progress');
+                return;
+            }
             isLoggingIn = true;
             
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             const errorDiv = document.getElementById('loginError');
             const loginButton = document.querySelector('button[onclick*="handleLogin"]');
+            
+            console.log('Login attempt:', { email: email ? 'provided' : 'missing', hasPassword: !!password });
             
             // Disable button
             if (loginButton) {
@@ -2764,9 +2770,14 @@
                 }
                 
             } catch (error) {
+                console.error('Login catch block:', error);
                 const errorMessage = error.message || 'Login failed';
-                errorDiv.textContent = errorMessage;
-                errorDiv.style.display = 'block';
+                if (errorDiv) {
+                    errorDiv.textContent = errorMessage;
+                    errorDiv.style.display = 'block';
+                } else {
+                    alert('Login error: ' + errorMessage);
+                }
                 
                 // Show resend button if email not confirmed
                 const resendDiv = document.getElementById('resendConfirmationDiv');
@@ -10881,6 +10892,34 @@ Budget Manager System`;
                         if (typeof loadCanadaHistory === 'function') {
                             loadCanadaHistory().catch(err => console.error('Error loading Canada history:', err));
                         }
+                    }
+                    
+                    // Handle Supabase data from full backup (version 2.0)
+                    if (data.version === '2.0' && data.exportSource === 'complete_with_supabase') {
+                        console.log('📦 Full backup detected - restoring Supabase data...');
+                        if (useSupabase && currentUser) {
+                            // Restore Supabase requests, tracking, etc. if present
+                            if (data.supabaseRequests && Array.isArray(data.supabaseRequests)) {
+                                console.log('Restoring', data.supabaseRequests.length, 'Supabase requests...');
+                                // The migrateCanadaRequests function will handle this
+                                if (typeof migrateCanadaRequests === 'function') {
+                                    migrateCanadaRequests(data.canadaRequestHistory || []).catch(err => {
+                                        console.error('Error migrating Supabase requests:', err);
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Restore Mex/Can data if present
+                    if (data.mexcanRequestHistory && Array.isArray(data.mexcanRequestHistory)) {
+                        localStorage.setItem('mexcanRequestHistory', JSON.stringify(data.mexcanRequestHistory));
+                    }
+                    if (data.mexcanSelectedItems && typeof data.mexcanSelectedItems === 'object') {
+                        localStorage.setItem('mexcanSelectedItems', JSON.stringify(data.mexcanSelectedItems));
+                    }
+                    if (data.mexcanTrackingShipments && Array.isArray(data.mexcanTrackingShipments)) {
+                        localStorage.setItem('mexcanTrackingShipments', JSON.stringify(data.mexcanTrackingShipments));
                     }
                     
                     let successMessage = '<strong style="color: #155724;">✓ Data imported successfully!</strong><br>';
