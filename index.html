@@ -2732,10 +2732,47 @@
                     return;
                 }
                 
-                // Login
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                // Login with timeout protection
+                console.log('Calling Supabase signInWithPassword...');
+                let loginPromise = supabase.auth.signInWithPassword({ email, password });
                 
-                if (error) throw error;
+                // Add a timeout to prevent infinite hanging
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Login request timed out. Please check your internet connection and try again.')), 20000)
+                );
+                
+                let loginResult;
+                try {
+                    loginResult = await Promise.race([loginPromise, timeoutPromise]);
+                    console.log('Supabase response received:', { hasData: !!loginResult.data, hasError: !!loginResult.error });
+                } catch (raceError) {
+                    console.error('Login promise race error:', raceError);
+                    // Check if login actually succeeded despite timeout
+                    if (raceError.message && raceError.message.includes('timed out')) {
+                        try {
+                            const { data: { session } } = await supabase.auth.getSession();
+                            if (session && session.user) {
+                                console.log('Session found after timeout - login succeeded!');
+                                loginResult = { data: { user: session.user }, error: null };
+                            } else {
+                                throw raceError;
+                            }
+                        } catch (checkError) {
+                            throw raceError;
+                        }
+                    } else {
+                        throw raceError;
+                    }
+                }
+                
+                const { data, error } = loginResult;
+                
+                if (error) {
+                    console.error('Login error from Supabase:', error);
+                    throw error;
+                }
+                
+                console.log('Login successful!');
                 
                 // Set user and role
                 currentUser = data.user;
