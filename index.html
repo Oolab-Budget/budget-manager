@@ -2610,17 +2610,28 @@
         }
         
         async function handleLogin() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const errorDiv = document.getElementById('loginError');
-            
-            if (!email || !password) {
-                errorDiv.textContent = 'Please enter email and password';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
+            console.log('handleLogin called');
             try {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                const errorDiv = document.getElementById('loginError');
+                
+                console.log('Email:', email ? 'provided' : 'missing');
+                
+                if (!email || !password) {
+                    errorDiv.textContent = 'Please enter email and password';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                
+                if (!supabase) {
+                    console.error('Supabase client not initialized');
+                    errorDiv.textContent = 'Error: Application not ready. Please refresh the page.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                
+                console.log('Attempting login...');
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: email,
                     password: password
