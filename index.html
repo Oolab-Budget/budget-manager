@@ -2589,6 +2589,13 @@
                     hideLoginScreen();
                     updateTabVisibility(); // Hide/show tabs based on role
                     loadUserData();
+                    
+                    // Start UPS tracking polling if credentials are set
+                    const clientId = localStorage.getItem('upsClientId');
+                    const clientSecret = localStorage.getItem('upsClientSecret');
+                    if (clientId && clientSecret) {
+                        startUPSTrackingPolling();
+                    }
                 } else if (event === 'SIGNED_OUT') {
                     useSupabase = false;
                     userRole = 'user'; // Reset role
@@ -2730,6 +2737,13 @@
                 hideLoginScreen();
                 updateTabVisibility();
                 await loadUserData();
+                
+                // Start UPS tracking polling if credentials are set
+                const clientId = localStorage.getItem('upsClientId');
+                const clientSecret = localStorage.getItem('upsClientSecret');
+                if (clientId && clientSecret) {
+                    startUPSTrackingPolling();
+                }
                 
             } catch (error) {
                 const errorMessage = error.message || 'Login failed';
