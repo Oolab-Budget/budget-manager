@@ -13207,16 +13207,6 @@ Budget Manager System`;
             
             return deduplicatedLocal;
         }
-        
-        // Fallback to localStorage with deduplication (old code - should not be reached)
-            const deduplicatedLocal = deduplicateBudgets(localBudgets);
-            
-            if (deduplicatedLocal.length !== localBudgets.length) {
-                localStorage.setItem('savedBudgets', JSON.stringify(deduplicatedLocal));
-            }
-            
-            return deduplicatedLocal;
-        }
 
         async function getSavedBudgetsByDateRange(dateRange) {
             const allBudgets = await getAllSavedBudgets();
