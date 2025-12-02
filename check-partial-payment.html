@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Partial Payment</title>
+</head>
+<body>
+    <h1>Check Partial Payment in localStorage</h1>
+    <div id="result"></div>
+    <script>
+        const savedBudgets = JSON.parse(localStorage.getItem('savedBudgets') || '[]');
+        const partialPayments = savedBudgets.filter(b => b.isPartialPayment || (b.weekLabel && b.weekLabel.includes('Partial Payment')));
+        
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = `
+            <h2>Total Saved Budgets: ${savedBudgets.length}</h2>
+            <h2>Partial Payments Found: ${partialPayments.length}</h2>
+            <pre>${JSON.stringify(partialPayments, null, 2)}</pre>
+        `;
+        console.log('All saved budgets:', savedBudgets);
+        console.log('Partial payments:', partialPayments);
+    </script>
+</body>
+</html>

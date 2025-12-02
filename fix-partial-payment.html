@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fix Partial Payment</title>
+</head>
+<body>
+    <h1>Fix Partial Payment in localStorage</h1>
+    <div id="result"></div>
+    <button onclick="fixPartialPayments()" style="padding: 10px 20px; font-size: 16px; margin: 10px 0;">Fix Partial Payments</button>
+    <script>
+        function fixPartialPayments() {
+            const savedBudgets = JSON.parse(localStorage.getItem('savedBudgets') || '[]');
+            let fixed = 0;
+            
+            savedBudgets.forEach(budget => {
+                // Check if it's a partial payment by weekLabel
+                if (budget.weekLabel && budget.weekLabel.includes('Partial Payment') && !budget.isPartialPayment) {
+                    budget.isPartialPayment = true;
+                    fixed++;
+                }
+            });
+            
+            if (fixed > 0) {
+                localStorage.setItem('savedBudgets', JSON.stringify(savedBudgets));
+                document.getElementById('result').innerHTML = `
+                    <h2 style="color: green;">✓ Fixed ${fixed} partial payment(s)!</h2>
+                    <p>Refresh your Budget Manager app to see the changes.</p>
+                `;
+            } else {
+                document.getElementById('result').innerHTML = `
+                    <h2>No partial payments needed fixing.</h2>
+                    <p>Total budgets: ${savedBudgets.length}</p>
+                    <pre>${JSON.stringify(savedBudgets.map(b => ({ weekLabel: b.weekLabel, isPartialPayment: b.isPartialPayment })), null, 2)}</pre>
+                `;
+            }
+        }
+        
+        // Auto-run on load
+        window.onload = function() {
+            const savedBudgets = JSON.parse(localStorage.getItem('savedBudgets') || '[]');
+            const partial = savedBudgets.filter(b => b.isPartialPayment || (b.weekLabel && b.weekLabel.includes('Partial Payment')));
+            document.getElementById('result').innerHTML = `
+                <h2>Current Status:</h2>
+                <p>Total Saved Budgets: ${savedBudgets.length}</p>
+                <p>Partial Payments Found: ${partial.length}</p>
+                <p>Budgets with "Partial Payment" in label: ${savedBudgets.filter(b => b.weekLabel && b.weekLabel.includes('Partial Payment')).length}</p>
+            `;
+        };
+    </script>
+</body>
+</html>
