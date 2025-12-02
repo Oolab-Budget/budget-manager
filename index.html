@@ -2537,45 +2537,40 @@
         // Function to initialize auth (can be called after library loads)
         function initializeAuth() {
             if (!supabase) {
-                console.error('Supabase client not initialized');
-                showLoginScreen();
+                console.error('Supabase client not initialized - continuing without Supabase');
+                // Continue anyway - use localStorage only
+                useSupabase = false;
+                userRole = 'admin';
+                hideLoginScreen();
+                updateTabVisibility();
+                loadFromLocalStorage();
                 return;
             }
             
-            // Initialize auth check
-            supabase.auth.getSession().then(async ({ data: { session } }) => {
-                currentUser = session?.user || null;
-                if (currentUser) {
-                    console.log('User logged in:', currentUser.email);
-                    useSupabase = true;
-                    // Refresh user session to get latest metadata (including role)
-                    const { data: { user: refreshedUser } } = await supabase.auth.getUser();
-                    if (refreshedUser) {
-                        currentUser = refreshedUser;
-                        // Get user role from metadata (default to 'user' if not set)
-                        userRole = refreshedUser.user_metadata?.role || 'user';
-                        console.log('User role loaded (session check):', userRole);
-                    } else {
-                        // Fallback to session user
-                        userRole = currentUser.user_metadata?.role || 'user';
-                        console.log('User role (fallback):', userRole);
+            // Skip login - go straight to app with localStorage
+            console.log('Skipping login - loading app directly');
+            useSupabase = false;
+            userRole = 'admin'; // Set to admin so all tabs are visible
+            hideLoginScreen();
+            updateTabVisibility();
+            loadFromLocalStorage();
+            
+            // Optional: Still check for session in background (but don't block)
+            if (supabase && supabase.auth) {
+                supabase.auth.getSession().then(async ({ data: { session } }) => {
+                    if (session?.user) {
+                        console.log('User session found in background:', session.user.email);
+                        currentUser = session.user;
+                        useSupabase = true;
+                        userRole = session.user.user_metadata?.role || 'admin';
+                        updateTabVisibility();
+                        // Optionally load from Supabase if user wants
+                        // await loadUserData();
                     }
-                    hideLoginScreen();
-                    updateTabVisibility(); // Hide/show tabs based on role
-                    loadUserData();
-                } else {
-                    // Show login screen if not logged in
-                    useSupabase = false;
-                    userRole = 'user'; // Reset role
-                    showLoginScreen();
-                    // Still load from localStorage as fallback
-                    loadFromLocalStorage();
-                }
-            }).catch(error => {
-                console.error('Error checking session:', error);
-                showLoginScreen();
-                loadFromLocalStorage();
-            });
+                }).catch(error => {
+                    console.log('No active session (using localStorage only):', error);
+                });
+            }
             
             // Listen for auth changes
             supabase.auth.onAuthStateChange(async (event, session) => {
@@ -2661,15 +2656,17 @@
         
         // Authentication Functions
         function showLoginScreen() {
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('mainContainer').style.display = 'none';
+            // Login is disabled - always show app instead
+            hideLoginScreen();
         }
         
         function hideLoginScreen() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContainer').style.display = 'block';
-            if (currentUser) {
-                document.getElementById('logoutBtn').style.display = 'block';
+            // Hide logout button since login is disabled
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.style.display = 'none';
             }
             // Show/hide migration button based on Supabase login
             updateMigrationButtonVisibility();
