@@ -2689,7 +2689,10 @@
             // Only add if items were actually added (to prevent duplicates on every load)
             if (typeof checkAndAddDueItems === 'function') {
                 const itemsBefore = items.length;
+                console.log('Checking for recurring items... Current items:', itemsBefore);
                 checkAndAddDueItems();
+                const itemsAfter = items.length;
+                console.log('After checking recurring items:', itemsAfter, 'Added:', itemsAfter - itemsBefore);
                 // Only save if items were actually added
                 if (items.length > itemsBefore) {
                     saveItems();
@@ -15263,20 +15266,17 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             });
             
             // Check for items with individual recurring weekly or due dates in category database
+            let recurringItemsFound = 0;
+            console.log('Checking itemDatabase for recurring items. Total categories:', Object.keys(itemDatabase).length);
             Object.keys(itemDatabase).forEach(categoryKey => {
                 const categoryItems = itemDatabase[categoryKey] || [];
                 
                 categoryItems.forEach(item => {
                     // Check if item is recurring weekly (skip if skipRecurring is true)
-                    // Only add recurring weekly items on Monday (start of the week)
+                    // Add recurring weekly items - check if they're already in the current week
                     if (item.recurringWeekly && !skipRecurring) {
-                        // Only add recurring items on Monday
-                        // For current week: add on Monday of current week
-                        // For next week: add on Monday of current week (to prepare for next week)
-                        if (!isMonday || !isCurrentWeekMonday) {
-                            return; // Skip adding recurring items if it's not Monday
-                        }
-                        
+                        recurringItemsFound++;
+                        console.log('Found recurring weekly item:', item.nameEn, 'in category:', categoryKey);
                         // Check if this item already exists in current budget for target week
                         // Use flexible matching: check by weeklyAddedWeek OR by dateAdded being in the target week
                         const existingItemsInBudget = items.filter(existingItem => {
@@ -15290,7 +15290,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                             
                             // Check if weeklyAddedWeek matches (if it exists)
                             if (existingItem.weeklyAddedWeek) {
-                                return existingItem.weeklyAddedWeek === targetWeekStart.toISOString();
+                                const existingWeek = new Date(existingItem.weeklyAddedWeek);
+                                const existingWeekStart = getWeekStart(existingWeek);
+                                return existingWeekStart.getTime() === targetWeekStart.getTime();
                             }
                             
                             // Fallback: check if dateAdded is within the target week
@@ -15300,8 +15302,8 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                                 return itemWeekStart.getTime() === targetWeekStart.getTime();
                             }
                             
-                            // If no date info, assume it's not a match (safer to not add duplicate)
-                            return false;
+                            // If no date info but matches name/price/category, assume it's already there (prevent duplicates)
+                            return true;
                         });
                         
                         if (existingItemsInBudget.length === 0) {
@@ -15328,6 +15330,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                             items.push(newItem);
                             itemsAdded = true;
                             addedItemsList.push({ name: item.nameEn, reason: 'Recurring Weekly Item' });
+                            console.log('Added recurring weekly item:', item.nameEn, 'to budget');
+                        } else {
+                            console.log('Recurring weekly item already exists:', item.nameEn);
                         }
                     }
                     
@@ -15509,6 +15514,16 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             }
             
             // Return information about what was added
+            // Log summary
+            if (recurringItemsFound > 0) {
+                console.log(`Found ${recurringItemsFound} recurring weekly items in database`);
+            }
+            if (addedItemsList.length > 0) {
+                console.log(`Added ${addedItemsList.length} items:`, addedItemsList);
+            } else if (recurringItemsFound > 0) {
+                console.log('No recurring items were added (they may already be in the budget)');
+            }
+            
             return {
                 itemsAdded: itemsAdded,
                 count: addedItemsList.length,
