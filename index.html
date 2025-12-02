@@ -1126,8 +1126,16 @@
                     <input type="password" id="loginPassword" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box;" placeholder="••••••••">
                 </div>
                 <button onclick="if(typeof handleLogin === 'function') { handleLogin(); } else { alert('Login function not loaded. Please refresh the page.'); console.error('handleLogin is not defined'); }" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px; margin-bottom: 15px;">Login</button>
-                <button onclick="showSignupForm()" class="btn btn-secondary" style="width: 100%; padding: 12px; font-size: 16px;">Create Account</button>
+                <button onclick="showSignupForm()" class="btn btn-secondary" style="width: 100%; padding: 12px; font-size: 16px; margin-bottom: 15px;">Create Account</button>
+                
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #ddd;">
+                    <label style="display: block; margin-bottom: 10px; color: #2c3e50; font-weight: 600; font-size: 15px;">🔧 Restore Backup (No Login Required)</label>
+                    <input type="file" id="restoreBackupFile" accept=".json" onchange="restoreBackupWithoutLogin(event)" style="padding: 10px; width: 100%; border: 2px solid #3498db; border-radius: 5px; font-size: 14px; box-sizing: border-box; background: #f8f9fa; cursor: pointer;">
+                    <small style="display: block; margin-top: 8px; color: #7f8c8d; font-size: 12px; line-height: 1.4;">Select your backup JSON file (e.g., budget-full-backup-with-supabase-2025-11-30.json) to restore all your data without logging in.</small>
+                </div>
+                
                 <div id="loginError" style="color: #e74c3c; margin-top: 15px; text-align: center; display: none;"></div>
+                <div id="restoreStatus" style="color: #27ae60; margin-top: 15px; text-align: center; display: none; padding: 12px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; font-size: 14px;"></div>
             </div>
             <div id="signupForm" style="display: none;">
                 <div style="margin-bottom: 20px;">
@@ -10771,6 +10779,169 @@ Budget Manager System`;
             }
         }
 
+        // Helper function to import backup data (used by both import functions)
+        function importBackupData(data, statusDiv) {
+            try {
+                if (data.categories && Object.keys(data.categories).length > 0) {
+                    Object.assign(categories, data.categories);
+                    localStorage.setItem('customCategories', JSON.stringify(categories));
+                }
+                
+                if (data.items && Object.keys(data.items).length > 0) {
+                    Object.keys(data.items).forEach(category => {
+                        if (!itemDatabase[category]) {
+                            itemDatabase[category] = [];
+                        }
+                        data.items[category].forEach(newItem => {
+                            const exists = itemDatabase[category].some(existingItem => 
+                                existingItem.nameEn === newItem.nameEn && 
+                                existingItem.nameEs === newItem.nameEs
+                            );
+                            if (!exists) {
+                                itemDatabase[category].push(newItem);
+                            }
+                        });
+                    });
+                    saveCategoryItems();
+                }
+                
+                // Restore settings
+                if (data.settings) {
+                    if (data.settings.deeplApiKey) localStorage.setItem('deeplApiKey', data.settings.deeplApiKey);
+                    if (data.settings.emailjsPublicKey) localStorage.setItem('emailjsPublicKey', data.settings.emailjsPublicKey);
+                    if (data.settings.emailjsServiceId) localStorage.setItem('emailjsServiceId', data.settings.emailjsServiceId);
+                    if (data.settings.emailjsTemplateId) localStorage.setItem('emailjsTemplateId', data.settings.emailjsTemplateId);
+                    if (data.settings.canadaEmailjsPublicKey) localStorage.setItem('canadaEmailjsPublicKey', data.settings.canadaEmailjsPublicKey);
+                    if (data.settings.canadaEmailjsServiceId) localStorage.setItem('canadaEmailjsServiceId', data.settings.canadaEmailjsServiceId);
+                    if (data.settings.canadaEmailjsTemplateId) localStorage.setItem('canadaEmailjsTemplateId', data.settings.canadaEmailjsTemplateId);
+                    if (data.settings.upsClientId) localStorage.setItem('upsClientId', data.settings.upsClientId);
+                    if (data.settings.upsClientSecret) localStorage.setItem('upsClientSecret', data.settings.upsClientSecret);
+                    if (data.settings.upsCheckInterval) localStorage.setItem('upsCheckInterval', data.settings.upsCheckInterval);
+                    if (data.settings.upsProxyUrl) localStorage.setItem('upsProxyUrl', data.settings.upsProxyUrl);
+                    
+                    if (typeof loadDeepLSettings === 'function') loadDeepLSettings();
+                    if (typeof loadEmailJSSettings === 'function') loadEmailJSSettings();
+                    if (typeof loadCanadaEmailJSSettings === 'function') loadCanadaEmailJSSettings();
+                    if (typeof loadUPSSettings === 'function') loadUPSSettings();
+                }
+                
+                // Restore Canada request history
+                if (data.canadaRequestHistory && Array.isArray(data.canadaRequestHistory) && data.canadaRequestHistory.length > 0) {
+                    localStorage.setItem('canadaRequestHistory', JSON.stringify(data.canadaRequestHistory));
+                }
+                
+                // Restore saved budgets
+                if (data.savedBudgets && Array.isArray(data.savedBudgets) && data.savedBudgets.length > 0) {
+                    localStorage.setItem('savedBudgets', JSON.stringify(data.savedBudgets));
+                }
+                
+                // Restore current budget items
+                if (data.budgetItems && Array.isArray(data.budgetItems) && data.budgetItems.length > 0) {
+                    localStorage.setItem('budgetItems', JSON.stringify(data.budgetItems));
+                    items = data.budgetItems;
+                }
+                
+                // Restore activity log
+                if (data.activityLog && Array.isArray(data.activityLog) && data.activityLog.length > 0) {
+                    localStorage.setItem('activityLog', JSON.stringify(data.activityLog));
+                    activityLog = data.activityLog;
+                }
+                
+                // Restore change history
+                if (data.changeHistory && Array.isArray(data.changeHistory) && data.changeHistory.length > 0) {
+                    localStorage.setItem('changeHistory', JSON.stringify(data.changeHistory));
+                    changeHistory = data.changeHistory;
+                }
+                
+                // Restore Mex/Can data
+                if (data.mexcanRequestHistory && Array.isArray(data.mexcanRequestHistory)) {
+                    localStorage.setItem('mexcanRequestHistory', JSON.stringify(data.mexcanRequestHistory));
+                }
+                if (data.mexcanSelectedItems && typeof data.mexcanSelectedItems === 'object') {
+                    localStorage.setItem('mexcanSelectedItems', JSON.stringify(data.mexcanSelectedItems));
+                }
+                if (data.mexcanTrackingShipments && Array.isArray(data.mexcanTrackingShipments)) {
+                    localStorage.setItem('mexcanTrackingShipments', JSON.stringify(data.mexcanTrackingShipments));
+                }
+                
+                // Restore other data
+                if (data.canadaSelectedItems) localStorage.setItem('canadaSelectedItems', JSON.stringify(data.canadaSelectedItems));
+                if (data.dismissedBackorders) localStorage.setItem('dismissedBackorders', JSON.stringify(data.dismissedBackorders));
+                if (data.canadaRequestCounter) localStorage.setItem('canadaRequestCounter', data.canadaRequestCounter);
+                
+                // Build success message
+                let successMessage = '<strong style="color: #155724;">✓ Backup restored successfully!</strong><br>';
+                successMessage += 'Restored: Categories, Items';
+                if (data.canadaRequestHistory && data.canadaRequestHistory.length > 0) {
+                    successMessage += `, ${data.canadaRequestHistory.length} Canada request(s)`;
+                }
+                if (data.activityLog && data.activityLog.length > 0) {
+                    successMessage += `, ${data.activityLog.length} activity log entry/entries`;
+                }
+                if (data.changeHistory && data.changeHistory.length > 0) {
+                    successMessage += `, ${data.changeHistory.length} change history entry/entries`;
+                }
+                if (data.savedBudgets && data.savedBudgets.length > 0) {
+                    successMessage += `, ${data.savedBudgets.length} saved budget(s)`;
+                }
+                if (data.budgetItems && data.budgetItems.length > 0) {
+                    successMessage += `, ${data.budgetItems.length} current budget item(s)`;
+                }
+                successMessage += '<br><small>You can now try logging in again. If you log in, data will be migrated to Supabase.</small>';
+                
+                if (statusDiv) {
+                    statusDiv.innerHTML = successMessage;
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.border = '1px solid #c3e6cb';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.style.display = 'block';
+                }
+                
+                console.log('Backup restored successfully!');
+                
+            } catch (error) {
+                console.error('Error in importBackupData:', error);
+                if (statusDiv) {
+                    statusDiv.innerHTML = '<strong style="color: #e74c3c;">✗ Error: ' + error.message + '</strong>';
+                    statusDiv.style.background = '#f8d7da';
+                    statusDiv.style.border = '1px solid #f5c6cb';
+                    statusDiv.style.color = '#721c24';
+                    statusDiv.style.display = 'block';
+                }
+            }
+        }
+        
+        // Function to restore backup without login (accessible from login screen)
+        function restoreBackupWithoutLogin(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    const statusDiv = document.getElementById('restoreStatus');
+                    
+                    console.log('Restoring backup without login...', data);
+                    
+                    // Use the shared import logic but show status on login screen
+                    importBackupData(data, statusDiv);
+                    
+                } catch (error) {
+                    console.error('Error restoring backup:', error);
+                    const statusDiv = document.getElementById('restoreStatus');
+                    if (statusDiv) {
+                        statusDiv.innerHTML = '<strong style="color: #e74c3c;">✗ Error restoring backup: ' + error.message + '</strong>';
+                        statusDiv.style.background = '#f8d7da';
+                        statusDiv.style.border = '1px solid #f5c6cb';
+                        statusDiv.style.color = '#721c24';
+                        statusDiv.style.display = 'block';
+                    }
+                }
+            };
+            reader.readAsText(file);
+        }
+        
         function importCategoriesAndItems(event) {
             const file = event.target.files[0];
             if (!file) return;
