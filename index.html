@@ -2662,12 +2662,28 @@
             activityLog = JSON.parse(localStorage.getItem('activityLog')) || [];
             changeHistory = JSON.parse(localStorage.getItem('changeHistory')) || [];
             
+            // Load saved budgets (for Reports tab)
+            const savedBudgets = JSON.parse(localStorage.getItem('savedBudgets') || '[]');
+            console.log('Loaded saved budgets from localStorage:', savedBudgets.length);
+            
+            // Load Canada request history (for Can/Mex tab)
+            const canadaHistory = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+            console.log('Loaded Canada request history from localStorage:', canadaHistory.length);
+            
             // Refresh UI
             if (typeof populateCategoryDropdowns === 'function') populateCategoryDropdowns();
             if (typeof loadCategoriesList === 'function') loadCategoriesList();
             renderBudgetItems();
             updateTotal();
             updateApprovalSummary();
+            
+            // Load Canada history if we're on that tab or if tab is available
+            if (typeof loadCanadaHistory === 'function') {
+                // Small delay to ensure DOM is ready
+                setTimeout(() => {
+                    loadCanadaHistory().catch(err => console.error('Error loading Canada history:', err));
+                }, 500);
+            }
             
             // Check and add recurring items AFTER loading from localStorage
             // Only add if items were actually added (to prevent duplicates on every load)
@@ -5939,6 +5955,10 @@
                 
                 // Refresh Can/Mex tab when switching to it
                 if (tabName === 'canada') {
+                    // Ensure data is loaded from localStorage first
+                    const canadaHistory = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+                    console.log('Loading Can/Mex tab - history from localStorage:', canadaHistory.length);
+                    
                     loadCanadaItems();
                     updateCanadaRequestSummary();
                     loadCanadaHistory(); // Always refresh history to show latest tracking status
@@ -5953,6 +5973,10 @@
                 
                 // Load reports when switching to reports tab
                 if (tabName === 'reports') {
+                    // Ensure saved budgets are loaded from localStorage
+                    const savedBudgets = JSON.parse(localStorage.getItem('savedBudgets') || '[]');
+                    console.log('Loading Reports tab - saved budgets from localStorage:', savedBudgets.length);
+                    
                     // Check which report type is currently selected (default to budget)
                     const budgetSection = document.getElementById('budgetReportsSection');
                     const canadaSection = document.getElementById('canadaReportsSection');
@@ -13173,7 +13197,18 @@ Budget Manager System`;
                 }
             }
             
-            // Fallback to localStorage with deduplication
+            // Not using Supabase - return localStorage data with deduplication
+            const deduplicatedLocal = deduplicateBudgets(localBudgets);
+            console.log('getAllSavedBudgets: Returning localStorage budgets (no Supabase):', deduplicatedLocal.length);
+            
+            if (deduplicatedLocal.length !== localBudgets.length) {
+                localStorage.setItem('savedBudgets', JSON.stringify(deduplicatedLocal));
+            }
+            
+            return deduplicatedLocal;
+        }
+        
+        // Fallback to localStorage with deduplication (old code - should not be reached)
             const deduplicatedLocal = deduplicateBudgets(localBudgets);
             
             if (deduplicatedLocal.length !== localBudgets.length) {
@@ -17781,8 +17816,9 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     history = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
                 }
             } else {
-                // Fallback to localStorage
+                // Not using Supabase - load from localStorage
                 history = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+                console.log('loadCanadaHistory: Loaded from localStorage (no Supabase):', history.length, 'requests');
             }
             const filterSelect = document.getElementById('canadaHistoryFilter');
             const filter = filterSelect?.value || 'all';

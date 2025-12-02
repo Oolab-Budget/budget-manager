@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check All Data</title>
+</head>
+<body>
+    <h1>Check All Data in localStorage</h1>
+    <div id="result"></div>
+    <script>
+        const savedBudgets = JSON.parse(localStorage.getItem('savedBudgets') || '[]');
+        const canadaHistory = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+        const budgetItems = JSON.parse(localStorage.getItem('budgetItems') || '[]');
+        const categories = JSON.parse(localStorage.getItem('customCategories') || '{}');
+        const categoryItems = JSON.parse(localStorage.getItem('categoryItems') || '{}');
+        const activityLog = JSON.parse(localStorage.getItem('activityLog') || '[]');
+        const changeHistory = JSON.parse(localStorage.getItem('changeHistory') || '[]');
+        
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = `
+            <h2>Data Summary:</h2>
+            <ul>
+                <li><strong>Saved Budgets:</strong> ${savedBudgets.length}</li>
+                <li><strong>Canada Request History:</strong> ${canadaHistory.length}</li>
+                <li><strong>Current Budget Items:</strong> ${budgetItems.length}</li>
+                <li><strong>Categories:</strong> ${Object.keys(categories).length}</li>
+                <li><strong>Category Items:</strong> ${Object.keys(categoryItems).length} categories</li>
+                <li><strong>Activity Log:</strong> ${activityLog.length}</li>
+                <li><strong>Change History:</strong> ${changeHistory.length}</li>
+            </ul>
+            <h3>Saved Budgets:</h3>
+            <pre>${JSON.stringify(savedBudgets.map(b => ({ id: b.id, weekLabel: b.weekLabel, isPartialPayment: b.isPartialPayment })), null, 2)}</pre>
+            <h3>Canada History (first 2):</h3>
+            <pre>${JSON.stringify(canadaHistory.slice(0, 2), null, 2)}</pre>
+        `;
+        console.log('All data:', { savedBudgets, canadaHistory, budgetItems, categories, categoryItems });
+    </script>
+</body>
+</html>
