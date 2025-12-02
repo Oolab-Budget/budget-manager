@@ -2734,11 +2734,24 @@
                 
                 // Login with timeout protection
                 console.log('Calling Supabase signInWithPassword...');
+                
+                // First, try a quick connectivity check
+                try {
+                    const { data: { session: testSession } } = await Promise.race([
+                        supabase.auth.getSession(),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('Connection test timeout')), 5000))
+                    ]);
+                    console.log('Supabase connection test passed');
+                } catch (connError) {
+                    console.warn('Supabase connection test failed, but continuing with login:', connError);
+                    // Continue anyway - might be a false negative
+                }
+                
                 let loginPromise = supabase.auth.signInWithPassword({ email, password });
                 
-                // Add a timeout to prevent infinite hanging
+                // Add a timeout to prevent infinite hanging (reduced to 15 seconds)
                 const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Login request timed out. Please check your internet connection and try again.')), 20000)
+                    setTimeout(() => reject(new Error('Login request timed out. Please check your internet connection and try again.')), 15000)
                 );
                 
                 let loginResult;
@@ -2749,15 +2762,20 @@
                     console.error('Login promise race error:', raceError);
                     // Check if login actually succeeded despite timeout
                     if (raceError.message && raceError.message.includes('timed out')) {
+                        console.log('Timeout occurred, checking if login succeeded...');
                         try {
-                            const { data: { session } } = await supabase.auth.getSession();
-                            if (session && session.user) {
+                            const sessionCheck = await Promise.race([
+                                supabase.auth.getSession(),
+                                new Promise((_, reject) => setTimeout(() => reject(new Error('Session check timeout')), 3000))
+                            ]);
+                            if (sessionCheck && sessionCheck.data && sessionCheck.data.session && sessionCheck.data.session.user) {
                                 console.log('Session found after timeout - login succeeded!');
-                                loginResult = { data: { user: session.user }, error: null };
+                                loginResult = { data: { user: sessionCheck.data.session.user }, error: null };
                             } else {
                                 throw raceError;
                             }
                         } catch (checkError) {
+                            console.error('Session check failed:', checkError);
                             throw raceError;
                         }
                     } else {
@@ -2956,31 +2974,54 @@
         
         // Function to update tab visibility based on user role
         function updateTabVisibility() {
-            const tabsToHideForUsers = ['addItems', 'manageItems', 'categories', 'monitor', 'alerts', 'settings'];
-            const tabButtons = document.querySelectorAll('.tab-button');
-            
-            tabButtons.forEach(button => {
-                const onclick = button.getAttribute('onclick');
-                if (onclick) {
-                    // Extract tab name from onclick attribute
-                    const match = onclick.match(/switchTab\('([^']+)'\)/);
-                    if (match) {
-                        const tabName = match[1];
-                        
-                        if (userRole === 'admin') {
-                            // Admin sees all tabs
-                            button.style.display = '';
-                        } else {
-                            // Limited users only see: budget, reports, canada (Can/Mex), mexcan (Mex/Can)
-                            if (tabsToHideForUsers.includes(tabName)) {
-                                button.style.display = 'none';
-                            } else {
-                                button.style.display = '';
+            try {
+                // Default to showing all tabs if role is not set
+                if (!userRole) {
+                    console.warn('userRole not set, showing all tabs');
+                    userRole = 'admin'; // Safe default - show everything
+                }
+                
+                const tabsToHideForUsers = ['addItems', 'manageItems', 'categories', 'monitor', 'alerts', 'settings'];
+                const tabButtons = document.querySelectorAll('.tab-button');
+                
+                if (!tabButtons || tabButtons.length === 0) {
+                    console.warn('No tab buttons found, skipping visibility update');
+                    return;
+                }
+                
+                tabButtons.forEach(button => {
+                    try {
+                        const onclick = button.getAttribute('onclick');
+                        if (onclick) {
+                            // Extract tab name from onclick attribute
+                            const match = onclick.match(/switchTab\('([^']+)'\)/);
+                            if (match) {
+                                const tabName = match[1];
+                                
+                                if (userRole === 'admin') {
+                                    // Admin sees all tabs
+                                    button.style.display = '';
+                                } else {
+                                    // Limited users only see: budget, reports, canada (Can/Mex), mexcan (Mex/Can)
+                                    if (tabsToHideForUsers.includes(tabName)) {
+                                        button.style.display = 'none';
+                                    } else {
+                                        button.style.display = '';
+                                    }
+                                }
                             }
                         }
+                    } catch (buttonError) {
+                        console.warn('Error updating button visibility:', buttonError);
                     }
-                }
-            });
+                });
+            } catch (error) {
+                console.error('Error in updateTabVisibility:', error);
+                // On error, show all tabs (safe default)
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.style.display = '';
+                });
+            }
         }
         
         // Function to load user data from Supabase
