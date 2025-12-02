@@ -10957,248 +10957,49 @@ Budget Manager System`;
                     
                     // Refresh UI if we're in the app (not on login screen)
                     if (document.getElementById('mainContainer') && document.getElementById('mainContainer').style.display !== 'none') {
-                    
-                    if (data.items && Object.keys(data.items).length > 0) {
-                        // Merge with existing items
-                        Object.keys(data.items).forEach(category => {
-                            if (!itemDatabase[category]) {
-                                itemDatabase[category] = [];
-                            }
-                            // Add items that don't already exist
-                            data.items[category].forEach(newItem => {
-                                const exists = itemDatabase[category].some(existingItem => 
-                                    existingItem.nameEn === newItem.nameEn && 
-                                    existingItem.nameEs === newItem.nameEs
-                                );
-                                if (!exists) {
-                                    itemDatabase[category].push(newItem);
-                                }
-                            });
-                        });
-                        saveCategoryItems();
-                    }
-                    
-                    // Restore settings (API keys, etc.)
-                    if (data.settings) {
-                        if (data.settings.deeplApiKey) {
-                            localStorage.setItem('deeplApiKey', data.settings.deeplApiKey);
+                        // Refresh UI elements
+                        if (typeof populateCategoryDropdowns === 'function') populateCategoryDropdowns();
+                        if (typeof loadCategoriesList === 'function') loadCategoriesList();
+                        if (typeof renderBudgetItems === 'function') renderBudgetItems();
+                        if (typeof updateTotal === 'function') updateTotal();
+                        
+                        // Refresh monitor and alerts displays if data was restored
+                        if (data.activityLog && data.activityLog.length > 0) {
+                            if (typeof refreshActivityLog === 'function') refreshActivityLog();
                         }
-                        if (data.settings.emailjsPublicKey) {
-                            localStorage.setItem('emailjsPublicKey', data.settings.emailjsPublicKey);
+                        if (data.changeHistory && data.changeHistory.length > 0) {
+                            if (typeof loadChangeHistory === 'function') loadChangeHistory();
                         }
-                        if (data.settings.emailjsServiceId) {
-                            localStorage.setItem('emailjsServiceId', data.settings.emailjsServiceId);
-                        }
-                        if (data.settings.emailjsTemplateId) {
-                            localStorage.setItem('emailjsTemplateId', data.settings.emailjsTemplateId);
-                        }
-                        if (data.settings.canadaEmailjsPublicKey) {
-                            localStorage.setItem('canadaEmailjsPublicKey', data.settings.canadaEmailjsPublicKey);
-                        }
-                        if (data.settings.canadaEmailjsServiceId) {
-                            localStorage.setItem('canadaEmailjsServiceId', data.settings.canadaEmailjsServiceId);
-                        }
-                        if (data.settings.canadaEmailjsTemplateId) {
-                            localStorage.setItem('canadaEmailjsTemplateId', data.settings.canadaEmailjsTemplateId);
-                        }
-                        if (data.settings.upsClientId) {
-                            localStorage.setItem('upsClientId', data.settings.upsClientId);
-                        }
-                        if (data.settings.upsClientSecret) {
-                            localStorage.setItem('upsClientSecret', data.settings.upsClientSecret);
-                        }
-                        if (data.settings.upsCheckInterval) {
-                            localStorage.setItem('upsCheckInterval', data.settings.upsCheckInterval);
-                        }
-                        // Reload settings in the UI
-                        loadDeepLSettings();
-                        loadEmailJSSettings();
-                        loadCanadaEmailJSSettings();
-                        loadUPSSettings();
-                    }
-                    
-                    // Restore Canada request history (if present in backup)
-                    if (data.canadaRequestHistory && Array.isArray(data.canadaRequestHistory) && data.canadaRequestHistory.length > 0) {
-                        localStorage.setItem('canadaRequestHistory', JSON.stringify(data.canadaRequestHistory));
-                        // Migrate to Supabase if logged in
-                        if (useSupabase && currentUser) {
-                            migrateCanadaRequests(data.canadaRequestHistory).catch(err => {
-                                console.error('Error migrating Canada requests:', err);
-                            });
-                        }
-                    }
-                    
-                    // Restore saved budgets (if present in backup)
-                    if (data.savedBudgets && Array.isArray(data.savedBudgets) && data.savedBudgets.length > 0) {
-                        localStorage.setItem('savedBudgets', JSON.stringify(data.savedBudgets));
-                        // Migrate to Supabase if logged in
-                        if (useSupabase && currentUser) {
-                            migrateSavedBudgets(data.savedBudgets).catch(err => {
-                                console.error('Error migrating saved budgets:', err);
-                            });
-                        }
-                    }
-                    
-                    // Restore current budget items (if present in backup)
-                    if (data.budgetItems && Array.isArray(data.budgetItems) && data.budgetItems.length > 0) {
-                        localStorage.setItem('budgetItems', JSON.stringify(data.budgetItems));
-                        // Migrate to Supabase if logged in
-                        if (useSupabase && currentUser) {
-                            data.budgetItems.forEach(async (item) => {
-                                const dbItem = convertAppItemToDbItem(item);
-                                dbItem.user_id = currentUser.id;
-                                await supabase.from('budget_items').upsert([dbItem], {
-                                    onConflict: 'id'
-                                });
-                            });
-                        }
-                    }
-                    
-                    // Restore activity log (if present in backup)
-                    if (data.activityLog && Array.isArray(data.activityLog) && data.activityLog.length > 0) {
-                        localStorage.setItem('activityLog', JSON.stringify(data.activityLog));
-                        // Update global variable
-                        activityLog = data.activityLog;
-                        // Migrate to Supabase if logged in
-                        if (useSupabase && currentUser) {
-                            data.activityLog.forEach(async (activity) => {
-                                await supabase.from('activity_log').insert([{
-                                    user_id: currentUser.id,
-                                    type: activity.type,
-                                    description: activity.description,
-                                    item_id: activity.itemId,
-                                    created_at: activity.timestamp || new Date().toISOString()
-                                }]);
-                            });
-                        }
-                    }
-                    
-                    // Restore change history (if present in backup)
-                    if (data.changeHistory && Array.isArray(data.changeHistory) && data.changeHistory.length > 0) {
-                        localStorage.setItem('changeHistory', JSON.stringify(data.changeHistory));
-                        // Update global variable
-                        changeHistory = data.changeHistory;
-                        // Migrate to Supabase if logged in
-                        if (useSupabase && currentUser) {
-                            data.changeHistory.forEach(async (change) => {
-                                await supabase.from('change_history').insert([{
-                                    user_id: currentUser.id,
-                                    type: change.type,
-                                    item_id: change.itemId,
-                                    item_name: change.itemName,
-                                    old_value: change.oldValue,
-                                    new_value: change.newValue,
-                                    field: change.field,
-                                    created_at: change.timestamp || new Date().toISOString()
-                                }]);
-                            });
-                        }
-                    }
-                    
-                    // Restore budget items and update global variable
-                    if (data.budgetItems && Array.isArray(data.budgetItems) && data.budgetItems.length > 0) {
-                        items = data.budgetItems;
-                    }
-                    
-                    // Restore Canada selected items (if present in backup)
-                    if (data.canadaSelectedItems && typeof data.canadaSelectedItems === 'object') {
-                        localStorage.setItem('canadaSelectedItems', JSON.stringify(data.canadaSelectedItems));
-                    }
-                    
-                    // Restore dismissed backorders (if present in backup)
-                    if (data.dismissedBackorders && typeof data.dismissedBackorders === 'object') {
-                        localStorage.setItem('dismissedBackorders', JSON.stringify(data.dismissedBackorders));
-                    }
-                    
-                    // Restore Canada request counter (if present in backup)
-                    if (data.canadaRequestCounter) {
-                        localStorage.setItem('canadaRequestCounter', data.canadaRequestCounter);
-                    }
-                    
-                    // Refresh UI
-                    populateCategoryDropdowns();
-                    loadCategoriesList();
-                    renderBudgetItems();
-                    updateTotal();
-                    
-                    // Refresh monitor and alerts displays if data was restored
-                    if (data.activityLog && data.activityLog.length > 0) {
-                        if (typeof refreshActivityLog === 'function') {
-                            refreshActivityLog();
-                        }
-                    }
-                    if (data.changeHistory && data.changeHistory.length > 0) {
-                        if (typeof loadChangeHistory === 'function') {
-                            loadChangeHistory();
-                        }
-                    }
-                    if (typeof updateMonitorDashboard === 'function') {
-                        updateMonitorDashboard();
-                    }
-                    
-                    // Reload Canada history if it was restored
-                    if (data.canadaRequestHistory && data.canadaRequestHistory.length > 0) {
-                        if (typeof loadCanadaHistory === 'function') {
-                            loadCanadaHistory().catch(err => console.error('Error loading Canada history:', err));
-                        }
-                    }
-                    
-                    // Handle Supabase data from full backup (version 2.0)
-                    if (data.version === '2.0' && data.exportSource === 'complete_with_supabase') {
-                        console.log('📦 Full backup detected - restoring Supabase data...');
-                        if (useSupabase && currentUser) {
-                            // Restore Supabase requests, tracking, etc. if present
-                            if (data.supabaseRequests && Array.isArray(data.supabaseRequests)) {
-                                console.log('Restoring', data.supabaseRequests.length, 'Supabase requests...');
-                                // The migrateCanadaRequests function will handle this
-                                if (typeof migrateCanadaRequests === 'function') {
-                                    migrateCanadaRequests(data.canadaRequestHistory || []).catch(err => {
-                                        console.error('Error migrating Supabase requests:', err);
-                                    });
-                                }
+                        if (typeof updateMonitorDashboard === 'function') updateMonitorDashboard();
+                        
+                        // Reload Canada history if it was restored
+                        if (data.canadaRequestHistory && data.canadaRequestHistory.length > 0) {
+                            if (typeof loadCanadaHistory === 'function') {
+                                loadCanadaHistory().catch(err => console.error('Error loading Canada history:', err));
                             }
                         }
                     }
                     
-                    // Restore Mex/Can data if present
-                    if (data.mexcanRequestHistory && Array.isArray(data.mexcanRequestHistory)) {
-                        localStorage.setItem('mexcanRequestHistory', JSON.stringify(data.mexcanRequestHistory));
-                    }
-                    if (data.mexcanSelectedItems && typeof data.mexcanSelectedItems === 'object') {
-                        localStorage.setItem('mexcanSelectedItems', JSON.stringify(data.mexcanSelectedItems));
-                    }
-                    if (data.mexcanTrackingShipments && Array.isArray(data.mexcanTrackingShipments)) {
-                        localStorage.setItem('mexcanTrackingShipments', JSON.stringify(data.mexcanTrackingShipments));
-                    }
-                    
-                    let successMessage = '<strong style="color: #155724;">✓ Data imported successfully!</strong><br>';
-                    successMessage += 'Restored: Categories, Items';
-                    if (data.canadaRequestHistory && data.canadaRequestHistory.length > 0) {
-                        successMessage += `, ${data.canadaRequestHistory.length} Canada request(s)`;
-                    }
-                    if (data.activityLog && data.activityLog.length > 0) {
-                        successMessage += `, ${data.activityLog.length} activity log entry/entries`;
-                    }
-                    if (data.changeHistory && data.changeHistory.length > 0) {
-                        successMessage += `, ${data.changeHistory.length} change history entry/entries`;
-                    }
-                    if (data.savedBudgets && data.savedBudgets.length > 0) {
-                        successMessage += `, ${data.savedBudgets.length} saved budget(s)`;
-                    }
-                    if (data.budgetItems && data.budgetItems.length > 0) {
-                        successMessage += `, ${data.budgetItems.length} current budget item(s)`;
-                    }
+                    // Handle Supabase migration if logged in (importBackupData already restored to localStorage)
                     if (useSupabase && currentUser) {
-                        successMessage += '<br><small>Data is being migrated to Supabase in the background...</small>';
+                        // Migrate Canada requests if present
+                        if (data.canadaRequestHistory && Array.isArray(data.canadaRequestHistory) && data.canadaRequestHistory.length > 0) {
+                            if (typeof migrateCanadaRequests === 'function') {
+                                migrateCanadaRequests(data.canadaRequestHistory).catch(err => {
+                                    console.error('Error migrating Canada requests:', err);
+                                });
+                            }
+                        }
+                        
+                        // Migrate saved budgets if present
+                        if (data.savedBudgets && Array.isArray(data.savedBudgets) && data.savedBudgets.length > 0) {
+                            if (typeof migrateSavedBudgets === 'function') {
+                                migrateSavedBudgets(data.savedBudgets).catch(err => {
+                                    console.error('Error migrating saved budgets:', err);
+                                });
+                            }
+                        }
                     }
-                    
-                    if (statusDiv) {
-                        statusDiv.innerHTML = successMessage;
-                        statusDiv.style.background = '#d4edda';
-                        statusDiv.style.border = '1px solid #c3e6cb';
-                    }
-                    statusDiv.style.color = '#155724';
-                    statusDiv.style.display = 'block';
                     
                     // Reset file input
                     event.target.value = '';
