@@ -2547,52 +2547,29 @@
                 return;
             }
             
-            // Check for existing session first
+            // Skip login - go straight to app with localStorage
+            console.log('Skipping login - loading app directly');
+            useSupabase = false;
+            userRole = 'admin'; // Set to admin so all tabs are visible
+            hideLoginScreen();
+            updateTabVisibility();
+            loadFromLocalStorage();
+            
+            // Optional: Check for session in background (but don't block)
             if (supabase && supabase.auth) {
                 supabase.auth.getSession().then(async ({ data: { session } }) => {
-                    currentUser = session?.user || null;
-                    if (currentUser) {
-                        console.log('User logged in:', currentUser.email);
+                    if (session?.user) {
+                        console.log('User session found in background:', session.user.email);
+                        currentUser = session.user;
                         useSupabase = true;
-                        // Refresh user session to get latest metadata (including role)
-                        try {
-                            const { data: { user: refreshedUser } } = await supabase.auth.getUser();
-                            if (refreshedUser) {
-                                currentUser = refreshedUser;
-                                userRole = refreshedUser.user_metadata?.role || 'admin';
-                                console.log('User role loaded (session check):', userRole);
-                            } else {
-                                userRole = currentUser.user_metadata?.role || 'admin';
-                                console.log('User role (fallback):', userRole);
-                            }
-                        } catch (e) {
-                            userRole = currentUser.user_metadata?.role || 'admin';
-                        }
-                        hideLoginScreen();
+                        userRole = session.user.user_metadata?.role || 'admin';
                         updateTabVisibility();
-                        await loadUserData();
-                    } else {
-                        // No session - show login screen but also load localStorage as fallback
-                        useSupabase = false;
-                        userRole = 'admin';
-                        showLoginScreen();
-                        loadFromLocalStorage(); // Load local data as fallback
+                        // Optionally load from Supabase if user wants
+                        // await loadUserData();
                     }
                 }).catch(error => {
-                    console.error('Error checking session:', error);
-                    // On error, show login but load local data
-                    useSupabase = false;
-                    userRole = 'admin';
-                    showLoginScreen();
-                    loadFromLocalStorage();
+                    console.log('No active session (using localStorage only):', error);
                 });
-            } else {
-                // No Supabase - use localStorage only
-                useSupabase = false;
-                userRole = 'admin';
-                hideLoginScreen();
-                updateTabVisibility();
-                loadFromLocalStorage();
             }
             
             // Listen for auth changes
@@ -2708,8 +2685,8 @@
         
         // Authentication Functions
         function showLoginScreen() {
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('mainContainer').style.display = 'none';
+            // Login is disabled - always show app instead
+            hideLoginScreen();
         }
         
         function hideLoginScreen() {
