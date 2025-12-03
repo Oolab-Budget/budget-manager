@@ -5985,6 +5985,25 @@
                 
                 // Load reports when switching to reports tab
                 if (tabName === 'reports') {
+                    // Check if we should skip reload (set by viewSavedBudget)
+                    if (window.skipReportReload) {
+                        console.log('Skipping auto-reload (detailed view being set)');
+                        return;
+                    }
+                    
+                    // Check if we're already showing a detailed view (don't reload if so)
+                    const reportContent = document.getElementById('reportContent');
+                    const isShowingDetails = reportContent && (
+                        reportContent.innerHTML.includes('Add Receipt') || 
+                        reportContent.innerHTML.includes('Budget vs Actual Summary') ||
+                        reportContent.innerHTML.includes('Back to List')
+                    );
+                    
+                    if (isShowingDetails) {
+                        console.log('Already showing detailed view, skipping auto-reload');
+                        return; // Don't reload if we're showing a detailed view
+                    }
+                    
                     // Ensure saved budgets are loaded from localStorage
                     const savedBudgets = JSON.parse(localStorage.getItem('savedBudgets') || '[]');
                     console.log('Loading Reports tab - saved budgets from localStorage:', savedBudgets.length);
@@ -13591,7 +13610,11 @@ Budget Manager System`;
                 </div>
             `;
             
-                // Switch to Reports tab and set report type to savedBudgets
+                // Switch to Reports tab WITHOUT triggering auto-reload
+                // First, set a flag to prevent auto-reload
+                window.skipReportReload = true;
+                
+                // Switch to Reports tab
                 switchTab('reports');
                 
                 // Ensure budget reports section is visible
@@ -13606,8 +13629,12 @@ Budget Manager System`;
                             reportContent.innerHTML = detailsHTML;
                             updateLanguage();
                             console.log('Report content updated, items should be visible with Add Receipt buttons');
+                            
+                            // Clear the flag after setting content
+                            window.skipReportReload = false;
                         } else {
                             console.error('reportContent element not found!');
+                            window.skipReportReload = false;
                         }
                         
                         const reportTypeSelect = document.getElementById('reportType');
