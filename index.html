@@ -12764,26 +12764,111 @@ Budget Manager System`;
                 filteredHistory = history.filter(req => new Date(req.date) >= startDate);
             }
             
-            // Filter by item if specified
+            const unitLabels = {
+                'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
+                'sheet': currentLanguage === 'en' ? 'Sheet' : 'Hoja'
+            };
+            
+            // If filtering by a specific item, show simplified item-focused report
             if (itemFilter && itemFilter !== 'all') {
-                filteredHistory = filteredHistory.filter(req => {
-                    return req.items.some(item => {
+                // Collect all occurrences of this item
+                const itemOccurrences = [];
+                let totalQuantity = 0;
+                let itemName = '';
+                let itemUnit = 'sheet';
+                
+                filteredHistory.forEach(request => {
+                    request.items.forEach(item => {
                         const itemKey = `${item.nameEn}_${item.category}`;
-                        return itemKey === itemFilter;
+                        if (itemKey === itemFilter) {
+                            itemName = currentLanguage === 'en' ? item.nameEn : item.nameEs;
+                            itemUnit = item.unit || 'sheet';
+                            const quantity = parseInt(item.quantity) || 0;
+                            totalQuantity += quantity;
+                            
+                            itemOccurrences.push({
+                                requestId: request.id,
+                                date: request.date,
+                                quantity: quantity,
+                                status: request.status
+                            });
+                        }
                     });
                 });
+                
+                // Sort by date (newest first)
+                itemOccurrences.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                if (itemOccurrences.length === 0) {
+                    return `<div style="padding: 20px; text-align: center; color: #7f8c8d; background: #ecf0f1; border-radius: 8px;">
+                        <p>${currentLanguage === 'en' ? 'No requests found for the selected item and date range.' : 'No se encontraron solicitudes para el artículo y rango de fechas seleccionados.'}</p>
+                    </div>`;
+                }
+                
+                const unitLabel = unitLabels[itemUnit] || unitLabels['sheet'];
+                const dateRangeText = dateRange === 'all' 
+                    ? (currentLanguage === 'en' ? 'All Time' : 'Todo el Tiempo')
+                    : dateRange === 'last30' 
+                    ? (currentLanguage === 'en' ? 'Last 30 Days' : 'Últimos 30 Días')
+                    : dateRange === 'last90'
+                    ? (currentLanguage === 'en' ? 'Last 90 Days' : 'Últimos 90 Días')
+                    : (currentLanguage === 'en' ? 'Last Year' : 'Último Año');
+                
+                let html = `<div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <h3 style="margin-bottom: 10px;">${itemName}</h3>
+                    <p style="color: #7f8c8d; margin-bottom: 20px;">
+                        ${currentLanguage === 'en' ? 'Period' : 'Período'}: ${dateRangeText} | 
+                        ${currentLanguage === 'en' ? 'Total Quantity' : 'Cantidad Total'}: <strong style="color: #2c3e50; font-size: 1.1rem;">${totalQuantity} ${unitLabel}${totalQuantity !== 1 ? 's' : ''}</strong>
+                    </p>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                            <thead>
+                                <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #2c3e50;">${currentLanguage === 'en' ? 'Date' : 'Fecha'}</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #2c3e50;">${currentLanguage === 'en' ? 'Request #' : 'Solicitud #'}</th>
+                                    <th style="padding: 12px; text-align: right; font-weight: 600; color: #2c3e50;">${currentLanguage === 'en' ? 'Quantity' : 'Cantidad'}</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #2c3e50;">${currentLanguage === 'en' ? 'Unit' : 'Unidad'}</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #2c3e50;">${currentLanguage === 'en' ? 'Status' : 'Estado'}</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                
+                itemOccurrences.forEach((occurrence, index) => {
+                    const date = new Date(occurrence.date).toLocaleDateString();
+                    const statusColor = occurrence.status === 'received' ? '#27ae60' : (occurrence.status === 'sent' ? '#3498db' : '#f39c12');
+                    const statusText = occurrence.status === 'received' ? 
+                        (currentLanguage === 'en' ? 'Received' : 'Recibido') :
+                        (occurrence.status === 'sent' ? 
+                        (currentLanguage === 'en' ? 'Sent' : 'Enviada') : 
+                        (currentLanguage === 'en' ? 'Pending' : 'Pendiente'));
+                    
+                    html += `<tr style="border-bottom: 1px solid #e9ecef; ${index % 2 === 0 ? 'background: #ffffff;' : 'background: #f8f9fa;'}">
+                        <td style="padding: 10px;">${date}</td>
+                        <td style="padding: 10px;">#${occurrence.requestId}</td>
+                        <td style="padding: 10px; text-align: right; font-weight: 600;">${occurrence.quantity}</td>
+                        <td style="padding: 10px;">${unitLabel}</td>
+                        <td style="padding: 10px;">
+                            <span style="padding: 4px 10px; background: ${statusColor}; color: white; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
+                                ${statusText}
+                            </span>
+                        </td>
+                    </tr>`;
+                });
+                
+                html += `</tbody>
+                        </table>
+                    </div>
+                </div>`;
+                
+                return html;
             }
             
+            // Original full request view when no item filter
             if (filteredHistory.length === 0) {
                 return `<div style="padding: 20px; text-align: center; color: #7f8c8d; background: #ecf0f1; border-radius: 8px;">
                     <p>${currentLanguage === 'en' ? 'No requests found for the selected filters.' : 'No se encontraron solicitudes para los filtros seleccionados.'}</p>
                 </div>`;
             }
-            
-            const unitLabels = {
-                'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
-                'sheet': currentLanguage === 'en' ? 'Sheet' : 'Hoja'
-            };
             
             let html = `<div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 <h3>${currentLanguage === 'en' ? 'Request History Summary' : 'Resumen del Historial de Solicitudes'}</h3>
