@@ -13257,7 +13257,20 @@ Budget Manager System`;
         }
 
         async function getSavedBudgetsByDateRange(dateRange) {
-            const allBudgets = await getAllSavedBudgets();
+            // Add timeout to prevent hanging
+            let allBudgets;
+            try {
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout loading saved budgets')), 3000)
+                );
+                const loadPromise = getAllSavedBudgets();
+                allBudgets = await Promise.race([loadPromise, timeoutPromise]);
+            } catch (error) {
+                console.error('Error in getSavedBudgetsByDateRange:', error);
+                // Fallback: load directly from localStorage
+                console.log('Falling back to direct localStorage load in getSavedBudgetsByDateRange');
+                allBudgets = JSON.parse(localStorage.getItem('savedBudgets') || '[]');
+            }
             const now = new Date();
             let startDate;
             
@@ -13286,13 +13299,20 @@ Budget Manager System`;
             console.log('generateSavedBudgetsReport: Starting, dateRange:', dateRange);
             let savedBudgets;
             try {
-                savedBudgets = await getSavedBudgetsByDateRange(dateRange);
+                // Add timeout to prevent hanging
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout loading saved budgets')), 5000)
+                );
+                const loadPromise = getSavedBudgetsByDateRange(dateRange);
+                savedBudgets = await Promise.race([loadPromise, timeoutPromise]);
                 console.log('generateSavedBudgetsReport: Loaded', savedBudgets.length, 'budgets');
             } catch (error) {
                 console.error('Error loading saved budgets:', error);
-                return `<div class="alert alert-danger" style="padding: 20px; text-align: center;">
-                    <p data-en="Error loading saved budgets" data-es="Error al cargar presupuestos guardados">Error loading saved budgets: ${error.message}</p>
-                </div>`;
+                // Fallback: load directly from localStorage
+                console.log('Falling back to direct localStorage load');
+                const localBudgets = JSON.parse(localStorage.getItem('savedBudgets') || '[]');
+                console.log('Direct localStorage load found', localBudgets.length, 'budgets');
+                savedBudgets = localBudgets;
             }
             
             // Filter by item if specified
