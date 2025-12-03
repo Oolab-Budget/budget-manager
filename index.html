@@ -6035,6 +6035,34 @@
         }
         
         function switchReportType(reportType) {
+            // Check if we should skip reload (set by viewSavedBudget)
+            if (window.skipReportReload) {
+                console.log('switchReportType: Skipping loadReport (detailed view being set)');
+                // Still update the UI sections but don't reload
+                const budgetSection = document.getElementById('budgetReportsSection');
+                const canadaSection = document.getElementById('canadaReportsSection');
+                const budgetBtn = document.getElementById('budgetReportsBtn');
+                const canadaBtn = document.getElementById('canadaReportsBtn');
+                
+                if (reportType === 'budget') {
+                    if (budgetSection) budgetSection.style.display = 'block';
+                    if (canadaSection) canadaSection.style.display = 'none';
+                    if (budgetBtn) {
+                        budgetBtn.classList.add('btn-primary');
+                        budgetBtn.classList.remove('btn-secondary');
+                        budgetBtn.style.background = '';
+                        budgetBtn.style.color = '';
+                    }
+                    if (canadaBtn) {
+                        canadaBtn.classList.remove('btn-primary');
+                        canadaBtn.classList.add('btn-secondary');
+                        canadaBtn.style.background = '#6c757d';
+                        canadaBtn.style.color = 'white';
+                    }
+                }
+                return;
+            }
+            
             const budgetSection = document.getElementById('budgetReportsSection');
             const canadaSection = document.getElementById('canadaReportsSection');
             const budgetBtn = document.getElementById('budgetReportsBtn');
@@ -13613,36 +13641,74 @@ Budget Manager System`;
                 // Switch to Reports tab WITHOUT triggering auto-reload
                 // First, set a flag to prevent auto-reload
                 window.skipReportReload = true;
+                console.log('viewSavedBudget: Set skipReportReload flag to true');
                 
-                // Switch to Reports tab
-                switchTab('reports');
+                // Manually show the reports tab without calling switchTab (which triggers reload)
+                // Hide all tabs
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                    tab.style.display = 'none';
+                });
                 
-                // Ensure budget reports section is visible
+                // Show reports tab
+                const reportsTab = document.getElementById('reportsTab');
+                if (reportsTab) {
+                    reportsTab.classList.add('active');
+                    reportsTab.style.display = 'block';
+                }
+                
+                // Update tab button
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.classList.remove('active');
+                });
+                const reportsButton = document.querySelector(`[onclick="switchTab('reports')"]`);
+                if (reportsButton) {
+                    reportsButton.classList.add('active');
+                }
+                
+                // Ensure budget reports section is visible (without calling switchReportType which triggers loadReport)
+                const budgetSection = document.getElementById('budgetReportsSection');
+                const canadaSection = document.getElementById('canadaReportsSection');
+                const budgetBtn = document.getElementById('budgetReportsBtn');
+                const canadaBtn = document.getElementById('canadaReportsBtn');
+                
+                if (budgetSection) budgetSection.style.display = 'block';
+                if (canadaSection) canadaSection.style.display = 'none';
+                if (budgetBtn) {
+                    budgetBtn.classList.add('btn-primary');
+                    budgetBtn.classList.remove('btn-secondary');
+                    budgetBtn.style.background = '';
+                    budgetBtn.style.color = '';
+                }
+                if (canadaBtn) {
+                    canadaBtn.classList.remove('btn-primary');
+                    canadaBtn.classList.add('btn-secondary');
+                    canadaBtn.style.background = '#6c757d';
+                    canadaBtn.style.color = 'white';
+                }
+                
+                // Wait a moment for DOM to update, then set content
                 setTimeout(() => {
-                    switchReportType('budget');
-                    
-                    // Wait a moment for tab switch to complete, then set content
-                    setTimeout(() => {
-                        const reportContent = document.getElementById('reportContent');
-                        if (reportContent) {
-                            console.log('Setting reportContent innerHTML with details for budget:', budgetId);
-                            reportContent.innerHTML = detailsHTML;
-                            updateLanguage();
-                            console.log('Report content updated, items should be visible with Add Receipt buttons');
-                            
-                            // Clear the flag after setting content
-                            window.skipReportReload = false;
-                        } else {
-                            console.error('reportContent element not found!');
-                            window.skipReportReload = false;
-                        }
+                    const reportContent = document.getElementById('reportContent');
+                    if (reportContent) {
+                        console.log('Setting reportContent innerHTML with details for budget:', budgetId);
+                        reportContent.innerHTML = detailsHTML;
+                        updateLanguage();
+                        console.log('Report content updated, items should be visible with Add Receipt buttons');
                         
-                        const reportTypeSelect = document.getElementById('reportType');
-                        if (reportTypeSelect) {
-                            reportTypeSelect.value = 'savedBudgets';
-                        }
-                    }, 300); // Increased timeout to ensure tab switch completes
-                }, 200); // Increased timeout to ensure tab switch starts
+                        // Clear the flag after setting content
+                        window.skipReportReload = false;
+                        console.log('viewSavedBudget: Cleared skipReportReload flag');
+                    } else {
+                        console.error('reportContent element not found!');
+                        window.skipReportReload = false;
+                    }
+                    
+                    const reportTypeSelect = document.getElementById('reportType');
+                    if (reportTypeSelect) {
+                        reportTypeSelect.value = 'savedBudgets';
+                    }
+                }, 100);
             } catch (error) {
                 console.error('Error in viewSavedBudget:', error);
                 alert(currentLanguage === 'en' 
