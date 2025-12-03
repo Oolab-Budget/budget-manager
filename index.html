@@ -13121,32 +13121,36 @@ Budget Manager System`;
         }
         
         // Helper function to deduplicate budgets by week_start
+        // IMPORTANT: Only deduplicate if there are multiple budgets with the SAME weekStart AND savedDate
+        // This preserves all unique saved budgets, even if they're from the same week
         function deduplicateBudgets(budgets) {
             if (!Array.isArray(budgets)) {
                 return [];
             }
             
+            // If budgets array is empty or has only one item, return as-is
+            if (budgets.length <= 1) {
+                return budgets;
+            }
+            
             const deduplicated = [];
-            const weekStartMap = new Map();
+            const seen = new Set();
             
             budgets.forEach(budget => {
-                if (!budget || !budget.weekStart) return;
+                if (!budget) return;
                 
-                const weekStartKey = budget.weekStart;
-                const existing = weekStartMap.get(weekStartKey);
+                // Create a unique key based on weekStart AND savedDate AND id
+                // This ensures we only remove true duplicates (same week, same date, same id)
+                const uniqueKey = `${budget.weekStart || 'no-week'}_${budget.savedDate || 'no-date'}_${budget.id || 'no-id'}`;
                 
-                if (!existing || new Date(budget.savedDate) > new Date(existing.savedDate)) {
-                    if (existing) {
-                        const index = deduplicated.findIndex(b => b.id === existing.id);
-                        if (index !== -1) {
-                            deduplicated.splice(index, 1);
-                        }
-                    }
-                    weekStartMap.set(weekStartKey, budget);
+                // Only skip if we've seen this exact combination before
+                if (!seen.has(uniqueKey)) {
+                    seen.add(uniqueKey);
                     deduplicated.push(budget);
                 }
             });
             
+            console.log('deduplicateBudgets: Input:', budgets.length, 'Output:', deduplicated.length);
             return deduplicated;
         }
         
