@@ -17893,13 +17893,21 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         }
         
         async function loadCanadaHistory() {
-            const historyDiv = document.getElementById('canadaRequestHistory');
-            if (!historyDiv) return;
-            
-            // Also load backorders summary
-            loadBackordersSummary();
-            
-            let history = [];
+            try {
+                const historyDiv = document.getElementById('canadaRequestHistory');
+                if (!historyDiv) {
+                    console.error('loadCanadaHistory: canadaRequestHistory element not found!');
+                    return;
+                }
+                
+                console.log('loadCanadaHistory: Starting to load history...');
+                
+                // Also load backorders summary
+                if (typeof loadBackordersSummary === 'function') {
+                    loadBackordersSummary();
+                }
+                
+                let history = [];
             
             // If using Supabase, load from database
             if (useSupabase && currentUser) {
@@ -18090,6 +18098,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             }
             
             console.log('Total history loaded:', history.length, 'requests');
+            console.log('loadCanadaHistory: History data:', history);
             
             let filteredHistory = history;
             if (filter === 'all') {
@@ -18104,6 +18113,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 });
                 
                 console.log('Filtered history (all):', filteredHistory.length, 'requests');
+                console.log('loadCanadaHistory: Filtered history data:', filteredHistory);
             } else if (filter === 'pending' || filter === 'sent' || filter === 'received') {
                 // Filter by request status
                 filteredHistory = history.filter(req => req.status === filter);
@@ -18530,7 +18540,31 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 `;
             });
             html += '</div>';
-            historyDiv.innerHTML = html;
+            
+            console.log('loadCanadaHistory: Generated HTML length:', html.length, 'characters');
+            console.log('loadCanadaHistory: HTML preview (first 500 chars):', html.substring(0, 500));
+            
+            console.log('loadCanadaHistory: Generated HTML length:', html.length, 'characters');
+            
+            if (historyDiv) {
+                try {
+                    historyDiv.innerHTML = html;
+                    console.log('loadCanadaHistory: Successfully displayed', filteredHistory.length, 'requests in history div');
+                    console.log('loadCanadaHistory: historyDiv.innerHTML length after setting:', historyDiv.innerHTML.length);
+                } catch (error) {
+                    console.error('loadCanadaHistory: Error setting innerHTML:', error);
+                    historyDiv.innerHTML = `<div style="padding: 20px; color: #e74c3c;">Error displaying requests: ${error.message}</div>`;
+                }
+            } else {
+                console.error('loadCanadaHistory: historyDiv element not found when trying to set innerHTML!');
+            }
+            } catch (error) {
+                console.error('loadCanadaHistory: Fatal error:', error);
+                const historyDiv = document.getElementById('canadaRequestHistory');
+                if (historyDiv) {
+                    historyDiv.innerHTML = `<div style="padding: 20px; color: #e74c3c;">Error loading history: ${error.message}<br><small>Check console for details</small></div>`;
+                }
+            }
         }
         
         async function deleteCanadaRequest(requestId) {
