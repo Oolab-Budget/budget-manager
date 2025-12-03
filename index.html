@@ -5962,9 +5962,18 @@
                     const canadaHistory = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
                     console.log('Loading Can/Mex tab - history from localStorage:', canadaHistory.length);
                     
-                    loadCanadaItems();
-                    updateCanadaRequestSummary();
-                    loadCanadaHistory(); // Always refresh history to show latest tracking status
+                    // Reload canadaSelectedItems
+                    if (typeof canadaSelectedItems !== 'undefined') {
+                        canadaSelectedItems = JSON.parse(localStorage.getItem('canadaSelectedItems') || '{}');
+                        console.log('Reloaded canadaSelectedItems for Can/Mex tab');
+                    }
+                    
+                    // Small delay to ensure DOM is ready
+                    setTimeout(() => {
+                        loadCanadaItems();
+                        updateCanadaRequestSummary();
+                        loadCanadaHistory(); // Always refresh history to show latest tracking status
+                    }, 100);
                 }
                 
                 // Refresh Mex/Can tab when switching to it
@@ -13131,7 +13140,8 @@ Budget Manager System`;
         
         async function getAllSavedBudgets() {
             // Always check localStorage first as backup
-            const localBudgets = JSON.parse(localStorage.getItem('savedBudgets')) || [];
+            const localBudgets = JSON.parse(localStorage.getItem('savedBudgets') || '[]');
+            console.log('getAllSavedBudgets: Found', localBudgets.length, 'budgets in localStorage');
             
             // If using Supabase and user is logged in, load from database
             if (useSupabase && currentUser) {
@@ -13238,7 +13248,9 @@ Budget Manager System`;
         }
 
         async function generateSavedBudgetsReport(dateRange, itemFilter = 'all') {
+            console.log('generateSavedBudgetsReport: Starting, dateRange:', dateRange);
             let savedBudgets = await getSavedBudgetsByDateRange(dateRange);
+            console.log('generateSavedBudgetsReport: Loaded', savedBudgets.length, 'budgets');
             
             // Filter by item if specified
             if (itemFilter && itemFilter !== 'all') {
@@ -17091,12 +17103,17 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         }
         
         async function generateCanadaRequest() {
+            // Ensure canadaSelectedItems is loaded from localStorage
+            canadaSelectedItems = JSON.parse(localStorage.getItem('canadaSelectedItems') || '{}');
+            
             const selected = Object.keys(canadaSelectedItems).filter(id => canadaSelectedItems[id].selected);
             
             if (selected.length === 0) {
                 alert(currentLanguage === 'en' ? 'Please select at least one item' : 'Por favor selecciona al menos un artículo');
                 return;
             }
+            
+            console.log('Generating Canada request with', selected.length, 'selected items');
             
             const requestItems = [];
             selected.forEach(itemId => {
