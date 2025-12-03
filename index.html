@@ -12630,35 +12630,73 @@ Budget Manager System`;
 
         // Canada Reports and Analytics
         function loadCanadaReport() {
-            const reportType = document.getElementById('canadaReportType').value;
-            const dateRange = document.getElementById('canadaDateRange').value;
-            const itemFilter = document.getElementById('canadaReportItemFilter').value;
-            const reportContent = document.getElementById('canadaReportContent');
-            
-            // Populate item filter dropdown
-            populateCanadaReportItemFilter();
-            
-            let reportHTML = '';
-            
-            switch (reportType) {
-                case 'requestHistory':
-                    reportHTML = generateCanadaRequestHistoryReport(dateRange, itemFilter);
-                    break;
-                case 'shippingStatus':
-                    reportHTML = generateCanadaShippingStatusReport(dateRange, itemFilter);
-                    break;
-                case 'backorders':
-                    reportHTML = generateCanadaBackordersReport(dateRange, itemFilter);
-                    break;
-                case 'dutiesTaxes':
-                    reportHTML = generateCanadaDutiesTaxesReport(dateRange, itemFilter);
-                    break;
-                case 'deliveryTimeline':
-                    reportHTML = generateCanadaDeliveryTimelineReport(dateRange, itemFilter);
-                    break;
+            try {
+                const reportTypeSelect = document.getElementById('canadaReportType');
+                const dateRangeSelect = document.getElementById('canadaDateRange');
+                const itemFilterSelect = document.getElementById('canadaReportItemFilter');
+                const reportContent = document.getElementById('canadaReportContent');
+                
+                if (!reportTypeSelect || !dateRangeSelect || !itemFilterSelect || !reportContent) {
+                    console.error('loadCanadaReport: Missing required elements', {
+                        reportType: !!reportTypeSelect,
+                        dateRange: !!dateRangeSelect,
+                        itemFilter: !!itemFilterSelect,
+                        reportContent: !!reportContent
+                    });
+                    alert(currentLanguage === 'en' 
+                        ? 'Error: Report elements not found. Please refresh the page.' 
+                        : 'Error: No se encontraron los elementos del reporte. Por favor actualiza la página.');
+                    return;
+                }
+                
+                const reportType = reportTypeSelect.value;
+                const dateRange = dateRangeSelect.value;
+                const itemFilter = itemFilterSelect.value;
+                
+                console.log('loadCanadaReport: Generating report', { reportType, dateRange, itemFilter });
+                
+                // Populate item filter dropdown (but don't fail if it doesn't exist)
+                try {
+                    populateCanadaReportItemFilter();
+                } catch (error) {
+                    console.error('Error populating Canada report item filter:', error);
+                    // Continue anyway
+                }
+                
+                let reportHTML = '';
+                
+                switch (reportType) {
+                    case 'requestHistory':
+                        reportHTML = generateCanadaRequestHistoryReport(dateRange, itemFilter);
+                        break;
+                    case 'shippingStatus':
+                        reportHTML = generateCanadaShippingStatusReport(dateRange, itemFilter);
+                        break;
+                    case 'backorders':
+                        reportHTML = generateCanadaBackordersReport(dateRange, itemFilter);
+                        break;
+                    case 'dutiesTaxes':
+                        reportHTML = generateCanadaDutiesTaxesReport(dateRange, itemFilter);
+                        break;
+                    case 'deliveryTimeline':
+                        reportHTML = generateCanadaDeliveryTimelineReport(dateRange, itemFilter);
+                        break;
+                    default:
+                        reportHTML = '<div class="alert alert-info">Please select a report type</div>';
+                }
+                
+                if (reportContent) {
+                    reportContent.innerHTML = reportHTML;
+                    console.log('loadCanadaReport: Report generated successfully');
+                } else {
+                    console.error('loadCanadaReport: reportContent element not found');
+                }
+            } catch (error) {
+                console.error('Error in loadCanadaReport:', error);
+                alert(currentLanguage === 'en' 
+                    ? `Error generating report: ${error.message}` 
+                    : `Error al generar reporte: ${error.message}`);
             }
-            
-            reportContent.innerHTML = reportHTML;
         }
 
         function populateCanadaReportItemFilter() {
@@ -17722,9 +17760,13 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
         
         function loadBackordersSummary() {
             const summaryDiv = document.getElementById('backordersSummary');
-            if (!summaryDiv) return;
+            if (!summaryDiv) {
+                console.log('loadBackordersSummary: backordersSummary element not found');
+                return;
+            }
             
-            const history = JSON.parse(localStorage.getItem('canadaRequestHistory')) || [];
+            const history = JSON.parse(localStorage.getItem('canadaRequestHistory') || '[]');
+            console.log('loadBackordersSummary: Loading from', history.length, 'requests');
             const allBackorders = [];
             
             // Collect all backorders from all requests
@@ -17788,10 +17830,13 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 const groupKey = `${group.nameEn}_${group.category}`;
                 
                 // Check if this entire group is dismissed
-                const dismissedBackorders = JSON.parse(localStorage.getItem('dismissedBackorders')) || {};
+                const dismissedBackorders = JSON.parse(localStorage.getItem('dismissedBackorders') || '{}');
                 const isGroupDismissed = dismissedBackorders[groupKey] === true;
                 
-                if (isGroupDismissed) return; // Skip dismissed backorders
+                if (isGroupDismissed) {
+                    console.log('loadBackordersSummary: Skipping dismissed backorder:', groupKey);
+                    return; // Skip dismissed backorders
+                }
                 
                 html += `
                     <div style="padding: 12px; background: #fff3cd; border-left: 4px solid #f39c12; border-radius: 4px; position: relative;">
@@ -17825,6 +17870,13 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             });
             html += '</div>';
             
+            const visibleCount = Object.values(groupedBackorders).filter(group => {
+                const groupKey = `${group.nameEn}_${group.category}`;
+                const dismissedBackorders = JSON.parse(localStorage.getItem('dismissedBackorders') || '{}');
+                return dismissedBackorders[groupKey] !== true;
+            }).length;
+            
+            console.log('loadBackordersSummary: Displaying', visibleCount, 'visible backorder groups');
             summaryDiv.innerHTML = html;
         }
         
@@ -18828,8 +18880,7 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 sentItem.unit = sentUnit;
             }
             
-            // Save to localStorage IMMEDIATELY
-            localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
+            // Don't save yet - wait until backorders are calculated (save happens at end of function)
             
             // Force update the select element to ensure it shows the correct value
             // Use setTimeout to ensure DOM is ready
@@ -18844,11 +18895,36 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
             
             console.log('Updated sentItem:', { itemId, quantity: sentQty, unit: sentUnit, savedToLocalStorage: true });
             
-            // Calculate backorder (only if units match)
+            // Calculate and save backorder (only if units match)
+            // Initialize backorders array if needed
+            if (!request.backorders) {
+                request.backorders = [];
+            }
+            
+            // Remove existing backorder for this item
+            request.backorders = request.backorders.filter(bo => {
+                const boId = bo.id !== undefined && bo.id !== null ? String(bo.id) : `item_${bo.nameEn}_${bo.category}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                return String(boId) !== String(itemId);
+            });
+            
             if (backorderInfo) {
                 if (requestedUnit === sentUnit) {
                     const backorderQty = requestedQty - sentQty;
                     if (backorderQty > 0) {
+                        // Create and save backorder
+                        const backorder = {
+                            id: itemId,
+                            nameEn: item.nameEn,
+                            nameEs: item.nameEs,
+                            category: item.category,
+                            backorderQty: backorderQty,
+                            requestedQty: requestedQty,
+                            sentQty: sentQty,
+                            unit: sentUnit,
+                            reason: sentQty > 0 ? 'partial_shipment' : 'not_assigned'
+                        };
+                        request.backorders.push(backorder);
+                        
                         const unitLabels = {
                             'roll': currentLanguage === 'en' ? 'Roll' : 'Rollo',
                             'sheet': currentLanguage === 'en' ? 'Sheet' : 'Hoja'
@@ -18864,6 +18940,18 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     backorderInfo.style.display = 'block';
                 }
             }
+            
+            // Save updated request with backorders to localStorage
+            localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
+            
+            // Reload backorders summary to show updated backorders
+            if (typeof loadBackordersSummary === 'function') {
+                loadBackordersSummary();
+            }
+            
+            // Save to localStorage AFTER backorders are calculated
+            localStorage.setItem('canadaRequestHistory', JSON.stringify(history));
+            console.log('Saved request with backorders:', request.backorders?.length || 0, 'backorders');
             
             // Update tracking shipment displays to reflect unit changes
             updateTrackingShipmentDisplays();
