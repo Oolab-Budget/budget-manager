@@ -13124,43 +13124,53 @@ Budget Manager System`;
         // IMPORTANT: Only deduplicate if there are multiple budgets with the SAME weekStart AND savedDate
         // This preserves all unique saved budgets, even if they're from the same week
         function deduplicateBudgets(budgets) {
-            if (!Array.isArray(budgets)) {
-                return [];
-            }
-            
-            // If budgets array is empty or has only one item, return as-is
-            if (budgets.length <= 1) {
-                return budgets;
-            }
-            
-            const deduplicated = [];
-            const seen = new Set();
-            
-            budgets.forEach(budget => {
-                if (!budget) return;
-                
-                // Create a unique key based on weekStart AND savedDate AND id
-                // This ensures we only remove true duplicates (same week, same date, same id)
-                const uniqueKey = `${budget.weekStart || 'no-week'}_${budget.savedDate || 'no-date'}_${budget.id || 'no-id'}`;
-                
-                // Only skip if we've seen this exact combination before
-                if (!seen.has(uniqueKey)) {
-                    seen.add(uniqueKey);
-                    deduplicated.push(budget);
+            try {
+                if (!Array.isArray(budgets)) {
+                    console.log('deduplicateBudgets: Input is not an array, returning empty array');
+                    return [];
                 }
-            });
-            
-            console.log('deduplicateBudgets: Input:', budgets.length, 'Output:', deduplicated.length);
-            return deduplicated;
+                
+                // If budgets array is empty or has only one item, return as-is
+                if (budgets.length <= 1) {
+                    console.log('deduplicateBudgets: Input has', budgets.length, 'items, returning as-is');
+                    return budgets;
+                }
+                
+                const deduplicated = [];
+                const seen = new Set();
+                
+                budgets.forEach(budget => {
+                    if (!budget) return;
+                    
+                    // Create a unique key based on weekStart AND savedDate AND id
+                    // This ensures we only remove true duplicates (same week, same date, same id)
+                    const uniqueKey = `${budget.weekStart || 'no-week'}_${budget.savedDate || 'no-date'}_${budget.id || 'no-id'}`;
+                    
+                    // Only skip if we've seen this exact combination before
+                    if (!seen.has(uniqueKey)) {
+                        seen.add(uniqueKey);
+                        deduplicated.push(budget);
+                    }
+                });
+                
+                console.log('deduplicateBudgets: Input:', budgets.length, 'Output:', deduplicated.length);
+                return deduplicated;
+            } catch (error) {
+                console.error('Error in deduplicateBudgets:', error);
+                // Return original budgets if deduplication fails
+                return budgets || [];
+            }
         }
         
         async function getAllSavedBudgets() {
             // Always check localStorage first as backup
             const localBudgets = JSON.parse(localStorage.getItem('savedBudgets') || '[]');
             console.log('getAllSavedBudgets: Found', localBudgets.length, 'budgets in localStorage');
+            console.log('getAllSavedBudgets: useSupabase =', useSupabase, 'currentUser =', currentUser ? 'exists' : 'null');
             
             // If using Supabase and user is logged in, load from database
             if (useSupabase && currentUser) {
+                console.log('getAllSavedBudgets: Using Supabase path');
                 try {
                     const { data: savedBudgets, error } = await supabase
                         .from('saved_budgets')
@@ -13227,14 +13237,23 @@ Budget Manager System`;
             }
             
             // Not using Supabase - return localStorage data with deduplication
-            const deduplicatedLocal = deduplicateBudgets(localBudgets);
-            console.log('getAllSavedBudgets: Returning localStorage budgets (no Supabase):', deduplicatedLocal.length);
-            
-            if (deduplicatedLocal.length !== localBudgets.length) {
-                localStorage.setItem('savedBudgets', JSON.stringify(deduplicatedLocal));
+            console.log('getAllSavedBudgets: Not using Supabase, deduplicating', localBudgets.length, 'local budgets');
+            try {
+                const deduplicatedLocal = deduplicateBudgets(localBudgets);
+                console.log('getAllSavedBudgets: Deduplication complete, returning', deduplicatedLocal.length, 'budgets');
+                
+                if (deduplicatedLocal.length !== localBudgets.length) {
+                    console.log('getAllSavedBudgets: Deduplication removed', localBudgets.length - deduplicatedLocal.length, 'duplicates');
+                    localStorage.setItem('savedBudgets', JSON.stringify(deduplicatedLocal));
+                }
+                
+                return deduplicatedLocal;
+            } catch (error) {
+                console.error('Error in getAllSavedBudgets (localStorage path):', error);
+                // Return localBudgets as-is if deduplication fails
+                console.log('getAllSavedBudgets: Returning budgets without deduplication due to error');
+                return localBudgets || [];
             }
-            
-            return deduplicatedLocal;
         }
 
         async function getSavedBudgetsByDateRange(dateRange) {
@@ -13265,8 +13284,16 @@ Budget Manager System`;
 
         async function generateSavedBudgetsReport(dateRange, itemFilter = 'all') {
             console.log('generateSavedBudgetsReport: Starting, dateRange:', dateRange);
-            let savedBudgets = await getSavedBudgetsByDateRange(dateRange);
-            console.log('generateSavedBudgetsReport: Loaded', savedBudgets.length, 'budgets');
+            let savedBudgets;
+            try {
+                savedBudgets = await getSavedBudgetsByDateRange(dateRange);
+                console.log('generateSavedBudgetsReport: Loaded', savedBudgets.length, 'budgets');
+            } catch (error) {
+                console.error('Error loading saved budgets:', error);
+                return `<div class="alert alert-danger" style="padding: 20px; text-align: center;">
+                    <p data-en="Error loading saved budgets" data-es="Error al cargar presupuestos guardados">Error loading saved budgets: ${error.message}</p>
+                </div>`;
+            }
             
             // Filter by item if specified
             if (itemFilter && itemFilter !== 'all') {
