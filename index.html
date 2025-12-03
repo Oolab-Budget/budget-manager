@@ -13382,20 +13382,47 @@ Budget Manager System`;
             return reportHTML;
         }
 
-        function viewSavedBudget(budgetId) {
+        async function viewSavedBudget(budgetId) {
             try {
+                console.log('viewSavedBudget called with budgetId:', budgetId, 'type:', typeof budgetId);
+                
                 // Convert budgetId to number if it's a string (for comparison)
                 const idToFind = typeof budgetId === 'string' ? parseInt(budgetId) : budgetId;
                 
-                const savedBudgets = getAllSavedBudgetsSync();
+                // Try sync first, but if it fails or returns empty, try async
+                let savedBudgets = getAllSavedBudgetsSync();
+                console.log('getAllSavedBudgetsSync returned:', savedBudgets.length, 'budgets');
+                
+                // If sync returns empty, try async with timeout
+                if (!savedBudgets || savedBudgets.length === 0) {
+                    console.log('Sync returned empty, trying async getAllSavedBudgets...');
+                    try {
+                        const timeoutPromise = new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('Timeout')), 2000)
+                        );
+                        savedBudgets = await Promise.race([getAllSavedBudgets(), timeoutPromise]);
+                        console.log('Async getAllSavedBudgets returned:', savedBudgets.length, 'budgets');
+                    } catch (error) {
+                        console.error('Error loading budgets async:', error);
+                        // Fallback to direct localStorage
+                        savedBudgets = JSON.parse(localStorage.getItem('savedBudgets') || '[]');
+                        console.log('Fallback to direct localStorage:', savedBudgets.length, 'budgets');
+                    }
+                }
+                
                 console.log('Looking for budget ID:', idToFind, 'Found budgets:', savedBudgets.length);
+                console.log('Available budget IDs:', savedBudgets.map(b => ({ id: b.id, type: typeof b.id })));
                 
                 // Try to find by exact match first, then try string/number conversion
-                let budget = savedBudgets.find(b => b.id === idToFind || b.id === budgetId || String(b.id) === String(budgetId));
+                let budget = savedBudgets.find(b => {
+                    const matches = b.id === idToFind || b.id === budgetId || String(b.id) === String(budgetId) || String(b.id) === String(idToFind);
+                    if (matches) console.log('Found matching budget:', b.id, 'weekLabel:', b.weekLabel);
+                    return matches;
+                });
                 
                 if (!budget) {
-                    console.error('Budget not found. Available IDs:', savedBudgets.map(b => b.id));
-                    alert(currentLanguage === 'en' ? 'Budget not found' : 'Presupuesto no encontrado');
+                    console.error('Budget not found. Looking for:', idToFind, 'Available IDs:', savedBudgets.map(b => b.id));
+                    alert(currentLanguage === 'en' ? `Budget not found. Looking for ID: ${idToFind}. Found ${savedBudgets.length} budgets.` : `Presupuesto no encontrado. Buscando ID: ${idToFind}. Se encontraron ${savedBudgets.length} presupuestos.`);
                     return;
                 }
                 
@@ -13575,16 +13602,20 @@ Budget Manager System`;
                     setTimeout(() => {
                         const reportContent = document.getElementById('reportContent');
                         if (reportContent) {
+                            console.log('Setting reportContent innerHTML with details for budget:', budgetId);
                             reportContent.innerHTML = detailsHTML;
                             updateLanguage();
+                            console.log('Report content updated, items should be visible with Add Receipt buttons');
+                        } else {
+                            console.error('reportContent element not found!');
                         }
                         
                         const reportTypeSelect = document.getElementById('reportType');
                         if (reportTypeSelect) {
                             reportTypeSelect.value = 'savedBudgets';
                         }
-                    }, 200);
-                }, 100);
+                    }, 300); // Increased timeout to ensure tab switch completes
+                }, 200); // Increased timeout to ensure tab switch starts
             } catch (error) {
                 console.error('Error in viewSavedBudget:', error);
                 alert(currentLanguage === 'en' 
