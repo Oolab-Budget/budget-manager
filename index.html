@@ -18241,17 +18241,24 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 });
             }
             
+            console.log('loadCanadaHistory: Filtered history length:', filteredHistory.length, 'Filter:', filter);
+            
             if (filteredHistory.length === 0) {
+                console.log('loadCanadaHistory: No requests to display');
+                console.log('loadCanadaHistory: Total history:', history.length, 'Filter:', filter);
                 historyDiv.innerHTML = `
                     <div style="padding: 20px; text-align: center; color: #7f8c8d; background: #ecf0f1; border-radius: 8px;">
                         ${currentLanguage === 'en' ? 'No requests found.' : 'No se encontraron solicitudes.'}
+                        ${history.length > 0 ? `<br><small style="color: #95a5a6;">(${history.length} total requests, but filtered out by "${filter}")</small>` : ''}
                     </div>
                 `;
                 return;
             }
             
+            console.log('loadCanadaHistory: Generating HTML for', filteredHistory.length, 'requests');
             let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
-            filteredHistory.forEach(request => {
+            filteredHistory.forEach((request, index) => {
+                console.log(`loadCanadaHistory: Processing request ${index + 1}/${filteredHistory.length}:`, request.id, request.date, 'hasTracking:', !!(request.trackingShipments && request.trackingShipments.length > 0));
                 const date = new Date(request.date).toLocaleDateString();
                 
                 // Determine status based on UPS tracking data if available
@@ -18320,7 +18327,8 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                     trackingShipmentsCount: request.trackingShipments?.length || 0,
                     trackingShipments: request.trackingShipments,
                     hasTrackingNumbers: !!(request.trackingNumbers && request.trackingNumbers.length > 0),
-                    trackingNumber: request.trackingNumber
+                    trackingNumber: request.trackingNumber,
+                    requestKeys: Object.keys(request)
                 });
                 
                 html += `
