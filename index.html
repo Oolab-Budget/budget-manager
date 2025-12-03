@@ -7971,9 +7971,21 @@
             // Include approved items and items without approval status (pending) in the total amount
             const includedItems = items.filter(item => item.approvalStatus === 'approved' || !item.approvalStatus || item.approvalStatus === 'pending');
             
-            // Ensure totalPrice is a number for each item
+            // Ensure totalPrice is a number for each item - recalculate if needed
             const total = includedItems.reduce((sum, item) => {
-                const price = parseFloat(item.totalPrice) || 0;
+                // Recalculate totalPrice if it seems incorrect (quantity * unitPrice)
+                let price = parseFloat(item.totalPrice) || 0;
+                const unitPrice = parseFloat(item.unitPrice) || 0;
+                const quantity = parseInt(item.quantity) || 1;
+                const expectedTotal = unitPrice * quantity;
+                
+                // If totalPrice doesn't match expected, recalculate it
+                if (Math.abs(price - expectedTotal) > 0.01) {
+                    price = expectedTotal;
+                    item.totalPrice = price; // Update the item's totalPrice
+                    console.log('Fixed totalPrice for item:', item.nameEn || item.nameEs, 'from', item.totalPrice, 'to', price);
+                }
+                
                 return sum + price;
             }, 0);
             
