@@ -15516,6 +15516,21 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                 targetWeekStart.setDate(targetWeekStart.getDate() + 7);
             }
             
+            // Clean up old weeks from manually removed items (keep only current and last 2 weeks)
+            const removedItems = JSON.parse(localStorage.getItem('manuallyRemovedRecurringItems') || '{}');
+            const weeksToKeep = [];
+            for (let i = 0; i < 3; i++) {
+                const week = new Date(currentWeekStart);
+                week.setDate(week.getDate() - (i * 7));
+                weeksToKeep.push(getWeekStart(week).toISOString());
+            }
+            Object.keys(removedItems).forEach(weekKey => {
+                if (!weeksToKeep.includes(weekKey)) {
+                    delete removedItems[weekKey];
+                }
+            });
+            localStorage.setItem('manuallyRemovedRecurringItems', JSON.stringify(removedItems));
+            
             // Only add recurring items on Monday (start of the week)
             const isMonday = today.getDay() === 1; // 1 = Monday
             const isCurrentWeekMonday = currentWeekStart.getTime() === today.getTime();
@@ -15628,30 +15643,40 @@ ${currentLanguage === 'en' ? 'Date:' : 'Fecha:'} ${new Date().toLocaleDateString
                         });
                         
                         if (existingItemsInBudget.length === 0) {
-                            const newItem = {
-                                id: Date.now() + Math.random(),
-                                nameEn: item.nameEn,
-                                nameEs: item.nameEs,
-                                descriptionEn: item.descriptionEn || '',
-                                descriptionEs: item.descriptionEs || '',
-                                category: categoryKey,
-                                unitPrice: item.unitPrice || 0,
-                                quantity: item.quantity || 1,
-                                totalPrice: (item.unitPrice || 0) * (item.quantity || 1),
-                                priority: item.priority || 'high',
-                                invoicePhoto: null,
-                                supplier: item.supplier,
-                                weeklyAddedWeek: targetWeekStart.toISOString(),
-                                dateAdded: currentWeekStart.toISOString() // Set to Monday of the week
-                            };
+                            // Check if this item was manually removed for this week
+                            const removedItems = JSON.parse(localStorage.getItem('manuallyRemovedRecurringItems') || '{}');
+                            const weekKey = targetWeekStart.toISOString();
+                            const itemKey = `${categoryKey}_${item.nameEn}_${item.unitPrice}`;
+                            const wasManuallyRemoved = removedItems[weekKey] && removedItems[weekKey].includes(itemKey);
                             
-                            // Apply automatic credit if item was in alerts
-                            applyAutomaticCreditIfInAlerts(newItem);
-                            
-                            items.push(newItem);
-                            itemsAdded = true;
-                            addedItemsList.push({ name: item.nameEn, reason: 'Recurring Weekly Item' });
-                            console.log('Added recurring weekly item:', item.nameEn, 'to budget');
+                            if (wasManuallyRemoved) {
+                                console.log('Skipping recurring weekly item (manually removed):', item.nameEn);
+                            } else {
+                                const newItem = {
+                                    id: Date.now() + Math.random(),
+                                    nameEn: item.nameEn,
+                                    nameEs: item.nameEs,
+                                    descriptionEn: item.descriptionEn || '',
+                                    descriptionEs: item.descriptionEs || '',
+                                    category: categoryKey,
+                                    unitPrice: item.unitPrice || 0,
+                                    quantity: item.quantity || 1,
+                                    totalPrice: (item.unitPrice || 0) * (item.quantity || 1),
+                                    priority: item.priority || 'high',
+                                    invoicePhoto: null,
+                                    supplier: item.supplier,
+                                    weeklyAddedWeek: targetWeekStart.toISOString(),
+                                    dateAdded: currentWeekStart.toISOString() // Set to Monday of the week
+                                };
+                                
+                                // Apply automatic credit if item was in alerts
+                                applyAutomaticCreditIfInAlerts(newItem);
+                                
+                                items.push(newItem);
+                                itemsAdded = true;
+                                addedItemsList.push({ name: item.nameEn, reason: 'Recurring Weekly Item' });
+                                console.log('Added recurring weekly item:', item.nameEn, 'to budget');
+                            }
                         } else {
                             console.log('Recurring weekly item already exists:', item.nameEn);
                         }
