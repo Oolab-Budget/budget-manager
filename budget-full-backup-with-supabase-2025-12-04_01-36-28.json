@@ -1,0 +1,6686 @@
+{
+  "exportDate": "2025-12-04T01:36:28.773Z",
+  "version": "2.0",
+  "exportSource": "complete_with_supabase",
+  "categories": {
+    "materials": {
+      "nameEn": "Materials",
+      "nameEs": "Materiales",
+      "descriptionEn": "Materials",
+      "descriptionEs": "Materiales",
+      "pricingType": "flexible",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "12mm Black EVA",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "materials",
+          "priority": "medium",
+          "supplier": {
+            "name": "12mm Black EVA",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 600,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "12mm Black EVA",
+          "descriptionEs": "",
+          "recurringWeekly": true
+        },
+        {
+          "notes": "",
+          "nameEn": "12mm White EVA",
+          "nameEs": "12mm White EVA",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "materials",
+          "priority": "medium",
+          "supplier": {
+            "name": "12mm White EVA",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 600,
+          "hasDueDate": false,
+          "monthlyDay": null,
+          "invoicePhoto": null,
+          "descriptionEn": "12mm White EVA",
+          "descriptionEs": "",
+          "receiptAmount": null,
+          "recurringWeekly": true,
+          "recurringMonthly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "1mm Puff",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "materials",
+          "priority": "medium",
+          "supplier": {
+            "name": "1mm Puff",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 5100,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "1mm Puff",
+          "descriptionEs": "",
+          "recurringWeekly": true
+        },
+        {
+          "notes": "",
+          "nameEn": "Black Vinyl Top",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "materials",
+          "priority": "medium",
+          "supplier": {
+            "name": "IVRA",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1700,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Black Vinyl Top",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "Black Vinyl Bottom",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "materials",
+          "priority": "medium",
+          "supplier": {
+            "name": "IVRA",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1700,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Black Vinyl Bottom",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "UltraHyde",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "materials",
+          "priority": "medium",
+          "supplier": {
+            "name": "UltraHyde",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "UltraHyde",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    },
+    "rent": {
+      "nameEn": "Rent",
+      "nameEs": "Alquiler",
+      "descriptionEn": "Rent",
+      "descriptionEs": "Alquiler",
+      "pricingType": "fixed",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "Rent",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "rent",
+          "priority": "medium",
+          "supplier": {
+            "name": "Rent",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 30000,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Rent",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    },
+    "glue": {
+      "nameEn": "Glue",
+      "nameEs": "Pegamento",
+      "descriptionEn": "Glue",
+      "descriptionEs": "Pegamento",
+      "pricingType": "fixed",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "Glue",
+          "nameEs": "Glue",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "glue",
+          "priority": "medium",
+          "supplier": {
+            "name": "Glue",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1160,
+          "hasDueDate": false,
+          "monthlyDay": null,
+          "invoicePhoto": null,
+          "descriptionEn": "Glue",
+          "descriptionEs": "",
+          "receiptAmount": null,
+          "recurringWeekly": true,
+          "recurringMonthly": false
+        }
+      ]
+    },
+    "accounting": {
+      "nameEn": "Accounting",
+      "nameEs": "Contabilidad",
+      "descriptionEn": "Accounting",
+      "descriptionEs": "Contabilidad",
+      "pricingType": "fixed",
+      "recurringWeekly": true,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "Accounting",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "accounting",
+          "priority": "medium",
+          "supplier": {
+            "name": "Ceasar",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 3000,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Accounting",
+          "descriptionEs": "",
+          "recurringWeekly": true
+        }
+      ]
+    },
+    "office_supplies": {
+      "nameEn": "Office Supplies ",
+      "nameEs": "Oficina Suministros",
+      "descriptionEn": "Office Supplies",
+      "descriptionEs": "Material de oficina",
+      "pricingType": "flexible",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "Office Supplies",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "office_supplies",
+          "priority": "medium",
+          "supplier": {
+            "name": "Office Supplies",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Office Supplies",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    },
+    "carbon": {
+      "nameEn": "Carbon",
+      "nameEs": "Carbono",
+      "descriptionEn": "Carbon",
+      "descriptionEs": "Carbono",
+      "pricingType": "fixed",
+      "recurringWeekly": true,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "Carbon",
+          "nameEs": "Carbon",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "carbon",
+          "priority": "medium",
+          "supplier": {
+            "name": "Polynac",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 3354.66,
+          "hasDueDate": false,
+          "monthlyDay": null,
+          "invoicePhoto": null,
+          "descriptionEn": "Carbon",
+          "descriptionEs": "",
+          "receiptAmount": null,
+          "recurringWeekly": true,
+          "recurringMonthly": false
+        }
+      ]
+    },
+    "polypro": {
+      "nameEn": "PolyPro",
+      "nameEs": "Polypro",
+      "descriptionEn": "PolyPro",
+      "descriptionEs": "Polypro",
+      "pricingType": "fixed",
+      "recurringWeekly": true,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "PolyPro",
+          "nameEs": "PolyPro",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "polypro",
+          "priority": "medium",
+          "supplier": {
+            "name": "PolyPro",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1160,
+          "hasDueDate": false,
+          "monthlyDay": null,
+          "invoicePhoto": null,
+          "descriptionEn": "PolyPro",
+          "descriptionEs": "",
+          "receiptAmount": null,
+          "recurringWeekly": true,
+          "recurringMonthly": false
+        }
+      ]
+    },
+    "water": {
+      "nameEn": "Water",
+      "nameEs": "Agua",
+      "descriptionEn": "Water",
+      "descriptionEs": "Agua",
+      "pricingType": "flexible",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "Water",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "water",
+          "priority": "medium",
+          "supplier": {
+            "name": "Water",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Water",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    },
+    "electric": {
+      "nameEn": "Electric",
+      "nameEs": "Eléctrico",
+      "descriptionEn": "Electric",
+      "descriptionEs": "Eléctrico",
+      "pricingType": "flexible",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "Electric",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "electric",
+          "priority": "medium",
+          "supplier": {
+            "name": "Electric",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Electric",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    },
+    "internet": {
+      "nameEn": "Internet",
+      "nameEs": "Internet",
+      "descriptionEn": "Internet",
+      "descriptionEs": "Internet",
+      "pricingType": "fixed",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "Internet",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "internet",
+          "priority": "medium",
+          "supplier": {
+            "name": "Internet",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1798,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Internet",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    },
+    "mold_maker": {
+      "nameEn": "Mold Maker",
+      "nameEs": "Fabricante de moldes",
+      "descriptionEn": "Mold Maker",
+      "descriptionEs": "Fabricante de moldes",
+      "pricingType": "flexible",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": []
+    },
+    "repairs": {
+      "nameEn": "Repairs",
+      "nameEs": "Reparaciones",
+      "descriptionEn": "Repairs",
+      "descriptionEs": "Reparaciones",
+      "pricingType": "flexible",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "Repairs and Maintenance",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "repairs",
+          "priority": "medium",
+          "supplier": {
+            "name": "Repairs and Maintenance",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Repairs and Maintenance",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    },
+    "petty_cash": {
+      "nameEn": "Petty Cash",
+      "nameEs": "Caja chica",
+      "descriptionEn": "Petty Cash",
+      "descriptionEs": "Caja chica",
+      "pricingType": "fixed",
+      "recurringWeekly": true,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "Petty Cash",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "petty_cash",
+          "priority": "medium",
+          "supplier": {
+            "name": "Petty Cash",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 3500,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Petty Cash",
+          "descriptionEs": "",
+          "recurringWeekly": true
+        }
+      ]
+    },
+    "imss-large": {
+      "nameEn": "IMSS",
+      "nameEs": "Imss",
+      "descriptionEn": "IMSS-Payroll Taxes",
+      "descriptionEs": "IMSS-Impuestos a la Nómina",
+      "pricingType": "flexible",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "IMSS-Large",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "imss-large",
+          "priority": "medium",
+          "supplier": {
+            "name": "IMSS",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "IMSS-Large",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "IMSS-Regular",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "imss-large",
+          "priority": "medium",
+          "supplier": {
+            "name": "IMSS",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "IMSS-Regular",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    },
+    "test": {
+      "nameEn": "Test",
+      "nameEs": "Prueba",
+      "descriptionEn": "Test",
+      "descriptionEs": "Prueba",
+      "pricingType": "flexible",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "Test",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "test",
+          "priority": "medium",
+          "supplier": {
+            "name": "Test",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 333.33333333333337,
+          "hasDueDate": false,
+          "adjustments": [
+            {
+              "date": "2025-11-22T01:35:14.415Z",
+              "reason": "Applied from budget vs actual difference",
+              "newPrice": 333.33333333333337,
+              "oldPrice": 1000,
+              "difference": -2000
+            }
+          ],
+          "invoicePhoto": null,
+          "descriptionEn": "Test",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    },
+    "other": {
+      "nameEn": "Other",
+      "nameEs": "Otros",
+      "descriptionEn": "Other",
+      "descriptionEs": "Otros",
+      "pricingType": "flexible",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "Other",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "other",
+          "priority": "medium",
+          "supplier": {
+            "name": "Other",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Other",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "Shipping Boxes",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "other",
+          "priority": "medium",
+          "supplier": {
+            "name": "Shipping Boxes",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 300,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Shipping Boxes",
+          "descriptionEs": "",
+          "recurringWeekly": true
+        },
+        {
+          "notes": "",
+          "nameEn": "Jugs of Water",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "other",
+          "priority": "medium",
+          "supplier": {
+            "name": "Jugs of Water",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 75,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Jugs of Water",
+          "descriptionEs": "",
+          "recurringWeekly": true
+        },
+        {
+          "notes": "",
+          "nameEn": "Uber",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "other",
+          "priority": "medium",
+          "supplier": {
+            "name": "Uber",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1500,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Delivery of the Box",
+          "descriptionEs": "",
+          "recurringWeekly": true
+        },
+        {
+          "notes": "",
+          "nameEn": "Garbage Pick Up",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "other",
+          "priority": "medium",
+          "supplier": {
+            "name": "Garbage",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1600,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Weekly pick up of garbage",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "Chemicals",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "other",
+          "priority": "medium",
+          "supplier": {
+            "name": "Chemicals",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Thinner etc",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "Bags",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "other",
+          "priority": "medium",
+          "supplier": {
+            "name": "Bags",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 500,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Bags for packing orthotics",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "Costco",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "other",
+          "priority": "medium",
+          "supplier": {
+            "name": "Costco",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Supplies- Cleaning and toilet paper etc",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "English School",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "other",
+          "priority": "medium",
+          "supplier": {
+            "name": "English School",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 2000,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "English School For Teresa",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    },
+    "mexico": {
+      "nameEn": "Mexico",
+      "nameEs": "México",
+      "descriptionEn": "Mexico",
+      "descriptionEs": "",
+      "pricingType": "fixed",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "1mm EVA",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "1mm EVA",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "1mm EVA",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "Vinyl Bottom Cover",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "Mexico",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Vinyl Bottom Cover",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "Vinyl Top Cover",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "Mexico",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Vinyl Top Cover",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "1mm Carbon",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "Mexico",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "1mm Carbon",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "2mm Carbon",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "Mexico",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "2mm Carbon",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "3mm Carbon",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "Mexico",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "3mm Carbon",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "4mm Carbon",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "Mexico",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "4mm Carbon",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "1mm PolyPro",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "Mexico",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "1mm PolyPro",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "2mm PolyPro",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "Mexico",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "2mm PolyPro",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "3mm PolyPro",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "Mexico",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "3mm PolyPro",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "4mm PolyPro",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "mexico",
+          "priority": "medium",
+          "supplier": {
+            "name": "Mexico",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "4mm PolyPro",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    },
+    "test_2": {
+      "nameEn": "Test 2",
+      "nameEs": "Prueba 2",
+      "descriptionEn": "Test 2",
+      "descriptionEs": "",
+      "pricingType": "fixed",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "ttt",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "test_2",
+          "priority": "medium",
+          "supplier": {
+            "name": "ttt",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "ttt",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    },
+    "payroll": {
+      "nameEn": "Payroll",
+      "nameEs": "Nómina",
+      "descriptionEn": "Payroll",
+      "descriptionEs": "Nómina",
+      "pricingType": "fixed",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "Payroll",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "payroll",
+          "priority": "medium",
+          "supplier": {
+            "name": "Payroll",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0,
+          "hasDueDate": false,
+          "adjustments": [
+            {
+              "date": "2025-11-27T23:40:04.202Z",
+              "reason": "Applied from budget vs actual difference",
+              "newPrice": 0,
+              "oldPrice": 0.01,
+              "difference": -5682
+            }
+          ],
+          "invoicePhoto": null,
+          "descriptionEn": "Payroll",
+          "descriptionEs": "",
+          "recurringWeekly": true
+        },
+        {
+          "notes": "",
+          "nameEn": "Vacation Pay",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "payroll",
+          "priority": "medium",
+          "supplier": {
+            "name": "Payroll",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Vacation Pay (note for who) needed",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "Bonuses",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "payroll",
+          "priority": "medium",
+          "supplier": {
+            "name": "Payroll",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "Bonuses-(note needed to explain)",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    },
+    "canada": {
+      "nameEn": "Canada",
+      "nameEs": "Canadá",
+      "descriptionEn": "Materials we ship to Mexico",
+      "descriptionEs": "Materials We Ship To Mexico",
+      "pricingType": "fixed",
+      "recurringWeekly": false,
+      "recurringMonthly": false,
+      "monthlyDay": null,
+      "hasDueDate": false,
+      "dueDate": null,
+      "items": [
+        {
+          "notes": "",
+          "nameEn": "3mm Xstatic",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "canada",
+          "priority": "medium",
+          "supplier": {
+            "name": "Canada",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "3mm Xstatic",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "3mm Black ETC",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "canada",
+          "priority": "medium",
+          "supplier": {
+            "name": "Canada",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "3mm Black ETC",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "3mm Blue ETC",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "canada",
+          "priority": "medium",
+          "supplier": {
+            "name": "Canada",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "3mm Blue ETC",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        },
+        {
+          "notes": "",
+          "nameEn": "2mm Xstatic",
+          "nameEs": "",
+          "dueDate": null,
+          "notesEn": "",
+          "notesEs": "",
+          "category": "canada",
+          "priority": "medium",
+          "supplier": {
+            "name": "Canada",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 0.01,
+          "hasDueDate": false,
+          "invoicePhoto": null,
+          "descriptionEn": "2mm Xstatic",
+          "descriptionEs": "",
+          "recurringWeekly": false
+        }
+      ]
+    }
+  },
+  "items": {
+    "office_supplies": [
+      {
+        "notes": "",
+        "nameEn": "Office Supplies",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "office_supplies",
+        "priority": "medium",
+        "supplier": {
+          "name": "Office Supplies",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Office Supplies",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      }
+    ],
+    "rent": [
+      {
+        "notes": "",
+        "nameEn": "Rent",
+        "nameEs": "Rent",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "rent",
+        "priority": "medium",
+        "supplier": {
+          "name": "Rent",
+          "phone": "",
+          "email": "",
+          "address": ""
+        },
+        "unitPrice": 30740,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Rent",
+        "descriptionEs": "",
+        "recurringWeekly": false,
+        "receiptAmount": null,
+        "recurringMonthly": false,
+        "monthlyDay": null,
+        "forCanada": false,
+        "forMexico": false
+      }
+    ],
+    "carbon": [
+      {
+        "notes": "",
+        "nameEn": "Carbon",
+        "nameEs": "Carbon",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "carbon",
+        "priority": "medium",
+        "supplier": {
+          "name": "Polynac",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 3354.66,
+        "hasDueDate": false,
+        "monthlyDay": null,
+        "invoicePhoto": null,
+        "descriptionEn": "Carbon",
+        "descriptionEs": "",
+        "receiptAmount": null,
+        "recurringWeekly": true,
+        "recurringMonthly": false
+      }
+    ],
+    "glue": [
+      {
+        "notes": "",
+        "nameEn": "Glue",
+        "nameEs": "Glue",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "glue",
+        "priority": "medium",
+        "supplier": {
+          "name": "Glue",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 1160,
+        "hasDueDate": false,
+        "monthlyDay": null,
+        "invoicePhoto": null,
+        "descriptionEn": "Glue",
+        "descriptionEs": "",
+        "receiptAmount": null,
+        "recurringWeekly": true,
+        "recurringMonthly": false
+      }
+    ],
+    "accounting": [
+      {
+        "notes": "",
+        "nameEn": "Accounting",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "accounting",
+        "priority": "medium",
+        "supplier": {
+          "name": "Ceasar",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 3000,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Accounting",
+        "descriptionEs": "",
+        "recurringWeekly": true
+      }
+    ],
+    "materials": [
+      {
+        "notes": "",
+        "nameEn": "12mm Black EVA",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "materials",
+        "priority": "medium",
+        "supplier": {
+          "name": "12mm Black EVA",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 600,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "12mm Black EVA",
+        "descriptionEs": "",
+        "recurringWeekly": true
+      },
+      {
+        "notes": "",
+        "nameEn": "12mm White EVA",
+        "nameEs": "12mm White EVA",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "materials",
+        "priority": "medium",
+        "supplier": {
+          "name": "12mm White EVA",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 600,
+        "hasDueDate": false,
+        "monthlyDay": null,
+        "invoicePhoto": null,
+        "descriptionEn": "12mm White EVA",
+        "descriptionEs": "",
+        "receiptAmount": null,
+        "recurringWeekly": true,
+        "recurringMonthly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "1mm Puff",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "materials",
+        "priority": "medium",
+        "supplier": {
+          "name": "1mm Puff",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 5100,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "1mm Puff",
+        "descriptionEs": "",
+        "recurringWeekly": true
+      },
+      {
+        "notes": "",
+        "nameEn": "Black Vinyl Top",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "materials",
+        "priority": "medium",
+        "supplier": {
+          "name": "IVRA",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 1700,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Black Vinyl Top",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "Black Vinyl Bottom",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "materials",
+        "priority": "medium",
+        "supplier": {
+          "name": "IVRA",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 1700,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Black Vinyl Bottom",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "UltraHyde",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "materials",
+        "priority": "medium",
+        "supplier": {
+          "name": "UltraHyde",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "UltraHyde",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      }
+    ],
+    "polypro": [
+      {
+        "notes": "",
+        "nameEn": "PolyPro",
+        "nameEs": "PolyPro",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "polypro",
+        "priority": "medium",
+        "supplier": {
+          "name": "PolyPro",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 1160,
+        "hasDueDate": false,
+        "monthlyDay": null,
+        "invoicePhoto": null,
+        "descriptionEn": "PolyPro",
+        "descriptionEs": "",
+        "receiptAmount": null,
+        "recurringWeekly": true,
+        "recurringMonthly": false
+      }
+    ],
+    "water": [
+      {
+        "notes": "",
+        "nameEn": "Water",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "water",
+        "priority": "medium",
+        "supplier": {
+          "name": "Water",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Water",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      }
+    ],
+    "electric": [
+      {
+        "notes": "",
+        "nameEn": "Electric",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "electric",
+        "priority": "medium",
+        "supplier": {
+          "name": "Electric",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Electric",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      }
+    ],
+    "internet": [
+      {
+        "notes": "",
+        "nameEn": "Internet",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "internet",
+        "priority": "medium",
+        "supplier": {
+          "name": "Internet",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 1798,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Internet",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      }
+    ],
+    "mold_maker": [],
+    "repairs": [
+      {
+        "notes": "",
+        "nameEn": "Repairs and Maintenance",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "repairs",
+        "priority": "medium",
+        "supplier": {
+          "name": "Repairs and Maintenance",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Repairs and Maintenance",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      }
+    ],
+    "petty_cash": [
+      {
+        "notes": "",
+        "nameEn": "Petty Cash",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "petty_cash",
+        "priority": "medium",
+        "supplier": {
+          "name": "Petty Cash",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 3500,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Petty Cash",
+        "descriptionEs": "",
+        "recurringWeekly": true
+      }
+    ],
+    "imss-large": [
+      {
+        "notes": "",
+        "nameEn": "IMSS-Large",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "imss-large",
+        "priority": "medium",
+        "supplier": {
+          "name": "IMSS",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "IMSS-Large",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "IMSS-Regular",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "imss-large",
+        "priority": "medium",
+        "supplier": {
+          "name": "IMSS",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "IMSS-Regular",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      }
+    ],
+    "test": [
+      {
+        "notes": "",
+        "nameEn": "Test",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "test",
+        "priority": "medium",
+        "supplier": {
+          "name": "Test",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 333.33333333333337,
+        "hasDueDate": false,
+        "adjustments": [
+          {
+            "date": "2025-11-22T01:35:14.415Z",
+            "reason": "Applied from budget vs actual difference",
+            "newPrice": 333.33333333333337,
+            "oldPrice": 1000,
+            "difference": -2000
+          }
+        ],
+        "invoicePhoto": null,
+        "descriptionEn": "Test",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      }
+    ],
+    "other": [
+      {
+        "notes": "",
+        "nameEn": "Other",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "other",
+        "priority": "medium",
+        "supplier": {
+          "name": "Other",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Other",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "Shipping Boxes",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "other",
+        "priority": "medium",
+        "supplier": {
+          "name": "Shipping Boxes",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 300,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Shipping Boxes",
+        "descriptionEs": "",
+        "recurringWeekly": true
+      },
+      {
+        "notes": "",
+        "nameEn": "Jugs of Water",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "other",
+        "priority": "medium",
+        "supplier": {
+          "name": "Jugs of Water",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 75,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Jugs of Water",
+        "descriptionEs": "",
+        "recurringWeekly": true
+      },
+      {
+        "notes": "",
+        "nameEn": "Uber",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "other",
+        "priority": "medium",
+        "supplier": {
+          "name": "Uber",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 1500,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Delivery of the Box",
+        "descriptionEs": "",
+        "recurringWeekly": true
+      },
+      {
+        "notes": "",
+        "nameEn": "Garbage Pick Up",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "other",
+        "priority": "medium",
+        "supplier": {
+          "name": "Garbage",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 1600,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Weekly pick up of garbage",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "Chemicals",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "other",
+        "priority": "medium",
+        "supplier": {
+          "name": "Chemicals",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Thinner etc",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "Bags",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "other",
+        "priority": "medium",
+        "supplier": {
+          "name": "Bags",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 500,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Bags for packing orthotics",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "Costco",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "other",
+        "priority": "medium",
+        "supplier": {
+          "name": "Costco",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Supplies- Cleaning and toilet paper etc",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "English School",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "other",
+        "priority": "medium",
+        "supplier": {
+          "name": "English School",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 2000,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "English School For Teresa",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "nameEn": "School Travel",
+        "nameEs": "",
+        "descriptionEn": "School Travel",
+        "descriptionEs": "",
+        "category": "other",
+        "unitPrice": 500,
+        "priority": "medium",
+        "invoicePhoto": null,
+        "notes": "",
+        "notesEn": "",
+        "notesEs": "",
+        "recurringWeekly": true,
+        "hasDueDate": false,
+        "dueDate": null,
+        "supplier": {
+          "name": "School Travel",
+          "phone": "",
+          "email": "",
+          "address": ""
+        }
+      }
+    ],
+    "mexico": [
+      {
+        "notes": "",
+        "nameEn": "1mm EVA",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "1mm EVA",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "1mm EVA",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "Vinyl Bottom Cover",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "Mexico",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Vinyl Bottom Cover",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "Vinyl Top Cover",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "Mexico",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Vinyl Top Cover",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "1mm Carbon",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "Mexico",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "1mm Carbon",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "2mm Carbon",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "Mexico",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "2mm Carbon",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "3mm Carbon",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "Mexico",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "3mm Carbon",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "4mm Carbon",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "Mexico",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "4mm Carbon",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "1mm PolyPro",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "Mexico",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "1mm PolyPro",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "2mm PolyPro",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "Mexico",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "2mm PolyPro",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "3mm PolyPro",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "Mexico",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "3mm PolyPro",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "4mm PolyPro",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "mexico",
+        "priority": "medium",
+        "supplier": {
+          "name": "Mexico",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "4mm PolyPro",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      }
+    ],
+    "test_2": [
+      {
+        "notes": "",
+        "nameEn": "ttt",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "test_2",
+        "priority": "medium",
+        "supplier": {
+          "name": "ttt",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "ttt",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      }
+    ],
+    "payroll": [
+      {
+        "notes": "",
+        "nameEn": "Payroll",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "payroll",
+        "priority": "medium",
+        "supplier": {
+          "name": "Payroll",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0,
+        "hasDueDate": false,
+        "adjustments": [
+          {
+            "date": "2025-11-27T23:40:04.202Z",
+            "reason": "Applied from budget vs actual difference",
+            "newPrice": 0,
+            "oldPrice": 0.01,
+            "difference": -5682
+          }
+        ],
+        "invoicePhoto": null,
+        "descriptionEn": "Payroll",
+        "descriptionEs": "",
+        "recurringWeekly": true
+      },
+      {
+        "notes": "",
+        "nameEn": "Vacation Pay",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "payroll",
+        "priority": "medium",
+        "supplier": {
+          "name": "Payroll",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Vacation Pay (note for who) needed",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "Bonuses",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "payroll",
+        "priority": "medium",
+        "supplier": {
+          "name": "Payroll",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "Bonuses-(note needed to explain)",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "nameEn": "Bonuses",
+        "nameEs": "",
+        "descriptionEn": "Bonuses",
+        "descriptionEs": "",
+        "category": "payroll",
+        "unitPrice": 0.01,
+        "priority": "medium",
+        "invoicePhoto": null,
+        "notes": "",
+        "notesEn": "",
+        "notesEs": "",
+        "recurringWeekly": false,
+        "hasDueDate": false,
+        "dueDate": null,
+        "supplier": {
+          "name": "Bonuses",
+          "phone": "",
+          "email": "",
+          "address": ""
+        }
+      }
+    ],
+    "canada": [
+      {
+        "notes": "",
+        "nameEn": "3mm Xstatic",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "canada",
+        "priority": "medium",
+        "supplier": {
+          "name": "Canada",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "3mm Xstatic",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "3mm Black ETC",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "canada",
+        "priority": "medium",
+        "supplier": {
+          "name": "Canada",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "3mm Black ETC",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "3mm Blue ETC",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "canada",
+        "priority": "medium",
+        "supplier": {
+          "name": "Canada",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "3mm Blue ETC",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "notes": "",
+        "nameEn": "2mm Xstatic",
+        "nameEs": "",
+        "dueDate": null,
+        "notesEn": "",
+        "notesEs": "",
+        "category": "canada",
+        "priority": "medium",
+        "supplier": {
+          "name": "Canada",
+          "email": "",
+          "phone": "",
+          "address": ""
+        },
+        "unitPrice": 0.01,
+        "hasDueDate": false,
+        "invoicePhoto": null,
+        "descriptionEn": "2mm Xstatic",
+        "descriptionEs": "",
+        "recurringWeekly": false
+      },
+      {
+        "nameEn": "Blue Swirl",
+        "nameEs": "",
+        "descriptionEn": "Blue Swirl",
+        "descriptionEs": "",
+        "category": "canada",
+        "unitPrice": 0.01,
+        "priority": "medium",
+        "invoicePhoto": null,
+        "notes": "",
+        "notesEn": "",
+        "notesEs": "",
+        "recurringWeekly": false,
+        "hasDueDate": false,
+        "dueDate": null,
+        "supplier": {
+          "name": "Canada",
+          "phone": "",
+          "email": "",
+          "address": ""
+        }
+      },
+      {
+        "nameEn": "Skid Plates",
+        "nameEs": "",
+        "descriptionEn": "Skid Plates",
+        "descriptionEs": "",
+        "category": "canada",
+        "unitPrice": 0.01,
+        "priority": "medium",
+        "invoicePhoto": null,
+        "notes": "",
+        "notesEn": "",
+        "notesEs": "",
+        "recurringWeekly": false,
+        "hasDueDate": false,
+        "dueDate": null,
+        "supplier": {
+          "name": "Canada",
+          "phone": "",
+          "email": "",
+          "address": ""
+        }
+      },
+      {
+        "nameEn": "Blue Black Aqua Microcell",
+        "nameEs": "",
+        "descriptionEn": "Blue Black Aqua Microcell",
+        "descriptionEs": "",
+        "category": "canada",
+        "unitPrice": 0.01,
+        "priority": "medium",
+        "invoicePhoto": null,
+        "notes": "",
+        "notesEn": "",
+        "notesEs": "",
+        "recurringWeekly": false,
+        "hasDueDate": false,
+        "dueDate": null,
+        "supplier": {
+          "name": "Canada",
+          "phone": "",
+          "email": "",
+          "address": ""
+        }
+      },
+      {
+        "nameEn": "Pink Swirl",
+        "nameEs": "",
+        "descriptionEn": "Pink Swirl",
+        "descriptionEs": "",
+        "category": "canada",
+        "unitPrice": 0.01,
+        "priority": "medium",
+        "invoicePhoto": null,
+        "notes": "",
+        "notesEn": "",
+        "notesEs": "",
+        "recurringWeekly": false,
+        "hasDueDate": false,
+        "dueDate": null,
+        "supplier": {
+          "name": "Canada",
+          "phone": "",
+          "email": "",
+          "address": ""
+        }
+      },
+      {
+        "nameEn": "Grey Suede",
+        "nameEs": "",
+        "descriptionEn": "Grey Suede",
+        "descriptionEs": "",
+        "category": "canada",
+        "unitPrice": 0.01,
+        "priority": "medium",
+        "invoicePhoto": null,
+        "notes": "",
+        "notesEn": "",
+        "notesEs": "",
+        "recurringWeekly": false,
+        "hasDueDate": false,
+        "dueDate": null,
+        "supplier": {
+          "name": "Canada",
+          "phone": "",
+          "email": "",
+          "address": ""
+        }
+      },
+      {
+        "nameEn": "Black Suede",
+        "nameEs": "",
+        "descriptionEn": "Black Suede",
+        "descriptionEs": "",
+        "category": "canada",
+        "unitPrice": 0.01,
+        "priority": "medium",
+        "invoicePhoto": null,
+        "notes": "",
+        "notesEn": "",
+        "notesEs": "",
+        "recurringWeekly": false,
+        "hasDueDate": false,
+        "dueDate": null,
+        "supplier": {
+          "name": "Canada",
+          "phone": "",
+          "email": "",
+          "address": ""
+        }
+      },
+      {
+        "nameEn": "Brown Suede",
+        "nameEs": "",
+        "descriptionEn": "Brown Suede",
+        "descriptionEs": "",
+        "category": "canada",
+        "unitPrice": 0.01,
+        "priority": "medium",
+        "invoicePhoto": null,
+        "notes": "",
+        "notesEn": "",
+        "notesEs": "",
+        "recurringWeekly": false,
+        "hasDueDate": false,
+        "dueDate": null,
+        "supplier": {
+          "name": "Canada",
+          "phone": "",
+          "email": "",
+          "address": ""
+        }
+      },
+      {
+        "nameEn": "Durasole",
+        "nameEs": "",
+        "descriptionEn": "Durasole",
+        "descriptionEs": "",
+        "category": "canada",
+        "unitPrice": 0.01,
+        "priority": "medium",
+        "invoicePhoto": null,
+        "notes": "",
+        "notesEn": "",
+        "notesEs": "",
+        "recurringWeekly": false,
+        "hasDueDate": false,
+        "dueDate": null,
+        "supplier": {
+          "name": "Canada",
+          "phone": "",
+          "email": "",
+          "address": ""
+        }
+      },
+      {
+        "nameEn": "2mm Poron",
+        "nameEs": "",
+        "descriptionEn": "2mm Poron",
+        "descriptionEs": "",
+        "category": "canada",
+        "unitPrice": 0.01,
+        "priority": "medium",
+        "invoicePhoto": null,
+        "notes": "",
+        "notesEn": "",
+        "notesEs": "",
+        "recurringWeekly": false,
+        "hasDueDate": false,
+        "dueDate": null,
+        "supplier": {
+          "name": "Canada",
+          "phone": "",
+          "email": "",
+          "address": ""
+        }
+      },
+      {
+        "nameEn": "3mm Poron",
+        "nameEs": "",
+        "descriptionEn": "3mm Poron",
+        "descriptionEs": "",
+        "category": "canada",
+        "unitPrice": 0.01,
+        "priority": "medium",
+        "invoicePhoto": null,
+        "notes": "",
+        "notesEn": "",
+        "notesEs": "",
+        "recurringWeekly": false,
+        "hasDueDate": false,
+        "dueDate": null,
+        "supplier": {
+          "name": "Canada",
+          "phone": "",
+          "email": "",
+          "address": ""
+        }
+      }
+    ]
+  },
+  "settings": {
+    "deeplApiKey": "e4afab0c-84fe-4ab3-ad55-ce6cbc464856:fx",
+    "emailjsPublicKey": "zpNUg6mIL5Jz4rG9C",
+    "emailjsServiceId": "service_5kzh15h",
+    "emailjsTemplateId": "template_74a69fj",
+    "canadaEmailjsPublicKey": "",
+    "canadaEmailjsServiceId": "",
+    "canadaEmailjsTemplateId": "template_tc91onw",
+    "upsClientId": "ufi7ai1AkWFtvJvAZb950xytvqn0GuGrgAdbfyGLQfGvk4dy",
+    "upsClientSecret": "GlzGO2dKpiBFbe9D2HADINIPeBPBtfAX80ADRcXQAhLE5ceYj9x09t5c0AGaDect",
+    "upsCheckInterval": "1",
+    "upsProxyUrl": "https://wholesome-generosity-production.up.railway.app"
+  },
+  "canadaRequestHistory": [
+    {
+      "id": 37,
+      "date": "2025-12-03T17:39:26.223+00:00",
+      "status": "sent",
+      "sentDate": "2025-12-03T17:40:35.485+00:00",
+      "receivedDate": null,
+      "items": [
+        {
+          "id": 26,
+          "nameEn": "Black Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 27,
+          "nameEn": "Grey Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 28,
+          "nameEn": "Brown Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 29,
+          "nameEn": "Durasole",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unitPrice": 0,
+          "totalPrice": 0
+        }
+      ],
+      "sentItems": [
+        {
+          "id": 26,
+          "nameEn": "Black Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "roll"
+        },
+        {
+          "id": 27,
+          "nameEn": "Grey Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "roll"
+        },
+        {
+          "id": 28,
+          "nameEn": "Brown Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "roll"
+        },
+        {
+          "id": 29,
+          "nameEn": "Durasole",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "roll"
+        },
+        {
+          "id": "26",
+          "nameEn": "Black Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "roll"
+        },
+        {
+          "id": "27",
+          "nameEn": "Grey Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "roll"
+        },
+        {
+          "id": "28",
+          "nameEn": "Brown Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "roll"
+        },
+        {
+          "id": "29",
+          "nameEn": "Durasole",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "roll"
+        }
+      ],
+      "trackingShipments": [
+        {
+          "trackingNumber": "1Z0R07V00449441566",
+          "itemIds": [
+            "26",
+            "27",
+            "28",
+            "29"
+          ],
+          "upsStatus": "On the Way",
+          "upsLastUpdate": null,
+          "upsHasDutiesDue": false,
+          "upsHasDelay": false,
+          "upsExceptionDescription": null,
+          "upsPickedUp": false,
+          "upsInTransit": true,
+          "upsDutiesPaid": false,
+          "upsDutiesAmount": "",
+          "upsStatusCode": "005",
+          "upsLastLocation": "Hamilton",
+          "upsLastDate": "20251203",
+          "upsLastChecked": "2025-12-04T01:34:02.104Z"
+        }
+      ],
+      "trackingNumbers": [
+        "1Z0R07V00449441566"
+      ],
+      "trackingNumber": "1Z0R07V00449441566",
+      "backorders": []
+    },
+    {
+      "id": 36,
+      "date": "2025-12-03T16:09:14.195+00:00",
+      "status": "sent",
+      "sentDate": "2025-12-03T16:32:35.444+00:00",
+      "receivedDate": null,
+      "items": [
+        {
+          "id": 24,
+          "nameEn": "3mm Poron",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 1,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 25,
+          "nameEn": "2mm Poron",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 1,
+          "unitPrice": 0,
+          "totalPrice": 0
+        }
+      ],
+      "sentItems": [
+        {
+          "id": 24,
+          "nameEn": "3mm Poron",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 6,
+          "unit": "roll"
+        },
+        {
+          "id": 25,
+          "nameEn": "2mm Poron",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "roll"
+        },
+        {
+          "id": "24",
+          "nameEn": "3mm Poron",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 6,
+          "unit": "roll"
+        },
+        {
+          "id": "25",
+          "nameEn": "2mm Poron",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "roll"
+        }
+      ],
+      "trackingShipments": [
+        {
+          "trackingNumber": "1Z0R07V00449441566",
+          "itemIds": [
+            "24",
+            "25"
+          ],
+          "upsStatus": "On the Way",
+          "upsLastUpdate": null,
+          "upsHasDutiesDue": false,
+          "upsHasDelay": false,
+          "upsExceptionDescription": null,
+          "upsPickedUp": false,
+          "upsInTransit": true,
+          "upsDutiesPaid": false,
+          "upsDutiesAmount": "",
+          "upsStatusCode": "005",
+          "upsLastLocation": "Hamilton",
+          "upsLastDate": "20251203",
+          "upsLastChecked": "2025-12-04T01:34:03.280Z"
+        }
+      ],
+      "trackingNumbers": [
+        "1Z0R07V00449441566"
+      ],
+      "trackingNumber": "1Z0R07V00449441566",
+      "backorders": []
+    },
+    {
+      "id": 35,
+      "date": "2025-12-03T00:12:40.722+00:00",
+      "status": "sent",
+      "sentDate": "2025-12-03T16:21:58.331+00:00",
+      "receivedDate": null,
+      "items": [
+        {
+          "id": 14,
+          "nameEn": "Black Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 15,
+          "nameEn": "Blue Swirl",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 16,
+          "nameEn": "2mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 1,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 17,
+          "nameEn": "3mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 3,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 18,
+          "nameEn": "Blue Black Aqua Microcell",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 1,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 19,
+          "nameEn": "Pink Swirl",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 4,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 20,
+          "nameEn": "Grey Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 21,
+          "nameEn": "Skid Plates",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 22,
+          "nameEn": "Brown Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 23,
+          "nameEn": "Durasole",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unitPrice": 0,
+          "totalPrice": 0
+        }
+      ],
+      "sentItems": [
+        {
+          "id": 14,
+          "nameEn": "Black Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "sheet"
+        },
+        {
+          "id": 15,
+          "nameEn": "Blue Swirl",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "sheet"
+        },
+        {
+          "id": 16,
+          "nameEn": "2mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 1,
+          "unit": "sheet"
+        },
+        {
+          "id": 17,
+          "nameEn": "3mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 3,
+          "unit": "sheet"
+        },
+        {
+          "id": 18,
+          "nameEn": "Blue Black Aqua Microcell",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 1,
+          "unit": "sheet"
+        },
+        {
+          "id": 19,
+          "nameEn": "Pink Swirl",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 4,
+          "unit": "sheet"
+        },
+        {
+          "id": 20,
+          "nameEn": "Grey Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "sheet"
+        },
+        {
+          "id": 21,
+          "nameEn": "Skid Plates",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "sheet"
+        },
+        {
+          "id": 22,
+          "nameEn": "Brown Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "sheet"
+        },
+        {
+          "id": 23,
+          "nameEn": "Durasole",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "sheet"
+        },
+        {
+          "id": "15",
+          "nameEn": "Blue Swirl",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "sheet"
+        },
+        {
+          "id": "16",
+          "nameEn": "2mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 1,
+          "unit": "sheet"
+        },
+        {
+          "id": "17",
+          "nameEn": "3mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 3,
+          "unit": "sheet"
+        },
+        {
+          "id": "18",
+          "nameEn": "Blue Black Aqua Microcell",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 1,
+          "unit": "sheet"
+        },
+        {
+          "id": "19",
+          "nameEn": "Pink Swirl",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 4,
+          "unit": "sheet"
+        },
+        {
+          "id": "21",
+          "nameEn": "Skid Plates",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unit": "sheet"
+        }
+      ],
+      "trackingShipments": [
+        {
+          "trackingNumber": "1Z0R07V00449253751",
+          "itemIds": [
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "21"
+          ],
+          "upsStatus": "On the Way",
+          "upsLastUpdate": null,
+          "upsHasDutiesDue": false,
+          "upsHasDelay": false,
+          "upsExceptionDescription": null,
+          "upsPickedUp": false,
+          "upsInTransit": true,
+          "upsDutiesPaid": false,
+          "upsDutiesAmount": "",
+          "upsStatusCode": "005",
+          "upsLastLocation": "Hamilton",
+          "upsLastDate": "20251203",
+          "upsLastChecked": "2025-12-04T01:34:04.394Z"
+        }
+      ],
+      "trackingNumbers": [
+        "1Z0R07V00449253751"
+      ],
+      "trackingNumber": "1Z0R07V00449253751",
+      "backorders": []
+    },
+    {
+      "id": 28,
+      "date": "2025-11-26T20:21:15.653+00:00",
+      "status": "received",
+      "sentDate": "2025-11-26T20:22:36.149+00:00",
+      "receivedDate": "2025-12-03T16:34:57.285+00:00",
+      "items": [
+        {
+          "id": 11,
+          "nameEn": "2mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 2,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 12,
+          "nameEn": "3mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 5,
+          "unitPrice": 0,
+          "totalPrice": 0
+        }
+      ],
+      "sentItems": [],
+      "trackingShipments": [
+        {
+          "trackingNumber": "1Z0R07V00450285572",
+          "itemIds": [
+            "11",
+            "12"
+          ],
+          "upsStatus": "Delivered",
+          "upsLastUpdate": null,
+          "upsHasDutiesDue": false,
+          "upsHasDelay": false,
+          "upsExceptionDescription": null,
+          "upsPickedUp": false,
+          "upsInTransit": true,
+          "upsDutiesPaid": false,
+          "upsDutiesAmount": "",
+          "upsStatusCode": "011",
+          "upsLastLocation": "LEON",
+          "upsLastDate": "20251201",
+          "upsLastChecked": "2025-12-04T01:34:05.729Z"
+        }
+      ],
+      "trackingNumbers": [
+        "1Z0R07V00450285572"
+      ],
+      "trackingNumber": "1Z0R07V00450285572",
+      "backorders": []
+    },
+    {
+      "id": 27,
+      "date": "2025-11-25T13:34:39.863+00:00",
+      "status": "received",
+      "sentDate": "2025-11-25T13:36:00.745+00:00",
+      "receivedDate": "2025-11-29T19:52:54.504+00:00",
+      "items": [
+        {
+          "id": 5,
+          "nameEn": "Black Suede",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 3,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 6,
+          "nameEn": "Blue Swirl",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 8,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 7,
+          "nameEn": "Plastazote",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 7,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 8,
+          "nameEn": "Black Swirl",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 5,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 9,
+          "nameEn": "Green, Black, Blue Microcell",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 5,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 10,
+          "nameEn": "2mm Xstatic",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 3,
+          "unitPrice": 0,
+          "totalPrice": 0
+        }
+      ],
+      "sentItems": [],
+      "trackingShipments": [
+        {
+          "trackingNumber": "1Z0R07V00450534892",
+          "itemIds": [
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+          ],
+          "upsStatus": "Delivered",
+          "upsLastUpdate": null,
+          "upsHasDutiesDue": false,
+          "upsHasDelay": false,
+          "upsExceptionDescription": null,
+          "upsPickedUp": false,
+          "upsInTransit": true,
+          "upsDutiesPaid": true,
+          "upsDutiesAmount": "",
+          "upsStatusCode": "011",
+          "upsLastLocation": "LEON",
+          "upsLastDate": "20251126",
+          "upsLastChecked": "2025-12-04T01:34:06.851Z",
+          "dutiesAlerted": false
+        }
+      ],
+      "trackingNumbers": [
+        "1Z0R07V00450534892"
+      ],
+      "trackingNumber": "1Z0R07V00450534892",
+      "backorders": []
+    },
+    {
+      "id": 26,
+      "date": "2025-11-24T22:10:48.657+00:00",
+      "status": "received",
+      "sentDate": "2025-11-24T22:42:45.671+00:00",
+      "receivedDate": "2025-11-29T19:52:57.107+00:00",
+      "items": [
+        {
+          "id": 3,
+          "nameEn": "3mm Black ETC",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 1,
+          "unitPrice": 0,
+          "totalPrice": 0
+        },
+        {
+          "id": 4,
+          "nameEn": "3mm Blue ETC",
+          "nameEs": "",
+          "category": "canada",
+          "quantity": 1,
+          "unitPrice": 0,
+          "totalPrice": 0
+        }
+      ],
+      "sentItems": [],
+      "trackingShipments": [
+        {
+          "trackingNumber": "1Z0R07V00450813278",
+          "itemIds": [
+            "3"
+          ],
+          "upsStatus": "Delivered",
+          "upsLastUpdate": null,
+          "upsHasDutiesDue": false,
+          "upsHasDelay": false,
+          "upsExceptionDescription": null,
+          "upsPickedUp": false,
+          "upsInTransit": true,
+          "upsDutiesPaid": true,
+          "upsDutiesAmount": "",
+          "upsStatusCode": "011",
+          "upsLastLocation": "LEON",
+          "upsLastDate": "20251126",
+          "upsLastChecked": "2025-12-04T01:34:07.936Z",
+          "dutiesAlerted": false
+        },
+        {
+          "trackingNumber": "1Z0R07V00451845885",
+          "itemIds": [
+            "4"
+          ],
+          "upsStatus": "Delivered",
+          "upsLastUpdate": null,
+          "upsHasDutiesDue": false,
+          "upsHasDelay": false,
+          "upsExceptionDescription": null,
+          "upsPickedUp": false,
+          "upsInTransit": true,
+          "upsDutiesPaid": true,
+          "upsDutiesAmount": "",
+          "upsStatusCode": "011",
+          "upsLastLocation": "LEON",
+          "upsLastDate": "20251128",
+          "upsLastChecked": "2025-12-04T01:34:09.284Z",
+          "dutiesAlerted": false
+        }
+      ],
+      "trackingNumbers": [
+        "1Z0R07V00450813278",
+        "1Z0R07V00451845885"
+      ],
+      "trackingNumber": "1Z0R07V00450813278",
+      "backorders": []
+    }
+  ],
+  "savedBudgets": [
+    {
+      "id": 7,
+      "savedDate": "2025-11-28T11:26:12.902+00:00",
+      "weekStart": "2025-11-24T05:00:00+00:00",
+      "weekLabel": "Week of Nov 24, 2025 (Week 48)",
+      "total": 103885.98,
+      "itemCount": 20,
+      "approvedCount": 0,
+      "pendingCount": 20,
+      "language": "en",
+      "isPartialPayment": false,
+      "items": [
+        {
+          "id": 1764328672142.1118,
+          "nameEn": "12mm Black EVA",
+          "nameEs": "",
+          "category": "materials",
+          "priority": "medium",
+          "quantity": 2,
+          "supplier": {
+            "name": "12mm Black EVA",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-24T05:00:00.000Z",
+          "unitPrice": 600,
+          "lastEdited": "2025-11-28T11:18:05.528Z",
+          "totalPrice": 1200,
+          "invoicePhoto": null,
+          "descriptionEn": "12mm Black EVA",
+          "descriptionEs": "",
+          "weeklyAddedWeek": "2025-11-24T05:00:00.000Z"
+        },
+        {
+          "id": 1764328672143.0042,
+          "nameEn": "1mm Puff",
+          "nameEs": "",
+          "category": "materials",
+          "priority": "medium",
+          "quantity": 2,
+          "supplier": {
+            "name": "1mm Puff",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-24T05:00:00.000Z",
+          "unitPrice": 5100,
+          "lastEdited": "2025-11-28T11:18:16.028Z",
+          "totalPrice": 10200,
+          "invoicePhoto": null,
+          "descriptionEn": "1mm Puff",
+          "descriptionEs": "",
+          "weeklyAddedWeek": "2025-11-24T05:00:00.000Z"
+        },
+        {
+          "id": 1764328672143.1614,
+          "nameEn": "Glue",
+          "nameEs": "Glue",
+          "category": "glue",
+          "priority": "medium",
+          "quantity": 3,
+          "supplier": {
+            "name": "Glue",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-24T05:00:00.000Z",
+          "unitPrice": 1160,
+          "lastEdited": "2025-11-28T11:18:22.004Z",
+          "totalPrice": 3480,
+          "invoicePhoto": null,
+          "descriptionEn": "Glue",
+          "descriptionEs": "",
+          "weeklyAddedWeek": "2025-11-24T05:00:00.000Z"
+        },
+        {
+          "id": 1764328672143.4453,
+          "nameEn": "Payroll",
+          "nameEs": "",
+          "category": "payroll",
+          "priority": "medium",
+          "quantity": 1,
+          "supplier": {
+            "name": "Payroll",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-24T05:00:00.000Z",
+          "unitPrice": 47899,
+          "lastEdited": "2025-11-28T11:18:42.218Z",
+          "totalPrice": 47899,
+          "invoicePhoto": null,
+          "descriptionEn": "Payroll",
+          "descriptionEs": "",
+          "weeklyAddedWeek": "2025-11-24T05:00:00.000Z"
+        },
+        {
+          "id": 1764328672143.9353,
+          "nameEn": "Accounting",
+          "nameEs": "",
+          "category": "accounting",
+          "priority": "medium",
+          "quantity": 1,
+          "supplier": {
+            "name": "Ceasar",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-24T05:00:00.000Z",
+          "unitPrice": 3000,
+          "totalPrice": 3000,
+          "invoicePhoto": null,
+          "descriptionEn": "Accounting",
+          "descriptionEs": "",
+          "weeklyAddedWeek": "2025-11-24T05:00:00.000Z"
+        },
+        {
+          "id": 1764328672143.2314,
+          "nameEn": "Carbon",
+          "nameEs": "Carbon",
+          "category": "carbon",
+          "priority": "medium",
+          "quantity": 3,
+          "supplier": {
+            "name": "Polynac",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-24T05:00:00.000Z",
+          "unitPrice": 3354.66,
+          "lastEdited": "2025-11-28T11:18:50.282Z",
+          "totalPrice": 10063.98,
+          "invoicePhoto": null,
+          "descriptionEn": "Carbon",
+          "descriptionEs": "",
+          "weeklyAddedWeek": "2025-11-24T05:00:00.000Z"
+        },
+        {
+          "id": 1764328672143.3643,
+          "nameEn": "Shipping Boxes",
+          "nameEs": "",
+          "category": "other",
+          "priority": "medium",
+          "quantity": 1,
+          "supplier": {
+            "name": "Shipping Boxes",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-24T05:00:00.000Z",
+          "unitPrice": 300,
+          "totalPrice": 300,
+          "invoicePhoto": null,
+          "descriptionEn": "Shipping Boxes",
+          "descriptionEs": "",
+          "weeklyAddedWeek": "2025-11-24T05:00:00.000Z"
+        },
+        {
+          "id": 1764328672143.2583,
+          "nameEn": "Jugs of Water",
+          "nameEs": "",
+          "category": "other",
+          "priority": "medium",
+          "quantity": 5,
+          "supplier": {
+            "name": "Jugs of Water",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-24T05:00:00.000Z",
+          "unitPrice": 75,
+          "lastEdited": "2025-11-28T11:19:02.973Z",
+          "totalPrice": 375,
+          "invoicePhoto": null,
+          "descriptionEn": "Jugs of Water",
+          "descriptionEs": "",
+          "weeklyAddedWeek": "2025-11-24T05:00:00.000Z"
+        },
+        {
+          "id": 1764328672143.7117,
+          "nameEn": "Uber",
+          "nameEs": "",
+          "category": "other",
+          "priority": "medium",
+          "quantity": 1,
+          "supplier": {
+            "name": "Uber",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-24T05:00:00.000Z",
+          "unitPrice": 1500,
+          "totalPrice": 1500,
+          "invoicePhoto": null,
+          "descriptionEn": "Delivery of the Box",
+          "descriptionEs": "",
+          "weeklyAddedWeek": "2025-11-24T05:00:00.000Z"
+        },
+        {
+          "id": 1764328672143.2805,
+          "nameEn": "Petty Cash",
+          "nameEs": "",
+          "category": "petty_cash",
+          "priority": "medium",
+          "quantity": 1,
+          "supplier": {
+            "name": "Petty Cash",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-24T05:00:00.000Z",
+          "unitPrice": 3500,
+          "totalPrice": 3500,
+          "invoicePhoto": null,
+          "descriptionEn": "Petty Cash",
+          "descriptionEs": "",
+          "weeklyAddedWeek": "2025-11-24T05:00:00.000Z"
+        },
+        {
+          "id": 1764328774438,
+          "notes": "",
+          "nameEn": "Garbage Pick Up",
+          "nameEs": "",
+          "notesEn": "",
+          "notesEs": "",
+          "category": "other",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "Garbage",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1600,
+          "totalPrice": 1600,
+          "invoicePhoto": null,
+          "descriptionEn": "Weekly pick up of garbage",
+          "descriptionEs": "",
+          "hasPriceAdjustment": false,
+          "priceAdjustmentNote": null
+        },
+        {
+          "id": 1764328774439,
+          "notes": "",
+          "nameEn": "Chemicals",
+          "nameEs": "",
+          "notesEn": "",
+          "notesEs": "",
+          "category": "other",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "Chemicals",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1200,
+          "lastEdited": "2025-11-28T11:20:13.555Z",
+          "totalPrice": 1200,
+          "invoicePhoto": null,
+          "descriptionEn": "Thinner etc",
+          "descriptionEs": "",
+          "hasPriceAdjustment": false,
+          "priceAdjustmentNote": null
+        },
+        {
+          "id": 1764328774439,
+          "notes": "",
+          "nameEn": "Bags",
+          "nameEs": "",
+          "notesEn": "",
+          "notesEs": "",
+          "category": "other",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "Bags",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 500,
+          "totalPrice": 500,
+          "invoicePhoto": null,
+          "descriptionEn": "Bags for packing orthotics",
+          "descriptionEs": "",
+          "hasPriceAdjustment": false,
+          "priceAdjustmentNote": null
+        },
+        {
+          "id": 1764328774440,
+          "notes": "",
+          "nameEn": "Costco",
+          "nameEs": "",
+          "notesEn": "",
+          "notesEs": "",
+          "category": "other",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "Costco",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1509,
+          "lastEdited": "2025-11-28T11:20:03.437Z",
+          "totalPrice": 1509,
+          "invoicePhoto": null,
+          "descriptionEn": "Supplies- Cleaning and toilet paper etc",
+          "descriptionEs": "",
+          "hasPriceAdjustment": false,
+          "priceAdjustmentNote": null
+        },
+        {
+          "id": 1764328774440,
+          "notes": "",
+          "nameEn": "English School",
+          "nameEs": "",
+          "notesEn": "",
+          "notesEs": "",
+          "category": "other",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "English School",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 2000,
+          "totalPrice": 2000,
+          "invoicePhoto": null,
+          "descriptionEn": "English School For Teresa",
+          "descriptionEs": "",
+          "hasPriceAdjustment": false,
+          "priceAdjustmentNote": null
+        },
+        {
+          "id": 1764328874267,
+          "notes": "2mm and 3mm blue Poron",
+          "nameEn": "Other",
+          "nameEs": "",
+          "notesEn": "2mm and 3mm blue Poron",
+          "notesEs": "",
+          "category": "other",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "Other",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 3500,
+          "lastEdited": "2025-11-28T11:21:26.197Z",
+          "totalPrice": 3500,
+          "invoicePhoto": null,
+          "descriptionEn": "Other",
+          "descriptionEs": "",
+          "hasPriceAdjustment": false,
+          "priceAdjustmentNote": null
+        },
+        {
+          "id": 1764328934938,
+          "notes": "JJ to provide for what.",
+          "nameEn": "Office Supplies",
+          "nameEs": "",
+          "notesEn": "JJ to provide for what.",
+          "notesEs": "",
+          "category": "office_supplies",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "Office Supplies",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1000,
+          "lastEdited": "2025-11-28T11:22:28.083Z",
+          "totalPrice": 1000,
+          "invoicePhoto": null,
+          "descriptionEn": "Office Supplies",
+          "descriptionEs": "",
+          "hasPriceAdjustment": false,
+          "priceAdjustmentNote": null
+        },
+        {
+          "id": 1764328972132,
+          "notes": "",
+          "nameEn": "Internet",
+          "nameEs": "",
+          "notesEn": "",
+          "notesEs": "",
+          "category": "internet",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "Internet",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1798,
+          "totalPrice": 1798,
+          "invoicePhoto": null,
+          "descriptionEn": "Internet",
+          "descriptionEs": "",
+          "hasPriceAdjustment": false,
+          "priceAdjustmentNote": null
+        },
+        {
+          "id": 1764329059857,
+          "notes": "Darian",
+          "nameEn": "Vacation Pay",
+          "nameEs": "",
+          "notesEn": "Darian",
+          "notesEs": "",
+          "category": "payroll",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "Payroll",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 4461,
+          "lastEdited": "2025-11-28T11:24:52.778Z",
+          "totalPrice": 4461,
+          "invoicePhoto": null,
+          "descriptionEn": "Vacation Pay (note for who) needed",
+          "descriptionEs": "",
+          "hasPriceAdjustment": false,
+          "priceAdjustmentNote": null
+        },
+        {
+          "id": 1764329059858,
+          "notes": "Saturday Nov 22nd 16 employees @ 300mxn each Bonus",
+          "nameEn": "Bonuses",
+          "nameEs": "",
+          "notesEn": "Saturday Nov 22nd 16 employees @ 300mxn each Bonus",
+          "notesEs": "",
+          "category": "payroll",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "Payroll",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 4800,
+          "lastEdited": "2025-11-28T11:24:29.660Z",
+          "totalPrice": 4800,
+          "invoicePhoto": null,
+          "descriptionEn": "Bonuses-(note needed to explain)",
+          "descriptionEs": "",
+          "hasPriceAdjustment": false,
+          "priceAdjustmentNote": null
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "savedDate": "2025-11-21T19:40:52.474+00:00",
+      "weekStart": "2025-11-17T05:00:00+00:00",
+      "weekLabel": "Week of Nov 17, 2025",
+      "total": 155778.99,
+      "itemCount": 16,
+      "approvedCount": 15,
+      "pendingCount": 1,
+      "language": "en",
+      "isPartialPayment": false,
+      "items": [
+        {
+          "id": 1763654594538,
+          "notes": "",
+          "nameEn": "Repairs and Maintenance",
+          "nameEs": "",
+          "notesEn": "",
+          "notesEs": "",
+          "category": "repairs",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "Repairs and Maintenance",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 9250,
+          "totalPrice": 9250,
+          "invoicePhoto": null,
+          "descriptionEn": "Repairs and Maintenance",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved"
+        },
+        {
+          "id": 1763654684440,
+          "notes": "Uber for box deliveries daily",
+          "nameEn": "Other",
+          "nameEs": "",
+          "notesEn": "Uber for box deliveries daily",
+          "notesEs": "",
+          "category": "other",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "Other",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1500,
+          "totalPrice": 1500,
+          "invoicePhoto": null,
+          "descriptionEn": "Other",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved"
+        },
+        {
+          "id": 1763751192895.639,
+          "nameEn": "Payroll",
+          "nameEs": "",
+          "category": "payroll",
+          "priority": "medium",
+          "quantity": 1,
+          "supplier": {
+            "name": "Payroll",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-21T05:00:00.000Z",
+          "unitPrice": 0.01,
+          "totalPrice": 0.01,
+          "invoicePhoto": null,
+          "descriptionEn": "Payroll",
+          "descriptionEs": "",
+          "weeklyAddedWeek": "2025-11-17T05:00:00.000Z"
+        },
+        {
+          "id": 1763640287214.0525,
+          "nameEn": "12mm Black EVA",
+          "nameEs": "",
+          "category": "materials",
+          "priority": "medium",
+          "quantity": 2,
+          "supplier": {
+            "name": "12mm Black EVA",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-20T05:00:00.000Z",
+          "unitPrice": 600,
+          "lastEdited": "2025-11-20T12:04:59.350Z",
+          "totalPrice": 1200,
+          "invoicePhoto": null,
+          "descriptionEn": "12mm Black EVA",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved",
+          "weeklyAddedWeek": "2025-11-17T05:00:00.000Z"
+        },
+        {
+          "id": 1763640287214.1973,
+          "nameEn": "12mm White EVA",
+          "nameEs": "12mm White EVA",
+          "category": "materials",
+          "priority": "medium",
+          "quantity": 1,
+          "supplier": {
+            "name": "12mm White EVA",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-20T05:00:00.000Z",
+          "unitPrice": 600,
+          "totalPrice": 600,
+          "invoicePhoto": null,
+          "descriptionEn": "12mm White EVA",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved",
+          "weeklyAddedWeek": "2025-11-17T05:00:00.000Z"
+        },
+        {
+          "id": 1763640287214.8533,
+          "nameEn": "1mm Puff",
+          "nameEs": "",
+          "category": "materials",
+          "priority": "medium",
+          "quantity": 1,
+          "supplier": {
+            "name": "1mm Puff",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-20T05:00:00.000Z",
+          "unitPrice": 5100,
+          "totalPrice": 5100,
+          "invoicePhoto": null,
+          "descriptionEn": "1mm Puff",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved",
+          "weeklyAddedWeek": "2025-11-17T05:00:00.000Z"
+        },
+        {
+          "id": 1763640287214.131,
+          "nameEn": "Glue",
+          "nameEs": "Glue",
+          "category": "glue",
+          "priority": "medium",
+          "quantity": 3,
+          "supplier": {
+            "name": "Glue",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-20T05:00:00.000Z",
+          "unitPrice": 1160,
+          "lastEdited": "2025-11-20T12:05:07.253Z",
+          "totalPrice": 3480,
+          "invoicePhoto": null,
+          "descriptionEn": "Glue",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved",
+          "weeklyAddedWeek": "2025-11-17T05:00:00.000Z"
+        },
+        {
+          "id": 1763640287214.4792,
+          "nameEn": "Accounting",
+          "nameEs": "",
+          "category": "accounting",
+          "priority": "medium",
+          "quantity": 1,
+          "supplier": {
+            "name": "Ceasar",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-20T05:00:00.000Z",
+          "unitPrice": 3000,
+          "totalPrice": 3000,
+          "invoicePhoto": null,
+          "descriptionEn": "Accounting",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved",
+          "weeklyAddedWeek": "2025-11-17T05:00:00.000Z"
+        },
+        {
+          "id": 1763640287214.4424,
+          "nameEn": "Carbon",
+          "nameEs": "Carbon",
+          "category": "carbon",
+          "priority": "medium",
+          "quantity": 3,
+          "supplier": {
+            "name": "Polynac",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-20T05:00:00.000Z",
+          "unitPrice": 3354.66,
+          "lastEdited": "2025-11-20T12:05:20.729Z",
+          "totalPrice": 10063.98,
+          "invoicePhoto": null,
+          "descriptionEn": "Carbon",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved",
+          "weeklyAddedWeek": "2025-11-17T05:00:00.000Z"
+        },
+        {
+          "id": 1763640287214.2795,
+          "nameEn": "Shipping Boxes",
+          "nameEs": "",
+          "category": "other",
+          "priority": "medium",
+          "quantity": 1,
+          "supplier": {
+            "name": "Shipping Boxes",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-20T05:00:00.000Z",
+          "unitPrice": 300,
+          "totalPrice": 300,
+          "invoicePhoto": null,
+          "descriptionEn": "Shipping Boxes",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved",
+          "weeklyAddedWeek": "2025-11-17T05:00:00.000Z"
+        },
+        {
+          "id": 1763640287214.1807,
+          "nameEn": "Jugs of Water",
+          "nameEs": "",
+          "category": "other",
+          "priority": "medium",
+          "quantity": 5,
+          "supplier": {
+            "name": "Jugs of Water",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-20T05:00:00.000Z",
+          "unitPrice": 75,
+          "lastEdited": "2025-11-20T12:05:36.789Z",
+          "totalPrice": 375,
+          "invoicePhoto": null,
+          "descriptionEn": "Jugs of Water",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved",
+          "weeklyAddedWeek": "2025-11-17T05:00:00.000Z"
+        },
+        {
+          "id": 1763640287214.8438,
+          "nameEn": "Petty Cash",
+          "nameEs": "",
+          "category": "petty_cash",
+          "priority": "medium",
+          "quantity": 1,
+          "supplier": {
+            "name": "Petty Cash",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-20T05:00:00.000Z",
+          "unitPrice": 3500,
+          "totalPrice": 3500,
+          "invoicePhoto": null,
+          "descriptionEn": "Petty Cash",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved",
+          "weeklyAddedWeek": "2025-11-17T05:00:00.000Z"
+        },
+        {
+          "id": 1763653465592,
+          "notes": "",
+          "nameEn": "IMSS-Large",
+          "nameEs": "",
+          "notesEn": "",
+          "notesEs": "",
+          "category": "imss-large",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "IMSS",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 99532,
+          "totalPrice": 99532,
+          "invoicePhoto": null,
+          "descriptionEn": "IMSS-Large",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved"
+        },
+        {
+          "id": 1763653570506,
+          "notes": "",
+          "nameEn": "Electric",
+          "nameEs": "",
+          "notesEn": "",
+          "notesEs": "",
+          "category": "electric",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "Electric",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 7564,
+          "totalPrice": 7564,
+          "invoicePhoto": null,
+          "descriptionEn": "Electric",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved"
+        },
+        {
+          "id": 1763653907618,
+          "notes": "Rolls of labels",
+          "nameEn": "Office Supplies",
+          "nameEs": "",
+          "notesEn": "Rolls of labels",
+          "notesEs": "",
+          "category": "office_supplies",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "Office Supplies",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 1700,
+          "totalPrice": 1700,
+          "invoicePhoto": null,
+          "descriptionEn": "Office Supplies",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved"
+        },
+        {
+          "id": 1763654441181,
+          "notes": "",
+          "nameEn": "Water",
+          "nameEs": "",
+          "notesEn": "",
+          "notesEs": "",
+          "category": "water",
+          "priority": "high",
+          "quantity": 1,
+          "supplier": {
+            "name": "Water",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "unitPrice": 8614,
+          "totalPrice": 8614,
+          "invoicePhoto": null,
+          "descriptionEn": "Water",
+          "descriptionEs": "",
+          "approvalReason": "",
+          "approvalStatus": "approved"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "savedDate": "2025-11-21T18:45:27.001+00:00",
+      "weekStart": "2025-11-17T05:00:00+00:00",
+      "weekLabel": "Week of Nov 17, 2025 (Partial Payment)",
+      "total": 55801,
+      "itemCount": 1,
+      "approvedCount": 1,
+      "pendingCount": 0,
+      "language": "en",
+      "isPartialPayment": true,
+      "items": [
+        {
+          "id": 1763640287214.3408,
+          "nameEn": "Payroll",
+          "nameEs": "",
+          "category": "payroll",
+          "priority": "medium",
+          "quantity": 1,
+          "supplier": {
+            "name": "Payroll",
+            "email": "",
+            "phone": "",
+            "address": ""
+          },
+          "dateAdded": "2025-11-20T05:00:00.000Z",
+          "unitPrice": 55801,
+          "lastEdited": "2025-11-20T15:43:47.358Z",
+          "totalPrice": 55801,
+          "invoicePhoto": null,
+          "descriptionEn": "Payroll",
+          "descriptionEs": "",
+          "receiptAmount": 50119,
+          "approvalReason": "",
+          "approvalStatus": "approved",
+          "weeklyAddedWeek": "2025-11-17T05:00:00.000Z"
+        }
+      ]
+    }
+  ],
+  "budgetItems": [
+    {
+      "id": 282142,
+      "nameEn": "Carbon",
+      "nameEs": "Carbon",
+      "descriptionEn": "Carbon",
+      "descriptionEs": "",
+      "category": "carbon",
+      "unitPrice": 3354.66,
+      "quantity": 3,
+      "totalPrice": 10063.98,
+      "priority": "medium",
+      "invoicePhoto": null,
+      "supplier": {
+        "name": "Polynac",
+        "email": "",
+        "phone": "",
+        "address": ""
+      },
+      "weeklyAddedWeek": "2025-12-01T05:00:00.000Z",
+      "dateAdded": "2025-12-01T05:00:00.000Z",
+      "lastEdited": "2025-12-03T00:41:21.268Z"
+    },
+    {
+      "id": 282143,
+      "nameEn": "Glue",
+      "nameEs": "Glue",
+      "descriptionEn": "Glue",
+      "descriptionEs": "",
+      "category": "glue",
+      "unitPrice": 1160,
+      "quantity": 3,
+      "totalPrice": 3480,
+      "priority": "medium",
+      "invoicePhoto": null,
+      "supplier": {
+        "name": "Glue",
+        "email": "",
+        "phone": "",
+        "address": ""
+      },
+      "weeklyAddedWeek": "2025-12-01T05:00:00.000Z",
+      "dateAdded": "2025-12-01T05:00:00.000Z",
+      "lastEdited": "2025-12-03T00:40:39.610Z"
+    },
+    {
+      "id": 282144,
+      "nameEn": "Accounting",
+      "nameEs": "",
+      "descriptionEn": "Accounting",
+      "descriptionEs": "",
+      "category": "accounting",
+      "unitPrice": 3000,
+      "quantity": 1,
+      "totalPrice": 3000,
+      "priority": "medium",
+      "invoicePhoto": null,
+      "supplier": {
+        "name": "Ceasar",
+        "email": "",
+        "phone": "",
+        "address": ""
+      },
+      "weeklyAddedWeek": "2025-12-01T05:00:00.000Z",
+      "dateAdded": "2025-12-01T05:00:00.000Z"
+    },
+    {
+      "id": 282145,
+      "nameEn": "12mm Black EVA",
+      "nameEs": "",
+      "descriptionEn": "12mm Black EVA",
+      "descriptionEs": "",
+      "category": "materials",
+      "unitPrice": 600,
+      "quantity": 2,
+      "totalPrice": 1200,
+      "priority": "medium",
+      "invoicePhoto": null,
+      "supplier": {
+        "name": "12mm Black EVA",
+        "email": "",
+        "phone": "",
+        "address": ""
+      },
+      "weeklyAddedWeek": "2025-12-01T05:00:00.000Z",
+      "dateAdded": "2025-12-01T05:00:00.000Z",
+      "lastEdited": "2025-12-03T00:40:48.190Z"
+    },
+    {
+      "id": 282147,
+      "nameEn": "1mm Puff",
+      "nameEs": "",
+      "descriptionEn": "1mm Puff",
+      "descriptionEs": "",
+      "category": "materials",
+      "unitPrice": 5100,
+      "quantity": 1,
+      "totalPrice": 5100,
+      "priority": "medium",
+      "invoicePhoto": null,
+      "supplier": {
+        "name": "1mm Puff",
+        "email": "",
+        "phone": "",
+        "address": ""
+      },
+      "weeklyAddedWeek": "2025-12-01T05:00:00.000Z",
+      "dateAdded": "2025-12-01T05:00:00.000Z"
+    },
+    {
+      "id": 282148,
+      "nameEn": "Petty Cash",
+      "nameEs": "",
+      "descriptionEn": "Petty Cash",
+      "descriptionEs": "",
+      "category": "petty_cash",
+      "unitPrice": 3500,
+      "quantity": 1,
+      "totalPrice": 3500,
+      "priority": "medium",
+      "invoicePhoto": null,
+      "supplier": {
+        "name": "Petty Cash",
+        "email": "",
+        "phone": "",
+        "address": ""
+      },
+      "weeklyAddedWeek": "2025-12-01T05:00:00.000Z",
+      "dateAdded": "2025-12-01T05:00:00.000Z"
+    },
+    {
+      "id": 282149,
+      "nameEn": "Shipping Boxes",
+      "nameEs": "",
+      "descriptionEn": "Shipping Boxes",
+      "descriptionEs": "",
+      "category": "other",
+      "unitPrice": 300,
+      "quantity": 1,
+      "totalPrice": 300,
+      "priority": "medium",
+      "invoicePhoto": null,
+      "supplier": {
+        "name": "Shipping Boxes",
+        "email": "",
+        "phone": "",
+        "address": ""
+      },
+      "weeklyAddedWeek": "2025-12-01T05:00:00.000Z",
+      "dateAdded": "2025-12-01T05:00:00.000Z"
+    },
+    {
+      "id": 282150,
+      "nameEn": "Jugs of Water",
+      "nameEs": "",
+      "descriptionEn": "Jugs of Water",
+      "descriptionEs": "",
+      "category": "other",
+      "unitPrice": 75,
+      "quantity": 5,
+      "totalPrice": 375,
+      "priority": "medium",
+      "invoicePhoto": null,
+      "supplier": {
+        "name": "Jugs of Water",
+        "email": "",
+        "phone": "",
+        "address": ""
+      },
+      "weeklyAddedWeek": "2025-12-01T05:00:00.000Z",
+      "dateAdded": "2025-12-01T05:00:00.000Z",
+      "lastEdited": "2025-12-04T01:04:42.325Z"
+    },
+    {
+      "id": 282151,
+      "nameEn": "Uber",
+      "nameEs": "",
+      "descriptionEn": "Delivery of the Box",
+      "descriptionEs": "",
+      "category": "other",
+      "unitPrice": 1500,
+      "quantity": 1,
+      "totalPrice": 1500,
+      "priority": "medium",
+      "invoicePhoto": null,
+      "supplier": {
+        "name": "Uber",
+        "email": "",
+        "phone": "",
+        "address": ""
+      },
+      "weeklyAddedWeek": "2025-12-01T05:00:00.000Z",
+      "dateAdded": "2025-12-01T05:00:00.000Z"
+    },
+    {
+      "id": 282152,
+      "nameEn": "Payroll",
+      "nameEs": "",
+      "descriptionEn": "Payroll",
+      "descriptionEs": "",
+      "category": "payroll",
+      "unitPrice": 53008,
+      "quantity": 1,
+      "totalPrice": 53008,
+      "priority": "medium",
+      "invoicePhoto": null,
+      "supplier": {
+        "name": "Payroll",
+        "email": "",
+        "phone": "",
+        "address": ""
+      },
+      "weeklyAddedWeek": "2025-12-01T05:00:00.000Z",
+      "dateAdded": "2025-12-01T05:00:00.000Z",
+      "lastEdited": "2025-12-04T00:20:26.424Z"
+    },
+    {
+      "id": 282153,
+      "nameEn": "School Travel",
+      "nameEs": "",
+      "descriptionEn": "School Travel",
+      "descriptionEs": "",
+      "category": "other",
+      "unitPrice": 500,
+      "quantity": 1,
+      "totalPrice": 500,
+      "priority": "medium",
+      "invoicePhoto": null,
+      "supplier": {
+        "name": "School Travel",
+        "phone": "",
+        "email": "",
+        "address": ""
+      },
+      "weeklyAddedWeek": "2025-12-01T05:00:00.000Z",
+      "dateAdded": "2025-12-01T05:00:00.000Z"
+    },
+    {
+      "id": 282154,
+      "nameEn": "Rent",
+      "nameEs": "",
+      "descriptionEn": "Rent",
+      "descriptionEs": "",
+      "category": "rent",
+      "unitPrice": 30740,
+      "quantity": 1,
+      "totalPrice": 30740,
+      "priority": "high",
+      "invoicePhoto": null,
+      "notes": "",
+      "notesEn": "",
+      "notesEs": "",
+      "supplier": {
+        "name": "Rent",
+        "email": "",
+        "phone": "",
+        "address": ""
+      },
+      "priceAdjustmentNote": null,
+      "hasPriceAdjustment": false,
+      "lastEdited": "2025-12-03T22:17:07.316Z"
+    },
+    {
+      "id": 282156,
+      "nameEn": "Bonuses",
+      "nameEs": "",
+      "descriptionEn": "Bonuses-(note needed to explain)",
+      "descriptionEs": "",
+      "category": "payroll",
+      "unitPrice": 1500,
+      "quantity": 1,
+      "totalPrice": 1500,
+      "priority": "high",
+      "invoicePhoto": null,
+      "notes": "Worked Saturday November 29th 5 sataff @ 300mxn per person",
+      "notesEn": "Worked Saturday November 29th 5 sataff @ 300mxn per person",
+      "notesEs": "",
+      "supplier": {
+        "name": "Payroll",
+        "email": "",
+        "phone": "",
+        "address": ""
+      },
+      "priceAdjustmentNote": null,
+      "hasPriceAdjustment": false,
+      "lastEdited": "2025-12-03T23:36:14.403Z"
+    }
+  ],
+  "activityLog": [
+    {
+      "id": 1764810305000,
+      "type": "delete",
+      "description": "Removed item: PolyPro",
+      "itemId": 1764807769536.9395,
+      "timestamp": "2025-12-04T01:05:05.000Z",
+      "language": "en"
+    },
+    {
+      "id": 1764810300345,
+      "type": "delete",
+      "description": "Removed item: 12mm White EVA",
+      "itemId": 1764807769535.1865,
+      "timestamp": "2025-12-04T01:05:00.345Z",
+      "language": "en"
+    },
+    {
+      "id": 1764810282329,
+      "type": "update",
+      "description": "Updated quantity: Jugs of Water",
+      "itemId": 282150,
+      "timestamp": "2025-12-04T01:04:42.329Z",
+      "language": "en"
+    },
+    {
+      "id": 1764810167494,
+      "type": "delete",
+      "description": "Removed item: Payroll",
+      "itemId": 1764807769536.1648,
+      "timestamp": "2025-12-04T01:02:47.494Z",
+      "language": "en"
+    },
+    {
+      "id": 1764804975994,
+      "type": "update",
+      "description": "Updated price: Bonuses",
+      "itemId": 282156,
+      "timestamp": "2025-12-03T23:36:15.994Z",
+      "language": "en"
+    },
+    {
+      "id": 1764804923049,
+      "type": "delete",
+      "description": "Removed item: Bonuses",
+      "itemId": 282155,
+      "timestamp": "2025-12-03T23:35:23.049Z",
+      "language": "en"
+    },
+    {
+      "id": 1764804097148,
+      "type": "update",
+      "description": "Updated price: Bonuses",
+      "itemId": 282155,
+      "timestamp": "2025-12-03T23:21:37.148Z",
+      "language": "en"
+    },
+    {
+      "id": 1764804067243,
+      "type": "delete",
+      "description": "Removed item: 12mm White EVA",
+      "itemId": 282146,
+      "timestamp": "2025-12-03T23:21:07.243Z",
+      "language": "en"
+    },
+    {
+      "id": 1764804044252,
+      "type": "delete",
+      "description": "Removed item: PolyPro",
+      "itemId": 1764715125248.019,
+      "timestamp": "2025-12-03T23:20:44.252Z",
+      "language": "en"
+    },
+    {
+      "id": 1764760466737,
+      "type": "delete",
+      "description": "Deleted saved budget: Week of Dec 1, 2025 (Week 49)",
+      "itemId": null,
+      "timestamp": "2025-12-03T11:14:26.737Z",
+      "language": "en"
+    },
+    {
+      "id": 1764715199583,
+      "type": "export",
+      "description": "Saved budget (continue mode): undefined",
+      "itemId": null,
+      "timestamp": "2025-12-02T22:39:59.583Z",
+      "language": "en"
+    },
+    {
+      "id": 1764715195226,
+      "type": "update",
+      "description": "Updated quantity: Carbon",
+      "itemId": 282116,
+      "timestamp": "2025-12-02T22:39:55.226Z",
+      "language": "en"
+    },
+    {
+      "id": 191,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 125 items",
+      "itemId": null,
+      "timestamp": "2025-11-29T21:46:08.985208+00:00"
+    },
+    {
+      "id": 190,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 270 items",
+      "itemId": null,
+      "timestamp": "2025-11-29T21:40:44.931417+00:00"
+    },
+    {
+      "id": 189,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 1000 items",
+      "itemId": null,
+      "timestamp": "2025-11-29T21:39:55.279282+00:00"
+    },
+    {
+      "id": 188,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 1012 items",
+      "itemId": null,
+      "timestamp": "2025-11-29T21:12:09.980286+00:00"
+    },
+    {
+      "id": 187,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 1012 items",
+      "itemId": null,
+      "timestamp": "2025-11-29T20:56:37.065816+00:00"
+    },
+    {
+      "id": 186,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 1012 items",
+      "itemId": null,
+      "timestamp": "2025-11-29T20:55:31.646879+00:00"
+    },
+    {
+      "id": 185,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 1012 items",
+      "itemId": null,
+      "timestamp": "2025-11-29T19:56:54.244168+00:00"
+    },
+    {
+      "id": 184,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 1012 items",
+      "itemId": null,
+      "timestamp": "2025-11-29T13:30:13.64127+00:00"
+    },
+    {
+      "id": 183,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 1011 items",
+      "itemId": null,
+      "timestamp": "2025-11-29T13:23:39.076021+00:00"
+    },
+    {
+      "id": 182,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 563 items",
+      "itemId": null,
+      "timestamp": "2025-11-29T11:39:37.200851+00:00"
+    },
+    {
+      "id": 181,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 24, 2025 (Week 48)",
+      "itemId": null,
+      "timestamp": "2025-11-29T11:37:07.185096+00:00"
+    },
+    {
+      "id": 180,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 17, 2025",
+      "itemId": null,
+      "timestamp": "2025-11-29T11:36:51.293343+00:00"
+    },
+    {
+      "id": 179,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 780 items",
+      "itemId": null,
+      "timestamp": "2025-11-29T01:35:50.392826+00:00"
+    },
+    {
+      "id": 178,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 24, 2025 (Week 48)",
+      "itemId": null,
+      "timestamp": "2025-11-29T00:13:48.799142+00:00"
+    },
+    {
+      "id": 177,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 24, 2025 (Week 48)",
+      "itemId": null,
+      "timestamp": "2025-11-28T23:21:59.432408+00:00"
+    },
+    {
+      "id": 176,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 17, 2025 (Partial Payment)",
+      "itemId": null,
+      "timestamp": "2025-11-28T22:46:46.533059+00:00"
+    },
+    {
+      "id": 175,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 17, 2025",
+      "itemId": null,
+      "timestamp": "2025-11-28T22:45:51.311597+00:00"
+    },
+    {
+      "id": 174,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 24, 2025 (Week 48)",
+      "itemId": null,
+      "timestamp": "2025-11-28T22:44:25.984503+00:00"
+    },
+    {
+      "id": 173,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 17, 2025 (Partial Payment)",
+      "itemId": null,
+      "timestamp": "2025-11-28T22:43:36.569087+00:00"
+    },
+    {
+      "id": 172,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 24, 2025 (Week 48)",
+      "itemId": null,
+      "timestamp": "2025-11-28T21:18:14.015563+00:00"
+    },
+    {
+      "id": 171,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 17, 2025 (Partial Payment)",
+      "itemId": null,
+      "timestamp": "2025-11-28T21:18:04.552492+00:00"
+    },
+    {
+      "id": 170,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 17, 2025 (Partial Payment)",
+      "itemId": null,
+      "timestamp": "2025-11-28T17:21:14.004056+00:00"
+    },
+    {
+      "id": 169,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 24, 2025 (Week 48)",
+      "itemId": null,
+      "timestamp": "2025-11-28T17:11:13.068791+00:00"
+    },
+    {
+      "id": 168,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 17, 2025",
+      "itemId": null,
+      "timestamp": "2025-11-28T16:45:49.266316+00:00"
+    },
+    {
+      "id": 167,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 17, 2025 (Partial Payment)",
+      "itemId": null,
+      "timestamp": "2025-11-28T16:45:30.899187+00:00"
+    },
+    {
+      "id": 166,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 24, 2025 (Week 48)",
+      "itemId": null,
+      "timestamp": "2025-11-28T11:49:24.574221+00:00"
+    },
+    {
+      "id": 165,
+      "type": "export",
+      "description": "Exported saved budget as PDF: Week of Nov 24, 2025 (Week 48)",
+      "itemId": null,
+      "timestamp": "2025-11-28T11:45:25.789901+00:00"
+    },
+    {
+      "id": 164,
+      "type": "export",
+      "description": "Exported saved budget: Week of Nov 24, 2025 (Week 48)",
+      "itemId": null,
+      "timestamp": "2025-11-28T11:39:49.763384+00:00"
+    },
+    {
+      "id": 163,
+      "type": "export",
+      "description": "Exported saved budget: Week of Nov 24, 2025 (Week 48)",
+      "itemId": null,
+      "timestamp": "2025-11-28T11:27:07.027903+00:00"
+    },
+    {
+      "id": 162,
+      "type": "export",
+      "description": "Saved, exported, and cleared budget for next week: undefined",
+      "itemId": null,
+      "timestamp": "2025-11-28T11:26:14.562203+00:00"
+    },
+    {
+      "id": 161,
+      "type": "update",
+      "description": "Updated price: Vacation Pay",
+      "itemId": 1764329059857,
+      "timestamp": "2025-11-28T11:24:57.755385+00:00"
+    },
+    {
+      "id": 160,
+      "type": "update",
+      "description": "Updated price: Bonuses",
+      "itemId": 1764329059858,
+      "timestamp": "2025-11-28T11:24:32.631443+00:00"
+    },
+    {
+      "id": 159,
+      "type": "update",
+      "description": "Updated price: Office Supplies",
+      "itemId": 1764328934938,
+      "timestamp": "2025-11-28T11:22:30.793551+00:00"
+    },
+    {
+      "id": 158,
+      "type": "update",
+      "description": "Updated price: Other",
+      "itemId": 1764328874267,
+      "timestamp": "2025-11-28T11:21:28.767261+00:00"
+    },
+    {
+      "id": 157,
+      "type": "delete",
+      "description": "Removed item: Other",
+      "itemId": 1764328838932,
+      "timestamp": "2025-11-28T11:20:51.107547+00:00"
+    },
+    {
+      "id": 156,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764328774439,
+      "timestamp": "2025-11-28T11:20:16.399781+00:00"
+    },
+    {
+      "id": 155,
+      "type": "update",
+      "description": "Updated price: Costco",
+      "itemId": 1764328774440,
+      "timestamp": "2025-11-28T11:20:05.956154+00:00"
+    },
+    {
+      "id": 154,
+      "type": "update",
+      "description": "Updated quantity: Jugs of Water",
+      "itemId": 1764328672143,
+      "timestamp": "2025-11-28T11:19:04.970591+00:00"
+    },
+    {
+      "id": 153,
+      "type": "delete",
+      "description": "Removed item: PolyPro",
+      "itemId": 1764328672143,
+      "timestamp": "2025-11-28T11:18:58.442268+00:00"
+    },
+    {
+      "id": 152,
+      "type": "update",
+      "description": "Updated quantity: Carbon",
+      "itemId": 1764328672143,
+      "timestamp": "2025-11-28T11:18:52.384433+00:00"
+    },
+    {
+      "id": 151,
+      "type": "update",
+      "description": "Updated price: Payroll",
+      "itemId": 1764328672143,
+      "timestamp": "2025-11-28T11:18:44.39881+00:00"
+    },
+    {
+      "id": 150,
+      "type": "update",
+      "description": "Updated quantity: Glue",
+      "itemId": 1764328672143,
+      "timestamp": "2025-11-28T11:18:24.182446+00:00"
+    },
+    {
+      "id": 149,
+      "type": "update",
+      "description": "Updated quantity: 1mm Puff",
+      "itemId": 1764328672143,
+      "timestamp": "2025-11-28T11:18:18.215321+00:00"
+    },
+    {
+      "id": 148,
+      "type": "delete",
+      "description": "Removed item: 12mm White EVA",
+      "itemId": 1764328672143,
+      "timestamp": "2025-11-28T11:18:14.18706+00:00"
+    },
+    {
+      "id": 147,
+      "type": "update",
+      "description": "Updated quantity: 12mm Black EVA",
+      "itemId": 1764328672142,
+      "timestamp": "2025-11-28T11:18:07.848065+00:00"
+    },
+    {
+      "id": 146,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 14 items",
+      "itemId": null,
+      "timestamp": "2025-11-28T11:17:49.384425+00:00"
+    },
+    {
+      "id": 145,
+      "type": "update",
+      "description": "Updated price: Costco",
+      "itemId": 1764328641960,
+      "timestamp": "2025-11-28T11:17:45.491813+00:00"
+    },
+    {
+      "id": 144,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764328641959,
+      "timestamp": "2025-11-28T11:17:38.303298+00:00"
+    },
+    {
+      "id": 143,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 12 items",
+      "itemId": null,
+      "timestamp": "2025-11-28T11:17:04.584752+00:00"
+    },
+    {
+      "id": 142,
+      "type": "update",
+      "description": "Updated price: Garbage Pick Up",
+      "itemId": 1764297939728,
+      "timestamp": "2025-11-28T02:46:10.81354+00:00"
+    },
+    {
+      "id": 141,
+      "type": "update",
+      "description": "Updated price: Other",
+      "itemId": 1764297939727,
+      "timestamp": "2025-11-28T02:45:58.797689+00:00"
+    },
+    {
+      "id": 140,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 12 items",
+      "itemId": null,
+      "timestamp": "2025-11-28T02:44:45.942306+00:00"
+    },
+    {
+      "id": 139,
+      "type": "update",
+      "description": "Updated price: Garbage Pick Up",
+      "itemId": 1764296800126,
+      "timestamp": "2025-11-28T02:28:11.701539+00:00"
+    },
+    {
+      "id": 138,
+      "type": "update",
+      "description": "Updated price: Bags",
+      "itemId": 1764296800127,
+      "timestamp": "2025-11-28T02:26:57.137204+00:00"
+    },
+    {
+      "id": 137,
+      "type": "update",
+      "description": "Updated quantity: Jugs of Water",
+      "itemId": 1764296681730,
+      "timestamp": "2025-11-28T02:25:54.050808+00:00"
+    },
+    {
+      "id": 136,
+      "type": "delete",
+      "description": "Removed item: PolyPro",
+      "itemId": 1764296681730,
+      "timestamp": "2025-11-28T02:25:46.206254+00:00"
+    },
+    {
+      "id": 135,
+      "type": "update",
+      "description": "Updated quantity: Carbon",
+      "itemId": 1764296681730,
+      "timestamp": "2025-11-28T02:25:39.135773+00:00"
+    },
+    {
+      "id": 134,
+      "type": "update",
+      "description": "Updated price: Payroll",
+      "itemId": 1764296681730,
+      "timestamp": "2025-11-28T02:25:30.387833+00:00"
+    },
+    {
+      "id": 133,
+      "type": "update",
+      "description": "Updated quantity: Glue",
+      "itemId": 1764296681730,
+      "timestamp": "2025-11-28T02:25:15.843503+00:00"
+    },
+    {
+      "id": 132,
+      "type": "update",
+      "description": "Updated quantity: 1mm Puff",
+      "itemId": 1764296681730,
+      "timestamp": "2025-11-28T02:25:06.698228+00:00"
+    },
+    {
+      "id": 131,
+      "type": "delete",
+      "description": "Removed item: 12mm White EVA",
+      "itemId": 1764296681730,
+      "timestamp": "2025-11-28T02:25:01.321714+00:00"
+    },
+    {
+      "id": 130,
+      "type": "update",
+      "description": "Updated quantity: 12mm Black EVA",
+      "itemId": 1764296681730,
+      "timestamp": "2025-11-28T02:24:54.302526+00:00"
+    },
+    {
+      "id": 129,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 16 items",
+      "itemId": null,
+      "timestamp": "2025-11-28T02:24:37.829576+00:00"
+    },
+    {
+      "id": 128,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764293796054,
+      "timestamp": "2025-11-28T01:37:19.119624+00:00"
+    },
+    {
+      "id": 127,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764293796054,
+      "timestamp": "2025-11-28T01:37:06.09915+00:00"
+    },
+    {
+      "id": 126,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764293796054,
+      "timestamp": "2025-11-28T01:36:51.104862+00:00"
+    },
+    {
+      "id": 125,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 13 items",
+      "itemId": null,
+      "timestamp": "2025-11-28T01:34:35.022624+00:00"
+    },
+    {
+      "id": 124,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764293657036,
+      "timestamp": "2025-11-28T01:34:28.33577+00:00"
+    },
+    {
+      "id": 123,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 16 items",
+      "itemId": null,
+      "timestamp": "2025-11-28T01:29:57.135522+00:00"
+    },
+    {
+      "id": 122,
+      "type": "update",
+      "description": "Updated price: Other",
+      "itemId": 1764292718538,
+      "timestamp": "2025-11-28T01:19:27.585593+00:00"
+    },
+    {
+      "id": 121,
+      "type": "update",
+      "description": "Updated price: Other",
+      "itemId": 1764292718538,
+      "timestamp": "2025-11-28T01:19:14.8951+00:00"
+    },
+    {
+      "id": 120,
+      "type": "update",
+      "description": "Updated price: Costco",
+      "itemId": 1764292718539,
+      "timestamp": "2025-11-28T01:19:03.930047+00:00"
+    },
+    {
+      "id": 119,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 13 items",
+      "itemId": null,
+      "timestamp": "2025-11-28T01:16:34.572211+00:00"
+    },
+    {
+      "id": 118,
+      "type": "update",
+      "description": "Updated price: Costco",
+      "itemId": 1764292565533,
+      "timestamp": "2025-11-28T01:16:20.085808+00:00"
+    },
+    {
+      "id": 117,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 12 items",
+      "itemId": null,
+      "timestamp": "2025-11-28T01:15:47.285251+00:00"
+    },
+    {
+      "id": 116,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764292458609,
+      "timestamp": "2025-11-28T01:15:03.783275+00:00"
+    },
+    {
+      "id": 115,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764292458609,
+      "timestamp": "2025-11-28T01:14:49.750877+00:00"
+    },
+    {
+      "id": 114,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764292458609,
+      "timestamp": "2025-11-28T01:14:36.337129+00:00"
+    },
+    {
+      "id": 113,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 18 items",
+      "itemId": null,
+      "timestamp": "2025-11-28T01:11:39.886458+00:00"
+    },
+    {
+      "id": 112,
+      "type": "update",
+      "description": "Updated price: Other",
+      "itemId": 1764292229654,
+      "timestamp": "2025-11-28T01:10:47.482171+00:00"
+    },
+    {
+      "id": 111,
+      "type": "update",
+      "description": "Updated price: Bonuses",
+      "itemId": 1764292149730,
+      "timestamp": "2025-11-28T01:09:41.792955+00:00"
+    },
+    {
+      "id": 110,
+      "type": "update",
+      "description": "Updated price: Vacation Pay",
+      "itemId": 1764292149729,
+      "timestamp": "2025-11-28T01:09:27.613805+00:00"
+    },
+    {
+      "id": 109,
+      "type": "update",
+      "description": "Updated price: Costco",
+      "itemId": 1764292036810,
+      "timestamp": "2025-11-28T01:07:49.268933+00:00"
+    },
+    {
+      "id": 108,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764292036809,
+      "timestamp": "2025-11-28T01:07:34.835303+00:00"
+    },
+    {
+      "id": 107,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 13 items",
+      "itemId": null,
+      "timestamp": "2025-11-28T01:05:39.002177+00:00"
+    },
+    {
+      "id": 106,
+      "type": "update",
+      "description": "Updated price: Costco",
+      "itemId": 1764291905443,
+      "timestamp": "2025-11-28T01:05:19.695983+00:00"
+    },
+    {
+      "id": 105,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764290490784,
+      "timestamp": "2025-11-28T00:42:44.048168+00:00"
+    },
+    {
+      "id": 104,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764290490784,
+      "timestamp": "2025-11-28T00:42:25.325758+00:00"
+    },
+    {
+      "id": 103,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764290490784,
+      "timestamp": "2025-11-28T00:42:06.213296+00:00"
+    },
+    {
+      "id": 102,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764290490784,
+      "timestamp": "2025-11-28T00:41:49.169699+00:00"
+    },
+    {
+      "id": 101,
+      "type": "clear",
+      "description": "Cleared all items and pushed items: 17 items",
+      "itemId": null,
+      "timestamp": "2025-11-28T00:39:19.574037+00:00"
+    },
+    {
+      "id": 100,
+      "type": "update",
+      "description": "Updated price: Vacation Pay",
+      "itemId": 1764290140216,
+      "timestamp": "2025-11-28T00:35:59.584476+00:00"
+    },
+    {
+      "id": 99,
+      "type": "update",
+      "description": "Updated price: Bonuses",
+      "itemId": 1764290089790,
+      "timestamp": "2025-11-28T00:35:15.746655+00:00"
+    },
+    {
+      "id": 98,
+      "type": "update",
+      "description": "Updated price: Costco",
+      "itemId": 1764289911189,
+      "timestamp": "2025-11-28T00:32:29.401941+00:00"
+    },
+    {
+      "id": 97,
+      "type": "update",
+      "description": "Updated price: Chemicals",
+      "itemId": 1764289911188,
+      "timestamp": "2025-11-28T00:32:08.246453+00:00"
+    },
+    {
+      "id": 96,
+      "type": "review_request",
+      "description": "Review requested - email opened for mike@oolab.com",
+      "itemId": null,
+      "timestamp": "2025-11-28T00:26:35.26244+00:00"
+    },
+    {
+      "id": 95,
+      "type": "approve",
+      "description": "Changed approval status: Other",
+      "itemId": 1764289206450,
+      "timestamp": "2025-11-28T00:26:09.876883+00:00"
+    },
+    {
+      "id": 94,
+      "type": "approve",
+      "description": "Changed approval status: Costco",
+      "itemId": 1764289057486,
+      "timestamp": "2025-11-28T00:26:04.717412+00:00"
+    },
+    {
+      "id": 93,
+      "type": "approve",
+      "description": "Changed approval status: Costco",
+      "itemId": 1764289057486,
+      "timestamp": "2025-11-28T00:25:59.65415+00:00"
+    },
+    {
+      "id": 92,
+      "type": "approve",
+      "description": "Changed approval status: Costco",
+      "itemId": 1764289057486,
+      "timestamp": "2025-11-28T00:25:54.681912+00:00"
+    }
+  ],
+  "changeHistory": [
+    {
+      "id": 1764810305002,
+      "type": "deleted",
+      "itemId": 1764807769536.9395,
+      "itemName": "PolyPro",
+      "oldValue": 1160,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-12-04T01:05:05.002Z"
+    },
+    {
+      "id": 1764810300348,
+      "type": "deleted",
+      "itemId": 1764807769535.1865,
+      "itemName": "12mm White EVA",
+      "oldValue": 600,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-12-04T01:05:00.348Z"
+    },
+    {
+      "id": 1764810282332,
+      "type": "updated",
+      "itemId": 282150,
+      "itemName": "Jugs of Water",
+      "oldValue": 1,
+      "newValue": 5,
+      "field": "quantity",
+      "timestamp": "2025-12-04T01:04:42.332Z"
+    },
+    {
+      "id": 1764810167496,
+      "type": "deleted",
+      "itemId": 1764807769536.1648,
+      "itemName": "Payroll",
+      "oldValue": 0,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-12-04T01:02:47.496Z"
+    },
+    {
+      "id": 1764804976112,
+      "type": "updated",
+      "itemId": 282156,
+      "itemName": "Bonuses",
+      "oldValue": 0.01,
+      "newValue": 1500,
+      "field": "unitPrice",
+      "timestamp": "2025-12-03T23:36:16.112Z"
+    },
+    {
+      "id": 1764804923050,
+      "type": "deleted",
+      "itemId": 282155,
+      "itemName": "Bonuses",
+      "oldValue": 1200,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-12-03T23:35:23.050Z"
+    },
+    {
+      "id": 1764804097276,
+      "type": "updated",
+      "itemId": 282155,
+      "itemName": "Bonuses",
+      "oldValue": 0.01,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-12-03T23:21:37.276Z"
+    },
+    {
+      "id": 1764804067243,
+      "type": "deleted",
+      "itemId": 282146,
+      "itemName": "12mm White EVA",
+      "oldValue": 600,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-12-03T23:21:07.243Z"
+    },
+    {
+      "id": 1764804044252,
+      "type": "deleted",
+      "itemId": 1764715125248.019,
+      "itemName": "PolyPro",
+      "oldValue": 1160,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-12-03T23:20:44.252Z"
+    },
+    {
+      "id": 1764715195363,
+      "type": "updated",
+      "itemId": 282116,
+      "itemName": "Carbon",
+      "oldValue": 1,
+      "newValue": 2,
+      "field": "quantity",
+      "timestamp": "2025-12-02T22:39:55.363Z"
+    },
+    {
+      "id": 124,
+      "type": "updated",
+      "itemId": 1764329059857,
+      "itemName": "Vacation Pay",
+      "oldValue": 0.01,
+      "newValue": 4461,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T11:24:57.922229+00:00"
+    },
+    {
+      "id": 123,
+      "type": "updated",
+      "itemId": 1764329059858,
+      "itemName": "Bonuses",
+      "oldValue": 0.01,
+      "newValue": 4800,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T11:24:32.738356+00:00"
+    },
+    {
+      "id": 122,
+      "type": "updated",
+      "itemId": 1764328934938,
+      "itemName": "Office Supplies",
+      "oldValue": 0.01,
+      "newValue": 1000,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T11:22:30.902598+00:00"
+    },
+    {
+      "id": 121,
+      "type": "updated",
+      "itemId": 1764328874267,
+      "itemName": "Other",
+      "oldValue": 0.01,
+      "newValue": 3500,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T11:21:28.88224+00:00"
+    },
+    {
+      "id": 120,
+      "type": "deleted",
+      "itemId": 1764328838932,
+      "itemName": "Other",
+      "oldValue": 0.01,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-28T11:20:51.135674+00:00"
+    },
+    {
+      "id": 119,
+      "type": "updated",
+      "itemId": 1764328774439,
+      "itemName": "Chemicals",
+      "oldValue": 0.01,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T11:20:16.499583+00:00"
+    },
+    {
+      "id": 118,
+      "type": "updated",
+      "itemId": 1764328774440,
+      "itemName": "Costco",
+      "oldValue": 0.01,
+      "newValue": 1509,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T11:20:06.06053+00:00"
+    },
+    {
+      "id": 117,
+      "type": "updated",
+      "itemId": 1764328672143,
+      "itemName": "Jugs of Water",
+      "oldValue": 1,
+      "newValue": 5,
+      "field": "quantity",
+      "timestamp": "2025-11-28T11:19:05.059034+00:00"
+    },
+    {
+      "id": 116,
+      "type": "deleted",
+      "itemId": 1764328672143,
+      "itemName": "PolyPro",
+      "oldValue": 1160,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-28T11:18:58.441977+00:00"
+    },
+    {
+      "id": 115,
+      "type": "updated",
+      "itemId": 1764328672143,
+      "itemName": "Carbon",
+      "oldValue": 1,
+      "newValue": 3,
+      "field": "quantity",
+      "timestamp": "2025-11-28T11:18:52.473302+00:00"
+    },
+    {
+      "id": 114,
+      "type": "updated",
+      "itemId": 1764328672143,
+      "itemName": "Payroll",
+      "oldValue": 0,
+      "newValue": 47899,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T11:18:44.503422+00:00"
+    },
+    {
+      "id": 113,
+      "type": "updated",
+      "itemId": 1764328672143,
+      "itemName": "Glue",
+      "oldValue": 1,
+      "newValue": 3,
+      "field": "quantity",
+      "timestamp": "2025-11-28T11:18:24.273761+00:00"
+    },
+    {
+      "id": 112,
+      "type": "updated",
+      "itemId": 1764328672143,
+      "itemName": "1mm Puff",
+      "oldValue": 1,
+      "newValue": 2,
+      "field": "quantity",
+      "timestamp": "2025-11-28T11:18:18.31763+00:00"
+    },
+    {
+      "id": 111,
+      "type": "deleted",
+      "itemId": 1764328672143,
+      "itemName": "12mm White EVA",
+      "oldValue": 600,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-28T11:18:14.187079+00:00"
+    },
+    {
+      "id": 110,
+      "type": "updated",
+      "itemId": 1764328672142,
+      "itemName": "12mm Black EVA",
+      "oldValue": 1,
+      "newValue": 2,
+      "field": "quantity",
+      "timestamp": "2025-11-28T11:18:07.953767+00:00"
+    },
+    {
+      "id": 109,
+      "type": "updated",
+      "itemId": 1764328641960,
+      "itemName": "Costco",
+      "oldValue": 0.01,
+      "newValue": 1000,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T11:17:45.577723+00:00"
+    },
+    {
+      "id": 108,
+      "type": "updated",
+      "itemId": 1764328641959,
+      "itemName": "Chemicals",
+      "oldValue": 0.01,
+      "newValue": 1000,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T11:17:38.441106+00:00"
+    },
+    {
+      "id": 107,
+      "type": "updated",
+      "itemId": 1764297939728,
+      "itemName": "Garbage Pick Up",
+      "oldValue": 1600,
+      "newValue": 1600,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T02:46:10.926845+00:00"
+    },
+    {
+      "id": 106,
+      "type": "updated",
+      "itemId": 1764297939727,
+      "itemName": "Other",
+      "oldValue": 0.01,
+      "newValue": 3500,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T02:45:58.926181+00:00"
+    },
+    {
+      "id": 105,
+      "type": "updated",
+      "itemId": 1764296800126,
+      "itemName": "Garbage Pick Up",
+      "oldValue": 1600,
+      "newValue": 1600,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T02:28:11.829291+00:00"
+    },
+    {
+      "id": 104,
+      "type": "updated",
+      "itemId": 1764296800127,
+      "itemName": "Bags",
+      "oldValue": 500,
+      "newValue": 500,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T02:26:57.236346+00:00"
+    },
+    {
+      "id": 103,
+      "type": "updated",
+      "itemId": 1764296681730,
+      "itemName": "Jugs of Water",
+      "oldValue": 1,
+      "newValue": 3,
+      "field": "quantity",
+      "timestamp": "2025-11-28T02:25:54.17256+00:00"
+    },
+    {
+      "id": 102,
+      "type": "deleted",
+      "itemId": 1764296681730,
+      "itemName": "PolyPro",
+      "oldValue": 1160,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-28T02:25:46.210457+00:00"
+    },
+    {
+      "id": 101,
+      "type": "updated",
+      "itemId": 1764296681730,
+      "itemName": "Carbon",
+      "oldValue": 1,
+      "newValue": 3,
+      "field": "quantity",
+      "timestamp": "2025-11-28T02:25:39.247188+00:00"
+    },
+    {
+      "id": 100,
+      "type": "updated",
+      "itemId": 1764296681730,
+      "itemName": "Payroll",
+      "oldValue": 0,
+      "newValue": 47899,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T02:25:30.503443+00:00"
+    },
+    {
+      "id": 99,
+      "type": "updated",
+      "itemId": 1764296681730,
+      "itemName": "Glue",
+      "oldValue": 1,
+      "newValue": 3,
+      "field": "quantity",
+      "timestamp": "2025-11-28T02:25:15.944562+00:00"
+    },
+    {
+      "id": 98,
+      "type": "updated",
+      "itemId": 1764296681730,
+      "itemName": "1mm Puff",
+      "oldValue": 1,
+      "newValue": 2,
+      "field": "quantity",
+      "timestamp": "2025-11-28T02:25:06.803515+00:00"
+    },
+    {
+      "id": 97,
+      "type": "deleted",
+      "itemId": 1764296681730,
+      "itemName": "12mm White EVA",
+      "oldValue": 600,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-28T02:25:01.323162+00:00"
+    },
+    {
+      "id": 96,
+      "type": "updated",
+      "itemId": 1764296681730,
+      "itemName": "12mm Black EVA",
+      "oldValue": 1,
+      "newValue": 2,
+      "field": "quantity",
+      "timestamp": "2025-11-28T02:24:54.400694+00:00"
+    },
+    {
+      "id": 95,
+      "type": "updated",
+      "itemId": 1764293796054,
+      "itemName": "Chemicals",
+      "oldValue": 1200,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:37:19.124636+00:00"
+    },
+    {
+      "id": 94,
+      "type": "updated",
+      "itemId": 1764293796054,
+      "itemName": "Chemicals",
+      "oldValue": 1200,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:37:06.09804+00:00"
+    },
+    {
+      "id": 93,
+      "type": "updated",
+      "itemId": 1764293796054,
+      "itemName": "Chemicals",
+      "oldValue": 0.01,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:36:51.110294+00:00"
+    },
+    {
+      "id": 92,
+      "type": "updated",
+      "itemId": 1764293657036,
+      "itemName": "Chemicals",
+      "oldValue": 0.01,
+      "newValue": 1000,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:34:28.318869+00:00"
+    },
+    {
+      "id": 91,
+      "type": "updated",
+      "itemId": 1764292718538,
+      "itemName": "Other",
+      "oldValue": 0.01,
+      "newValue": 0.01,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:19:27.603784+00:00"
+    },
+    {
+      "id": 90,
+      "type": "updated",
+      "itemId": 1764292718538,
+      "itemName": "Other",
+      "oldValue": 0.01,
+      "newValue": 0.01,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:19:14.88898+00:00"
+    },
+    {
+      "id": 89,
+      "type": "updated",
+      "itemId": 1764292718539,
+      "itemName": "Costco",
+      "oldValue": 0.01,
+      "newValue": 1509,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:19:03.901832+00:00"
+    },
+    {
+      "id": 88,
+      "type": "updated",
+      "itemId": 1764292565533,
+      "itemName": "Costco",
+      "oldValue": 0.01,
+      "newValue": 1000,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:16:20.084853+00:00"
+    },
+    {
+      "id": 87,
+      "type": "updated",
+      "itemId": 1764292458609,
+      "itemName": "Chemicals",
+      "oldValue": 1200,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:15:03.781518+00:00"
+    },
+    {
+      "id": 86,
+      "type": "updated",
+      "itemId": 1764292458609,
+      "itemName": "Chemicals",
+      "oldValue": 1200,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:14:49.762416+00:00"
+    },
+    {
+      "id": 85,
+      "type": "updated",
+      "itemId": 1764292458609,
+      "itemName": "Chemicals",
+      "oldValue": 0.01,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:14:36.32567+00:00"
+    },
+    {
+      "id": 84,
+      "type": "updated",
+      "itemId": 1764292229654,
+      "itemName": "Other",
+      "oldValue": 0.01,
+      "newValue": 3500,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:10:47.482962+00:00"
+    },
+    {
+      "id": 83,
+      "type": "updated",
+      "itemId": 1764292149730,
+      "itemName": "Bonuses",
+      "oldValue": 0.01,
+      "newValue": 4800,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:09:41.814518+00:00"
+    },
+    {
+      "id": 82,
+      "type": "updated",
+      "itemId": 1764292149729,
+      "itemName": "Vacation Pay",
+      "oldValue": 0.01,
+      "newValue": 4461,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:09:27.632207+00:00"
+    },
+    {
+      "id": 81,
+      "type": "updated",
+      "itemId": 1764292036810,
+      "itemName": "Costco",
+      "oldValue": 0.01,
+      "newValue": 1509,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:07:49.271698+00:00"
+    },
+    {
+      "id": 80,
+      "type": "updated",
+      "itemId": 1764292036809,
+      "itemName": "Chemicals",
+      "oldValue": 0.01,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:07:34.825523+00:00"
+    },
+    {
+      "id": 79,
+      "type": "updated",
+      "itemId": 1764291905443,
+      "itemName": "Costco",
+      "oldValue": 0.01,
+      "newValue": 1000,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T01:05:19.695987+00:00"
+    },
+    {
+      "id": 78,
+      "type": "updated",
+      "itemId": 1764290490784,
+      "itemName": "Chemicals",
+      "oldValue": 1200,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T00:42:44.049271+00:00"
+    },
+    {
+      "id": 77,
+      "type": "updated",
+      "itemId": 1764290490784,
+      "itemName": "Chemicals",
+      "oldValue": 1200,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T00:42:25.35084+00:00"
+    },
+    {
+      "id": 76,
+      "type": "updated",
+      "itemId": 1764290490784,
+      "itemName": "Chemicals",
+      "oldValue": 1200,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T00:42:06.215273+00:00"
+    },
+    {
+      "id": 75,
+      "type": "updated",
+      "itemId": 1764290490784,
+      "itemName": "Chemicals",
+      "oldValue": 0.01,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T00:41:49.192349+00:00"
+    },
+    {
+      "id": 74,
+      "type": "updated",
+      "itemId": 1764290140216,
+      "itemName": "Vacation Pay",
+      "oldValue": 0.01,
+      "newValue": 4461,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T00:35:59.575659+00:00"
+    },
+    {
+      "id": 73,
+      "type": "updated",
+      "itemId": 1764290089790,
+      "itemName": "Bonuses",
+      "oldValue": 0.01,
+      "newValue": 4800,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T00:35:15.724851+00:00"
+    },
+    {
+      "id": 72,
+      "type": "updated",
+      "itemId": 1764289911189,
+      "itemName": "Costco",
+      "oldValue": 0.01,
+      "newValue": 1509,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T00:32:29.39286+00:00"
+    },
+    {
+      "id": 71,
+      "type": "updated",
+      "itemId": 1764289911188,
+      "itemName": "Chemicals",
+      "oldValue": 0.01,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T00:32:08.245273+00:00"
+    },
+    {
+      "id": 70,
+      "type": "approved",
+      "itemId": 1764289206450,
+      "itemName": "Other",
+      "oldValue": "pending",
+      "newValue": "approved",
+      "field": "approvalStatus",
+      "timestamp": "2025-11-28T00:26:09.888895+00:00"
+    },
+    {
+      "id": 69,
+      "type": "approved",
+      "itemId": 1764289057486,
+      "itemName": "Costco",
+      "oldValue": "approved",
+      "newValue": "approved",
+      "field": "approvalStatus",
+      "timestamp": "2025-11-28T00:26:04.718584+00:00"
+    },
+    {
+      "id": 68,
+      "type": "approved",
+      "itemId": 1764289057486,
+      "itemName": "Costco",
+      "oldValue": "approved",
+      "newValue": "approved",
+      "field": "approvalStatus",
+      "timestamp": "2025-11-28T00:25:59.646334+00:00"
+    },
+    {
+      "id": 67,
+      "type": "approved",
+      "itemId": 1764289057486,
+      "itemName": "Costco",
+      "oldValue": "pending",
+      "newValue": "approved",
+      "field": "approvalStatus",
+      "timestamp": "2025-11-28T00:25:54.690911+00:00"
+    },
+    {
+      "id": 66,
+      "type": "approved",
+      "itemId": 1764289057485,
+      "itemName": "Chemicals",
+      "oldValue": "approved",
+      "newValue": "approved",
+      "field": "approvalStatus",
+      "timestamp": "2025-11-28T00:25:48.795209+00:00"
+    },
+    {
+      "id": 65,
+      "type": "approved",
+      "itemId": 1764289057485,
+      "itemName": "Chemicals",
+      "oldValue": "approved",
+      "newValue": "approved",
+      "field": "approvalStatus",
+      "timestamp": "2025-11-28T00:25:42.321889+00:00"
+    },
+    {
+      "id": 64,
+      "type": "approved",
+      "itemId": 1764289057485,
+      "itemName": "Chemicals",
+      "oldValue": "pending",
+      "newValue": "approved",
+      "field": "approvalStatus",
+      "timestamp": "2025-11-28T00:25:39.066228+00:00"
+    },
+    {
+      "id": 63,
+      "type": "approved",
+      "itemId": 1764289057484,
+      "itemName": "Garbage Pick Up",
+      "oldValue": "pending",
+      "newValue": "approved",
+      "field": "approvalStatus",
+      "timestamp": "2025-11-28T00:25:35.383565+00:00"
+    },
+    {
+      "id": 62,
+      "type": "approved",
+      "itemId": 1764288991053,
+      "itemName": "Bonuses",
+      "oldValue": "pending",
+      "newValue": "approved",
+      "field": "approvalStatus",
+      "timestamp": "2025-11-28T00:25:31.397518+00:00"
+    },
+    {
+      "id": 61,
+      "type": "approved",
+      "itemId": 1764288991052,
+      "itemName": "Vacation Pay",
+      "oldValue": "pending",
+      "newValue": "approved",
+      "field": "approvalStatus",
+      "timestamp": "2025-11-28T00:25:27.563975+00:00"
+    },
+    {
+      "id": 60,
+      "type": "updated",
+      "itemId": 1764289206450,
+      "itemName": "Other",
+      "oldValue": 0.01,
+      "newValue": 3500,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T00:20:19.314522+00:00"
+    },
+    {
+      "id": 59,
+      "type": "updated",
+      "itemId": 1764289057485,
+      "itemName": "Chemicals",
+      "oldValue": 0.01,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T00:18:09.142887+00:00"
+    },
+    {
+      "id": 58,
+      "type": "updated",
+      "itemId": 1764289057486,
+      "itemName": "Costco",
+      "oldValue": 0.01,
+      "newValue": 1509,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T00:17:56.126178+00:00"
+    },
+    {
+      "id": 57,
+      "type": "updated",
+      "itemId": 1764288991053,
+      "itemName": "Bonuses",
+      "oldValue": 0.01,
+      "newValue": 4800,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T00:17:04.122716+00:00"
+    },
+    {
+      "id": 56,
+      "type": "updated",
+      "itemId": 1764288991052,
+      "itemName": "Vacation Pay",
+      "oldValue": 0.01,
+      "newValue": 4461,
+      "field": "unitPrice",
+      "timestamp": "2025-11-28T00:16:52.636412+00:00"
+    },
+    {
+      "id": 55,
+      "type": "updated",
+      "itemId": 1764286098769,
+      "itemName": "Office Supplies",
+      "oldValue": 0.01,
+      "newValue": 1000,
+      "field": "unitPrice",
+      "timestamp": "2025-11-27T23:28:41.876993+00:00"
+    },
+    {
+      "id": 54,
+      "type": "updated",
+      "itemId": 1764285998828,
+      "itemName": "Bonuses",
+      "oldValue": 0.01,
+      "newValue": 4800,
+      "field": "unitPrice",
+      "timestamp": "2025-11-27T23:26:58.715305+00:00"
+    },
+    {
+      "id": 53,
+      "type": "deleted",
+      "itemId": 1764285921079,
+      "itemName": "Bonuses",
+      "oldValue": 0.01,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-27T23:25:38.105142+00:00"
+    },
+    {
+      "id": 52,
+      "type": "updated",
+      "itemId": 1764285884430,
+      "itemName": "Vacation Pay",
+      "oldValue": 0.01,
+      "newValue": 4461,
+      "field": "unitPrice",
+      "timestamp": "2025-11-27T23:25:02.872075+00:00"
+    },
+    {
+      "id": 51,
+      "type": "deleted",
+      "itemId": 1764285847717,
+      "itemName": "Vacation Pay",
+      "oldValue": 0.01,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-27T23:24:21.980839+00:00"
+    },
+    {
+      "id": 50,
+      "type": "updated",
+      "itemId": 1764285784724,
+      "itemName": "Costco",
+      "oldValue": 0.01,
+      "newValue": 1509,
+      "field": "unitPrice",
+      "timestamp": "2025-11-27T23:23:44.860057+00:00"
+    },
+    {
+      "id": 49,
+      "type": "updated",
+      "itemId": 1764285784723,
+      "itemName": "Chemicals",
+      "oldValue": 0.01,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-27T23:23:21.656032+00:00"
+    },
+    {
+      "id": 48,
+      "type": "deleted",
+      "itemId": 1774,
+      "itemName": "1mm Puff",
+      "oldValue": 10200,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-27T23:09:05.528541+00:00"
+    },
+    {
+      "id": 47,
+      "type": "deleted",
+      "itemId": 1800,
+      "itemName": "Uber",
+      "oldValue": 1500,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-27T23:08:57.321728+00:00"
+    },
+    {
+      "id": 46,
+      "type": "deleted",
+      "itemId": 1801,
+      "itemName": "Petty Cash",
+      "oldValue": 3500,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-27T23:08:36.399647+00:00"
+    },
+    {
+      "id": 45,
+      "type": "deleted",
+      "itemId": 1750,
+      "itemName": "12mm Black EVA",
+      "oldValue": 1200,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-27T23:08:29.578988+00:00"
+    },
+    {
+      "id": 44,
+      "type": "deleted",
+      "itemId": 1787,
+      "itemName": "Accounting",
+      "oldValue": 3000,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-27T23:08:19.127494+00:00"
+    },
+    {
+      "id": 43,
+      "type": "updated",
+      "itemId": 1827,
+      "itemName": "Vacation Pay",
+      "oldValue": 0.01,
+      "newValue": 4461,
+      "field": "unitPrice",
+      "timestamp": "2025-11-27T23:02:00.72537+00:00"
+    },
+    {
+      "id": 42,
+      "type": "updated",
+      "itemId": 1825,
+      "itemName": "Costco",
+      "oldValue": 0.01,
+      "newValue": 1509,
+      "field": "unitPrice",
+      "timestamp": "2025-11-27T23:00:26.642015+00:00"
+    },
+    {
+      "id": 41,
+      "type": "updated",
+      "itemId": 1816,
+      "itemName": "Chemicals",
+      "oldValue": 0.01,
+      "newValue": 1200,
+      "field": "unitPrice",
+      "timestamp": "2025-11-27T23:00:07.653129+00:00"
+    },
+    {
+      "id": 40,
+      "type": "updated",
+      "itemId": 1811,
+      "itemName": "Garbage Pick Up",
+      "oldValue": 1600,
+      "newValue": 1600,
+      "field": "unitPrice",
+      "timestamp": "2025-11-27T22:59:49.100111+00:00"
+    },
+    {
+      "id": 39,
+      "type": "updated",
+      "itemId": 1799,
+      "itemName": "Jugs of Water",
+      "oldValue": 1,
+      "newValue": 5,
+      "field": "quantity",
+      "timestamp": "2025-11-27T22:58:53.706057+00:00"
+    },
+    {
+      "id": 38,
+      "type": "deleted",
+      "itemId": 1793,
+      "itemName": "PolyPro",
+      "oldValue": 1160,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-27T22:58:43.720004+00:00"
+    },
+    {
+      "id": 37,
+      "type": "updated",
+      "itemId": 1790,
+      "itemName": "Carbon",
+      "oldValue": 1,
+      "newValue": 3,
+      "field": "quantity",
+      "timestamp": "2025-11-27T22:58:36.4692+00:00"
+    },
+    {
+      "id": 36,
+      "type": "updated",
+      "itemId": 1783,
+      "itemName": "Payroll",
+      "oldValue": 0.01,
+      "newValue": 53581,
+      "field": "unitPrice",
+      "timestamp": "2025-11-27T22:58:27.095181+00:00"
+    },
+    {
+      "id": 35,
+      "type": "updated",
+      "itemId": 1778,
+      "itemName": "Glue",
+      "oldValue": 1,
+      "newValue": 3,
+      "field": "quantity",
+      "timestamp": "2025-11-27T22:58:13.283651+00:00"
+    },
+    {
+      "id": 34,
+      "type": "updated",
+      "itemId": 1774,
+      "itemName": "1mm Puff",
+      "oldValue": 1,
+      "newValue": 2,
+      "field": "quantity",
+      "timestamp": "2025-11-27T22:58:04.180713+00:00"
+    },
+    {
+      "id": 33,
+      "type": "deleted",
+      "itemId": 1769,
+      "itemName": "12mm White EVA",
+      "oldValue": 600,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-27T22:57:52.203722+00:00"
+    },
+    {
+      "id": 32,
+      "type": "updated",
+      "itemId": 1750,
+      "itemName": "12mm Black EVA",
+      "oldValue": 1,
+      "newValue": 2,
+      "field": "quantity",
+      "timestamp": "2025-11-27T22:57:46.08903+00:00"
+    },
+    {
+      "id": 31,
+      "type": "updated",
+      "itemId": 1743,
+      "itemName": "Costco",
+      "oldValue": 0.01,
+      "newValue": 2000,
+      "field": "unitPrice",
+      "timestamp": "2025-11-27T22:57:15.087402+00:00"
+    },
+    {
+      "id": 30,
+      "type": "updated",
+      "itemId": 1654,
+      "itemName": "Jugs of Water",
+      "oldValue": 1,
+      "newValue": 5,
+      "field": "quantity",
+      "timestamp": "2025-11-27T22:51:22.784529+00:00"
+    },
+    {
+      "id": 29,
+      "type": "deleted",
+      "itemId": 1645,
+      "itemName": "PolyPro",
+      "oldValue": 1160,
+      "newValue": null,
+      "field": "item",
+      "timestamp": "2025-11-27T22:51:12.423746+00:00"
+    },
+    {
+      "id": 28,
+      "type": "updated",
+      "itemId": 1638,
+      "itemName": "Carbon",
+      "oldValue": 1,
+      "newValue": 3,
+      "field": "quantity",
+      "timestamp": "2025-11-27T22:50:59.825721+00:00"
+    },
+    {
+      "id": 27,
+      "type": "updated",
+      "itemId": 1628,
+      "itemName": "Payroll",
+      "oldValue": 0.01,
+      "newValue": 53581,
+      "field": "unitPrice",
+      "timestamp": "2025-11-27T22:50:43.635195+00:00"
+    },
+    {
+      "id": 26,
+      "type": "updated",
+      "itemId": 1622,
+      "itemName": "Glue",
+      "oldValue": 1,
+      "newValue": 3,
+      "field": "quantity",
+      "timestamp": "2025-11-27T22:50:27.907586+00:00"
+    },
+    {
+      "id": 25,
+      "type": "updated",
+      "itemId": 1616,
+      "itemName": "1mm Puff",
+      "oldValue": 1,
+      "newValue": 2,
+      "field": "quantity",
+      "timestamp": "2025-11-27T22:50:21.987082+00:00"
+    }
+  ],
+  "canadaSelectedItems": {
+    "canada_Black Suede_canada": {
+      "selected": false,
+      "quantity": 2,
+      "unit": "roll"
+    },
+    "canada_Blue Swirl_canada": {
+      "selected": false,
+      "quantity": 2,
+      "unit": "sheet"
+    },
+    "canada_Plastazote_canada": {
+      "selected": false,
+      "quantity": 7,
+      "unit": "sheet"
+    },
+    "canada_Black Swirl_canada": {
+      "selected": false,
+      "quantity": 5,
+      "unit": "sheet"
+    },
+    "canada_Green, Black, Blue Microcell_canada": {
+      "selected": false,
+      "quantity": 5,
+      "unit": "sheet"
+    },
+    "canada_2mm Xstatic_canada": {
+      "selected": false,
+      "quantity": 1,
+      "unit": "sheet"
+    },
+    "canada_3mm Black ETC_canada": {
+      "selected": false,
+      "quantity": 1,
+      "unit": "roll"
+    },
+    "canada_3mm Blue ETC_canada": {
+      "selected": false,
+      "quantity": 1,
+      "unit": "roll"
+    },
+    "canada_3mm Xstatic_canada": {
+      "selected": false,
+      "quantity": 3,
+      "unit": "sheet"
+    },
+    "canada_Blue Black Aqua Microcell_canada": {
+      "selected": false,
+      "quantity": 1,
+      "unit": "sheet"
+    },
+    "canada_Pink Swirl_canada": {
+      "selected": false,
+      "quantity": 4,
+      "unit": "sheet"
+    },
+    "canada_Grey Suede_canada": {
+      "selected": false,
+      "quantity": 2,
+      "unit": "roll"
+    },
+    "canada_Skid Plates_canada": {
+      "selected": false,
+      "quantity": 2,
+      "unit": "sheet"
+    },
+    "canada_Brown Suede_canada": {
+      "selected": false,
+      "quantity": 2,
+      "unit": "roll"
+    },
+    "canada_Durasole_canada": {
+      "selected": false,
+      "quantity": 2,
+      "unit": "sheet"
+    },
+    "canada_3mm Poron_canada": {
+      "selected": false,
+      "quantity": 1,
+      "unit": "roll"
+    },
+    "canada_2mm Poron_canada": {
+      "selected": false,
+      "quantity": 1,
+      "unit": "roll"
+    }
+  },
+  "dismissedBackorders": {
+    "3mm Black ETC_canada": true
+  },
+  "canadaRequestCounter": "16",
+  "supabaseDataIncluded": false,
+  "supabaseNote": "User not logged in - only localStorage data included"
+}
