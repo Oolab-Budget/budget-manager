@@ -2613,16 +2613,8 @@
             });
         }
         
-        // Call initializeAuth if supabase is ready, otherwise wait for load event
-        if (supabase) {
-            initializeAuth();
-        } else {
-            window.addEventListener('load', function() {
-                if (supabase) {
-                    initializeAuth();
-                }
-            });
-        }
+        // Note: initializeAuth is now called from initializeSupabaseClient to prevent duplicate calls
+        // This section removed to prevent double initialization
         
         let currentLanguage = 'en';
         let items = JSON.parse(localStorage.getItem('budgetItems')) || [];
@@ -2633,6 +2625,13 @@
 
         // Helper function to load from localStorage (for backward compatibility)
         function loadFromLocalStorage() {
+            // Prevent multiple loads
+            if (localStorageLoaded) {
+                console.log('loadFromLocalStorage: Already loaded, skipping duplicate call');
+                return;
+            }
+            localStorageLoaded = true;
+            
             // Load budget items
             items = JSON.parse(localStorage.getItem('budgetItems')) || [];
             
