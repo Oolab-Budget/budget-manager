@@ -7123,7 +7123,6 @@
             let item = null;
             
             if (row) {
-                if (row) {
                 // Get the item name from the row (most reliable way to identify the item)
                 const nameCell = row.querySelector('td:first-child');
                 if (nameCell) {
@@ -7268,14 +7267,19 @@
             
             // Re-find the item in case its ID was updated by Supabase
             const savedItemId = item.id; // Save the ID before we might lose the reference
+            const savedItemNameEn = item.nameEn;
+            const savedItemNameEs = item.nameEs;
+            const savedItemCategory = item.category;
+            const savedItemUnitPrice = item.unitPrice;
+            
             item = items.find(i => {
                 // Try to match by ID first
                 if (i.id === savedItemId || i.id == id || String(i.id) === String(id)) return true;
                 // If ID doesn't match, try to match by other unique properties
-                return i.nameEn === item.nameEn && 
-                       i.nameEs === item.nameEs && 
-                       i.category === item.category && 
-                       i.unitPrice === item.unitPrice &&
+                return i.nameEn === savedItemNameEn && 
+                       i.nameEs === savedItemNameEs && 
+                       i.category === savedItemCategory && 
+                       i.unitPrice === savedItemUnitPrice &&
                        i.quantity === quantity; // Use the new quantity we just set
             });
             
