@@ -7092,64 +7092,79 @@
         async function updateItemQuantity(id, newQuantity) {
             console.log('updateItemQuantity called with id:', id, 'type:', typeof id, 'newQuantity:', newQuantity);
             
-            // IMPORTANT: First try to find by the row's data-item-id attribute (most reliable)
-            // This avoids issues with duplicate IDs
+            // IMPORTANT: Always use the row's content (name) to find the item, not just ID
+            // This handles cases where multiple items have duplicate IDs
             const inputElement = document.getElementById(`qty_input_${id}`);
             let item = null;
             
             if (inputElement) {
                 const row = inputElement.closest('tr');
                 if (row) {
-                    // First, try to get the item ID from the data attribute (most reliable)
-                    const rowItemId = row.getAttribute('data-item-id');
-                    if (rowItemId) {
-                        item = items.find(i => String(i.id) === String(rowItemId));
-                        if (item) {
-                            console.log('✅ Found item by data-item-id attribute:', rowItemId, 'Item:', item.nameEn || item.nameEs);
+                    // Get the item name from the row (most reliable way to identify the item)
+                    const nameCell = row.querySelector('td:first-child');
+                    if (nameCell) {
+                        const itemName = nameCell.textContent.trim();
+                        console.log('Finding item by name from row:', itemName, 'Looking for ID:', id);
+                        
+                        // Get category, current quantity, and price from the row for precise matching
+                        const categoryCell = row.querySelector('td:nth-child(4)'); // Category is 4th column
+                        const qtyCell = row.querySelector('td:nth-child(6)'); // Quantity is 6th column
+                        const priceCell = row.querySelector('td:nth-child(5)'); // Price is 5th column
+                        
+                        const categoryText = categoryCell ? categoryCell.textContent.trim() : '';
+                        const currentQty = qtyCell ? (parseInt(qtyCell.textContent.trim()) || 0) : 0;
+                        const currentPrice = priceCell ? parseFloat(priceCell.textContent.replace(/[^0-9.]/g, '')) : null;
+                        
+                        console.log('Row data:', { itemName, categoryText, currentQty, currentPrice });
+                        
+                        // Try to find by name (exact match)
+                        let matchingItems = items.filter(i => {
+                            const iName = currentLanguage === 'en' ? i.nameEn : i.nameEs;
+                            return iName && iName.trim() === itemName;
+                        });
+                        
+                        console.log(`Found ${matchingItems.length} items with name "${itemName}"`);
+                        
+                        // If multiple matches, filter by category, quantity, and price to find exact match
+                        if (matchingItems.length > 1) {
+                            matchingItems = matchingItems.filter(i => {
+                                const matchesCategory = !categoryText || i.category === categoryText || 
+                                    (i.category && i.category.toLowerCase() === categoryText.toLowerCase());
+                                const matchesQty = i.quantity === currentQty;
+                                const matchesPrice = currentPrice === null || Math.abs((i.unitPrice || 0) - currentPrice) < 0.01;
+                                const matchesId = String(i.id) === String(id); // Also check ID as additional filter
+                                return matchesCategory && matchesQty && matchesPrice && matchesId;
+                            });
+                            console.log(`After filtering by category/qty/price/ID: ${matchingItems.length} matches`);
+                        } else if (matchingItems.length === 1) {
+                            // Single match - verify it matches the ID if possible
+                            const singleMatch = matchingItems[0];
+                            if (String(singleMatch.id) === String(id)) {
+                                console.log('✅ Single match with matching ID');
+                            } else {
+                                console.warn('⚠️ Single match but ID mismatch. Using it anyway. Expected ID:', id, 'Found ID:', singleMatch.id);
+                            }
+                        }
+                        
+                        if (matchingItems.length > 0) {
+                            item = matchingItems[0];
+                            console.log('✅ Found item by name for quantity update:', itemName, 'Using ID:', item.id, 'Category:', item.category, 'Current Qty:', item.quantity);
+                        } else {
+                            console.warn('⚠️ No matching item found by name:', itemName);
                         }
                     }
                     
-                    // If not found by data-item-id, try by name from the row (more reliable than ID)
+                    // Fallback: If name matching failed, try by data-item-id (but this may find wrong item if IDs are duplicated)
                     if (!item) {
-                        const nameCell = row.querySelector('td:first-child');
-                        if (nameCell) {
-                            const itemName = nameCell.textContent.trim();
-                            console.log('Finding item by name from row:', itemName, 'Looking for ID:', id);
-                            
-                            // Get category and current quantity from the row for better matching
-                            const categoryCell = row.querySelector('td:nth-child(3)');
-                            const qtyCell = row.querySelector('td:nth-child(6)');
-                            const priceCell = row.querySelector('td:nth-child(5)');
-                            
-                            const categoryText = categoryCell ? categoryCell.textContent.trim() : '';
-                            const currentQty = qtyCell ? (parseInt(qtyCell.textContent.trim()) || 0) : 0;
-                            const currentPrice = priceCell ? parseFloat(priceCell.textContent.replace(/[^0-9.]/g, '')) : null;
-                            
-                            // Try to find by name (exact match)
-                            let matchingItems = items.filter(i => {
-                                const iName = currentLanguage === 'en' ? i.nameEn : i.nameEs;
-                                return iName && iName.trim() === itemName;
-                            });
-                            
-                            console.log(`Found ${matchingItems.length} items with name "${itemName}"`);
-                            
-                            // If multiple matches, filter by category, quantity, and price
-                            if (matchingItems.length > 1) {
-                                matchingItems = matchingItems.filter(i => {
-                                    const matchesCategory = !categoryText || i.category === categoryText || 
-                                        (i.category && i.category.toLowerCase() === categoryText.toLowerCase());
-                                    const matchesQty = i.quantity === currentQty;
-                                    const matchesPrice = currentPrice === null || Math.abs((i.unitPrice || 0) - currentPrice) < 0.01;
-                                    return matchesCategory && matchesQty && matchesPrice;
-                                });
-                                console.log(`After filtering by category/qty/price: ${matchingItems.length} matches`);
-                            }
-                            
-                            if (matchingItems.length > 0) {
-                                item = matchingItems[0];
-                                console.log('✅ Found item by name for quantity update:', itemName, 'Using ID:', item.id, 'Category:', item.category);
-                            } else {
-                                console.warn('⚠️ No matching item found by name:', itemName);
+                        const rowItemId = row.getAttribute('data-item-id');
+                        if (rowItemId) {
+                            const matchingById = items.filter(i => String(i.id) === String(rowItemId));
+                            if (matchingById.length > 0) {
+                                if (matchingById.length > 1) {
+                                    console.warn(`⚠️ DUPLICATE ID DETECTED! Found ${matchingById.length} items with ID ${rowItemId}. Using first match.`);
+                                }
+                                item = matchingById[0];
+                                console.log('⚠️ Found item by data-item-id (fallback):', rowItemId, 'Item:', item.nameEn || item.nameEs);
                             }
                         }
                     }
