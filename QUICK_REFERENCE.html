@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Manager - Quick Reference Guide</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .page-break { page-break-before: always; }
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 5px;
+            margin-top: 25px;
+        }
+        h3 {
+            color: #555;
+            margin-top: 20px;
+        }
+        ol, ul {
+            margin-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .task {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin: 15px 0;
+        }
+        .status-box {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .tip-box {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+        }
+        .note-box {
+            background-color: #d1ecf1;
+            padding: 15px;
+            border-left: 4px solid #17a2b8;
+            margin: 15px 0;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Budget Manager - Quick Reference Guide</h1>
+
+    <h2>Common Tasks - Step by Step</h2>
+
+    <div class="task">
+        <h3>Adding Items to Budget</h3>
+        <ol>
+            <li>Go to <strong>Budget</strong> tab</li>
+            <li>Select <strong>Category</strong> from dropdown</li>
+            <li>Click <strong>Add to Budget</strong> next to item</li>
+            <li>Edit quantity/price if needed</li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Creating a New Category</h3>
+        <ol>
+            <li>Go to <strong>Categories</strong> tab</li>
+            <li>Click <strong>Add New Category</strong></li>
+            <li>Enter Category Key (lowercase, no spaces)</li>
+            <li>Enter Name (English and Spanish)</li>
+            <li>Click <strong>Add Category</strong></li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Adding New Item to Database</h3>
+        <ol>
+            <li>Go to <strong>Manage Items</strong> tab</li>
+            <li>Select category</li>
+            <li>Click <strong>Add New Item</strong></li>
+            <li>Fill in all details</li>
+            <li>Check <strong>Recurring Weekly</strong> if needed</li>
+            <li>Click <strong>Add Item</strong></li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Saving a Budget</h3>
+        <ol>
+            <li>Go to <strong>Budget</strong> tab</li>
+            <li>Review all items</li>
+            <li>Click <strong>Save Budget</strong> button</li>
+            <li>Enter label (optional)</li>
+            <li>Check <strong>Partial Payment</strong> if needed</li>
+            <li>Click <strong>Save</strong></li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Creating Can/Mex Request</h3>
+        <ol>
+            <li>Go to <strong>Can/Mex</strong> tab</li>
+            <li>Select category or search for items</li>
+            <li>Click <strong>Add</strong> next to items</li>
+            <li>Set quantities</li>
+            <li>Add tracking numbers (optional)</li>
+            <li>Click <strong>Generate Request</strong></li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Adding UPS Tracking</h3>
+        <ol>
+            <li>Go to <strong>Can/Mex</strong> or <strong>Mex/Can</strong> tab</li>
+            <li>Find request in history</li>
+            <li>Click <strong>Add Tracking Number</strong></li>
+            <li>Enter UPS tracking number</li>
+            <li>Status updates automatically</li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Generating Report</h3>
+        <ol>
+            <li>Go to <strong>Reports</strong> tab</li>
+            <li>Select report type (Budget or Canada)</li>
+            <li>Select date range</li>
+            <li>Select item filter (if needed)</li>
+            <li>Report displays automatically</li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Backing Up Data</h3>
+        <ol>
+            <li>Go to <strong>Settings</strong> tab</li>
+            <li>Scroll to <strong>Backup & Restore</strong></li>
+            <li>Click <strong>Backup All Data</strong></li>
+            <li>Choose save location</li>
+            <li>File saved with timestamp</li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Restoring from Backup</h3>
+        <ol>
+            <li>Go to <strong>Settings</strong> tab</li>
+            <li>Scroll to <strong>Backup & Restore</strong></li>
+            <li>Click <strong>Choose File</strong></li>
+            <li>Select backup JSON file</li>
+            <li>Click <strong>Restore Backup</strong></li>
+            <li>Wait for confirmation</li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Configuring Email (EmailJS)</h3>
+        <ol>
+            <li>Go to <strong>Settings</strong> tab</li>
+            <li>Scroll to <strong>Email Configuration</strong></li>
+            <li>Enter Public Key</li>
+            <li>Enter Service ID</li>
+            <li>Enter Template ID</li>
+            <li>Enter Recipient Email</li>
+            <li>Click <strong>Save Email Settings</strong></li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Setting Up UPS Tracking</h3>
+        <ol>
+            <li>Go to <strong>Settings</strong> tab</li>
+            <li>Scroll to <strong>UPS Tracking</strong></li>
+            <li>Enter Client ID</li>
+            <li>Enter Client Secret</li>
+            <li>Click <strong>Save UPS Settings</strong></li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Marking Item as Recurring</h3>
+        <ol>
+            <li>Go to <strong>Manage Items</strong> tab</li>
+            <li>Find item</li>
+            <li>Click <strong>Edit</strong></li>
+            <li>Check <strong>Recurring Weekly</strong> or <strong>Recurring Monthly</strong></li>
+            <li>If monthly, set <strong>Monthly Day</strong></li>
+            <li>Click <strong>Save Changes</strong></li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Adding Receipt to Item</h3>
+        <ol>
+            <li>Go to <strong>Budget</strong> tab</li>
+            <li>Find item in budget table</li>
+            <li>Click <strong>Add Receipt</strong> button</li>
+            <li>Select image file</li>
+            <li>Receipt is saved</li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Viewing Saved Budget</h3>
+        <ol>
+            <li>Go to <strong>Reports</strong> tab</li>
+            <li>Select <strong>Saved Budgets</strong> report type</li>
+            <li>Click <strong>View Details</strong> on any budget</li>
+            <li>See full breakdown</li>
+            <li>Add receipts if needed</li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Filtering Canada Reports by Item</h3>
+        <ol>
+            <li>Go to <strong>Reports</strong> tab</li>
+            <li>Click <strong>Canada Reports</strong> button</li>
+            <li>Select <strong>Request History</strong> report type</li>
+            <li>Select date range</li>
+            <li>Select item from <strong>Filter by Item</strong> dropdown</li>
+            <li>See item-focused table with totals</li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Dismissing Backorder</h3>
+        <ol>
+            <li>Go to <strong>Can/Mex</strong> tab</li>
+            <li>Scroll to <strong>Backorders Summary</strong></li>
+            <li>Find backorder group</li>
+            <li>Click <strong>Dismiss</strong> button</li>
+            <li>Backorder is hidden</li>
+        </ol>
+    </div>
+
+    <div class="task">
+        <h3>Switching Language</h3>
+        <ul>
+            <li>Click <strong>ES / EN</strong> button in top-left corner</li>
+            <li>All text switches immediately</li>
+        </ul>
+    </div>
+
+    <div class="task">
+        <h3>Exporting to Excel</h3>
+        <ol>
+            <li>Go to <strong>Budget</strong> tab</li>
+            <li>Click <strong>Export to Excel</strong> button</li>
+            <li>File downloads automatically</li>
+        </ol>
+    </div>
+
+    <div class="page-break"></div>
+    <h2>Status Indicators</h2>
+
+    <div class="status-box">
+        <h3>Budget Items</h3>
+        <ul>
+            <li><strong>Green Badge</strong>: Approved</li>
+            <li><strong>Red Badge</strong>: Rejected</li>
+            <li><strong>No Badge</strong>: Pending approval</li>
+        </ul>
+    </div>
+
+    <div class="status-box">
+        <h3>UPS Tracking</h3>
+        <ul>
+            <li>📦 <strong>Picked Up</strong>: Package collected</li>
+            <li>🚚 <strong>In Transit</strong>: On the way</li>
+            <li>✅ <strong>Delivered</strong>: Successfully delivered</li>
+            <li>💰 <strong>Duties Due</strong>: Payment required</li>
+            <li>⚠️ <strong>Delay</strong>: Exception or delay</li>
+        </ul>
+    </div>
+
+    <div class="status-box">
+        <h3>Request Status</h3>
+        <ul>
+            <li><strong>Pending</strong>: Not yet sent</li>
+            <li><strong>Sent</strong>: Shipped</li>
+            <li><strong>Received</strong>: Delivered and received</li>
+        </ul>
+    </div>
+
+    <div class="page-break"></div>
+    <h2>Important Notes</h2>
+
+    <div class="note-box">
+        <ul>
+            <li><strong>Recurring Items</strong>: Add automatically every Monday</li>
+            <li><strong>Manually Removed Items</strong>: Won't reappear until next week</li>
+            <li><strong>Backups</strong>: Created automatically, saved to desktop</li>
+            <li><strong>Tracking Updates</strong>: Check every hour automatically</li>
+            <li><strong>Partial Payments</strong>: Can save budgets not fully paid</li>
+            <li><strong>Item Notes</strong>: Available in Mex/Can requests only</li>
+        </ul>
+    </div>
+
+    <div class="page-break"></div>
+    <h2>Quick Tips</h2>
+
+    <div class="tip-box">
+        <ul>
+            <li>Use <strong>Search</strong> to find items quickly</li>
+            <li><strong>Save Budget</strong> frequently to prevent data loss</li>
+            <li><strong>Add Receipts</strong> immediately after purchase</li>
+            <li><strong>Check Tracking</strong> regularly for delays</li>
+            <li><strong>Backup Data</strong> before major changes</li>
+            <li><strong>Use Filters</strong> in reports to focus on specific data</li>
+        </ul>
+    </div>
+
+    <div class="page-break"></div>
+    <h2>Common Shortcuts</h2>
+
+    <table>
+        <tr>
+            <th>Shortcut</th>
+            <th>Action</th>
+        </tr>
+        <tr>
+            <td><code>Ctrl+Shift+R</code></td>
+            <td>Hard refresh</td>
+        </tr>
+        <tr>
+            <td><code>F12</code></td>
+            <td>Open console (for troubleshooting)</td>
+        </tr>
+        <tr>
+            <td><code>Ctrl+F</code></td>
+            <td>Search page</td>
+        </tr>
+    </table>
+
+    <div class="page-break"></div>
+    <h2>Need Help?</h2>
+
+    <ol>
+        <li>Check <strong>USER_MANUAL.html</strong> for detailed instructions</li>
+        <li>Check browser console (F12) for errors</li>
+        <li>Try hard refresh (Ctrl+Shift+R)</li>
+        <li>Restore from backup if data is lost</li>
+        <li>Contact system administrator</li>
+    </ol>
+
+    <script>
+        // Add print functionality
+        window.onload = function() {
+            // Add print button
+            const printBtn = document.createElement('button');
+            printBtn.textContent = 'Print to PDF';
+            printBtn.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; z-index: 1000;';
+            printBtn.onclick = function() {
+                window.print();
+            };
+            document.body.appendChild(printBtn);
+        };
+    </script>
+</body>
+</html>
+
+

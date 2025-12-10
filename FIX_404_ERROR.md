@@ -119,3 +119,5 @@ curl https://wholesome-generosity-production.up.railway.app/health
 2. Verify all files are in the root directory (not in a subfolder)
 3. Make sure `package.json` has the correct "start" script
 4. Try creating a fresh Railway deployment
+
+

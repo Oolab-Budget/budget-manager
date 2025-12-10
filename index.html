@@ -10901,29 +10901,104 @@ Budget Manager System`;
 
         // Helper function to import backup data (used by both import functions)
         function importBackupData(data, statusDiv) {
+            console.log('=== IMPORT BACKUP DATA START ===');
+            console.log('Backup data structure:', {
+                hasCategories: !!data.categories,
+                categoriesCount: data.categories ? Object.keys(data.categories).length : 0,
+                hasItems: !!data.items,
+                itemsCount: data.items ? Object.keys(data.items).length : 0
+            });
+            
             try {
                 if (data.categories && Object.keys(data.categories).length > 0) {
+                    console.log('Processing categories...');
                     Object.assign(categories, data.categories);
                     localStorage.setItem('customCategories', JSON.stringify(categories));
+                    
+                    // IMPORTANT: Extract items from categories into itemDatabase
+                    // This handles backups where items are nested in categories
+                    // REPLACE items (don't merge) to ensure all items including recurring weekly are restored
+                    Object.keys(data.categories).forEach(categoryKey => {
+                        const categoryData = data.categories[categoryKey];
+                        console.log(`Processing category "${categoryKey}":`, {
+                            hasItems: !!categoryData.items,
+                            itemsIsArray: Array.isArray(categoryData.items),
+                            itemsCount: categoryData.items ? categoryData.items.length : 0
+                        });
+                        
+                        if (categoryData.items && Array.isArray(categoryData.items)) {
+                            // REPLACE the entire array to ensure all items are restored, including recurring weekly
+                            itemDatabase[categoryKey] = [...categoryData.items];
+                            const recurringCount = categoryData.items.filter(i => i.recurringWeekly === true).length;
+                            console.log(`✓ Restored ${categoryData.items.length} items for category "${categoryKey}"`);
+                            console.log(`  - Recurring weekly items: ${recurringCount}`);
+                            console.log(`  - All items:`, categoryData.items.map(i => ({
+                                name: i.nameEn || i.name,
+                                recurring: i.recurringWeekly || false
+                            })));
+                        } else {
+                            console.log(`⚠ Category "${categoryKey}" has no items array`);
+                        }
+                    });
+                    console.log('itemDatabase after restore:', Object.keys(itemDatabase).map(k => ({
+                        category: k,
+                        itemCount: itemDatabase[k] ? itemDatabase[k].length : 0
+                    })));
+                } else {
+                    console.log('⚠ No categories found in backup data');
                 }
                 
+                // Also check for separate items object (for backwards compatibility)
                 if (data.items && Object.keys(data.items).length > 0) {
                     Object.keys(data.items).forEach(category => {
-                        if (!itemDatabase[category]) {
-                            itemDatabase[category] = [];
-                        }
-                        data.items[category].forEach(newItem => {
-                            const exists = itemDatabase[category].some(existingItem => 
-                                existingItem.nameEn === newItem.nameEn && 
-                                existingItem.nameEs === newItem.nameEs
-                            );
-                            if (!exists) {
-                                itemDatabase[category].push(newItem);
-                            }
-                        });
+                        // REPLACE the entire array to ensure all items are restored
+                        itemDatabase[category] = [...data.items[category]];
+                        console.log(`Restored ${data.items[category].length} items for category ${category} from items object`);
                     });
-                    saveCategoryItems();
                 }
+                
+                // Save items after restoring (only if we found items)
+                // IMPORTANT: Wait for save to complete to ensure items are in Supabase
+                console.log('Final itemDatabase keys:', Object.keys(itemDatabase));
+                console.log('Total categories with items:', Object.keys(itemDatabase).length);
+                
+                if (Object.keys(itemDatabase).length > 0) {
+                    // Save to localStorage immediately
+                    localStorage.setItem('categoryItems', JSON.stringify(itemDatabase));
+                    console.log('✓ Saved itemDatabase to localStorage');
+                    
+                    // Save to Supabase if logged in (async, but we'll refresh UI after)
+                    if (useSupabase && currentUser) {
+                        console.log('Saving to Supabase...');
+                        saveCategoryItems().then(() => {
+                            console.log('✓ Items saved to Supabase after restore');
+                            // Refresh manage items if a category is selected
+                            const manageCategorySelect = document.getElementById('manageCategorySelect');
+                            if (manageCategorySelect && manageCategorySelect.value) {
+                                console.log('Refreshing manage items for category:', manageCategorySelect.value);
+                                if (typeof loadManageCategoryItems === 'function') {
+                                    loadManageCategoryItems();
+                                }
+                            }
+                        }).catch(err => {
+                            console.error('✗ Error saving items to Supabase:', err);
+                        });
+                    } else {
+                        console.log('Not logged in, skipping Supabase save');
+                        // Not logged in, just refresh UI
+                        const manageCategorySelect = document.getElementById('manageCategorySelect');
+                        if (manageCategorySelect && manageCategorySelect.value) {
+                            console.log('Refreshing manage items for category:', manageCategorySelect.value);
+                            if (typeof loadManageCategoryItems === 'function') {
+                                loadManageCategoryItems();
+                            }
+                        }
+                    }
+                } else {
+                    console.log('⚠ No items found to save!');
+                }
+                
+                console.log('=== IMPORT BACKUP DATA END ===');
                 
                 // Restore settings
                 if (data.settings) {
@@ -10998,9 +11073,19 @@ Budget Manager System`;
                 if (data.dismissedBackorders) localStorage.setItem('dismissedBackorders', JSON.stringify(data.dismissedBackorders));
                 if (data.canadaRequestCounter) localStorage.setItem('canadaRequestCounter', data.canadaRequestCounter);
                 
+                // Count items restored
+                let totalItemsRestored = 0;
+                let recurringItemsCount = 0;
+                Object.keys(itemDatabase).forEach(cat => {
+                    if (Array.isArray(itemDatabase[cat])) {
+                        totalItemsRestored += itemDatabase[cat].length;
+                        recurringItemsCount += itemDatabase[cat].filter(i => i.recurringWeekly === true).length;
+                    }
+                });
+                
                 // Build success message
                 let successMessage = '<strong style="color: #155724;">✓ Backup restored successfully!</strong><br>';
-                successMessage += 'Restored: Categories, Items';
+                successMessage += `Restored: ${Object.keys(categories).length} Categories, ${totalItemsRestored} Items (${recurringItemsCount} recurring weekly)<br>`;
                 if (data.canadaRequestHistory && data.canadaRequestHistory.length > 0) {
                     successMessage += `, ${data.canadaRequestHistory.length} Canada request(s)`;
                 }
@@ -11016,7 +11101,10 @@ Budget Manager System`;
                 if (data.budgetItems && data.budgetItems.length > 0) {
                     successMessage += `, ${data.budgetItems.length} current budget item(s)`;
                 }
-                successMessage += '<br><small>You can now try logging in again. If you log in, data will be migrated to Supabase.</small>';
+                successMessage += '<br><small><strong>Note:</strong> If you\'re in the Manage Items tab, please reselect the category from the dropdown to see all restored items (including recurring weekly items).</small>';
+                if (!currentUser) {
+                    successMessage += '<br><small>You can now try logging in again. If you log in, data will be migrated to Supabase.</small>';
+                }
                 
                 if (statusDiv) {
                     statusDiv.innerHTML = successMessage;
@@ -11091,6 +11179,15 @@ Budget Manager System`;
                         if (typeof loadCategoriesList === 'function') loadCategoriesList();
                         if (typeof renderBudgetItems === 'function') renderBudgetItems();
                         if (typeof updateTotal === 'function') updateTotal();
+                        
+                        // IMPORTANT: Refresh manage items tab if a category is selected
+                        // This ensures recurring weekly items show up after restore
+                        const manageCategorySelect = document.getElementById('manageCategorySelect');
+                        if (manageCategorySelect && manageCategorySelect.value) {
+                            if (typeof loadManageCategoryItems === 'function') {
+                                loadManageCategoryItems();
+                            }
+                        }
                         
                         // Refresh monitor and alerts displays if data was restored
                         if (data.activityLog && data.activityLog.length > 0) {
@@ -11496,15 +11593,29 @@ Budget Manager System`;
             const manageCategoryItemsDiv = document.getElementById('manageCategoryItems');
             const manageItemsListDiv = document.getElementById('manageItemsList');
             
+            console.log('=== loadManageCategoryItems ===');
+            console.log('Selected category:', category);
+            console.log('itemDatabase keys:', Object.keys(itemDatabase));
+            console.log('itemDatabase[category]:', itemDatabase[category]);
+            
             if (!category) {
                 manageCategoryItemsDiv.style.display = 'none';
                 return;
             }
             
+            // IMPORTANT: Show ALL items in manage items section (no filtering)
+            // This includes recurring weekly items so they can be edited/managed
             const categoryItems = itemDatabase[category] || [];
+            console.log(`Found ${categoryItems.length} items in category "${category}"`);
+            console.log('Items:', categoryItems.map(i => ({
+                name: i.nameEn || i.name,
+                recurring: i.recurringWeekly || false
+            })));
+            
             manageCategoryItemsDiv.style.display = 'block';
             
             if (categoryItems.length === 0) {
+                console.log('⚠ No items found for category:', category);
                 manageItemsListDiv.innerHTML = '<p data-en="No items in this category." data-es="No hay artículos en esta categoría.">No items in this category.</p>';
                 return;
             }

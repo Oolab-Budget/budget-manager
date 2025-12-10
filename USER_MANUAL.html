@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Manager - Complete User Manual</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .page-break { page-break-before: always; }
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 5px;
+            margin-top: 25px;
+        }
+        h3 {
+            color: #555;
+            margin-top: 20px;
+        }
+        h4 {
+            color: #666;
+            margin-top: 15px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        .toc {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .toc li {
+            margin: 5px 0;
+        }
+        .toc a {
+            text-decoration: none;
+            color: #3498db;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+    </style>
+</head>
+<body>
+    <h1>Budget Manager - Complete User Manual</h1>
+    <p><strong>Mexico Operations - Bilingual Budget Management System</strong></p>
+    <p><strong>Version:</strong> 1.0<br>
+    <strong>Last Updated:</strong> December 2024</p>
+
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#introduction">1. Introduction</a></li>
+            <li><a href="#getting-started">2. Getting Started</a></li>
+            <li><a href="#main-features">3. Main Features Overview</a></li>
+            <li><a href="#detailed-guides">4. Detailed Feature Guides</a></li>
+            <li><a href="#user-roles">5. User Roles & Permissions</a></li>
+            <li><a href="#backup-restore">6. Data Backup & Restore</a></li>
+            <li><a href="#tips">7. Tips & Best Practices</a></li>
+            <li><a href="#troubleshooting">8. Troubleshooting</a></li>
+        </ul>
+    </div>
+
+    <div class="page-break"></div>
+    <h2 id="introduction">1. Introduction</h2>
+    <p>The Budget Manager is a comprehensive bilingual (English/Spanish) budget management system designed for Mexico Operations. It helps you track expenses, manage inventory, generate reports, handle cross-border requests, and monitor spending patterns.</p>
+
+    <h3>Key Features</h3>
+    <ul>
+        <li><strong>Bilingual Interface</strong>: Switch between English and Spanish</li>
+        <li><strong>Budget Management</strong>: Create, track, and manage weekly budgets</li>
+        <li><strong>Item Management</strong>: Organize items by categories with recurring options</li>
+        <li><strong>Reporting</strong>: Generate detailed reports and analytics</li>
+        <li><strong>Cross-Border Requests</strong>: Handle Can/Mex and Mex/Can shipping requests</li>
+        <li><strong>UPS Tracking</strong>: Real-time tracking for shipments</li>
+        <li><strong>Data Backup</strong>: Automatic and manual backup options</li>
+    </ul>
+
+    <div class="page-break"></div>
+    <h2 id="getting-started">2. Getting Started</h2>
+
+    <h3>First Time Setup</h3>
+    <ol>
+        <li><strong>Access the Application</strong>
+            <ul>
+                <li>Open the Budget Manager in your web browser</li>
+                <li>The application will load with default settings</li>
+            </ul>
+        </li>
+        <li><strong>Language Selection</strong>
+            <ul>
+                <li>Click the <strong>ES / EN</strong> button in the top-left corner to switch languages</li>
+                <li>All interface elements will update immediately</li>
+            </ul>
+        </li>
+        <li><strong>User Roles</strong>
+            <ul>
+                <li><strong>Admin</strong>: Full access to all features</li>
+                <li><strong>Limited User</strong>: Access to Budget, Can/Mex, Mex/Can, and Reports tabs only</li>
+            </ul>
+        </li>
+        <li><strong>Initial Configuration</strong>
+            <ul>
+                <li>Go to <strong>Settings</strong> tab</li>
+                <li>Configure EmailJS for email notifications</li>
+                <li>Set up UPS tracking credentials (if needed)</li>
+                <li>Configure DeepL API for translations (optional)</li>
+            </ul>
+        </li>
+    </ol>
+
+    <div class="page-break"></div>
+    <h2 id="main-features">3. Main Features Overview</h2>
+
+    <h3>Available Tabs</h3>
+    <ol>
+        <li><strong>Budget</strong> - Main budget management and item tracking</li>
+        <li><strong>Add Items</strong> - Quick item addition to budget</li>
+        <li><strong>Manage Items</strong> - Edit, delete, and organize items in database</li>
+        <li><strong>Categories</strong> - Manage budget categories</li>
+        <li><strong>Reports</strong> - View budget reports and Canada/Mexico reports</li>
+        <li><strong>Monitor</strong> - Monitor dashboard and activity logs</li>
+        <li><strong>Alerts</strong> - Set up low stock and budget alerts</li>
+        <li><strong>Can/Mex</strong> - Canada requesting items from Mexico</li>
+        <li><strong>Mex/Can</strong> - Mexico requesting items from Canada</li>
+        <li><strong>Settings</strong> - Application configuration</li>
+    </ol>
+
+    <div class="page-break"></div>
+    <h2 id="detailed-guides">4. Detailed Feature Guides</h2>
+
+    <h3>Budget Tab</h3>
+    <h4>Overview</h4>
+    <p>The Budget tab is your main workspace for managing weekly budgets, tracking expenses, and approving items.</p>
+
+    <h4>Key Functions</h4>
+    <h5>1. Adding Items from Categories</h5>
+    <ol>
+        <li>Select a <strong>Category</strong> from the dropdown</li>
+        <li>Items in that category will appear below</li>
+        <li>Click <strong>Add to Budget</strong> next to any item</li>
+        <li>The item will be added to your current week's budget</li>
+    </ol>
+
+    <h5>2. Managing Budget Items</h5>
+    <ul>
+        <li><strong>View Items</strong>: All items in your current week's budget are displayed in a table</li>
+        <li><strong>Edit Quantity</strong>: Click the quantity field and enter a new value</li>
+        <li><strong>Edit Unit Price</strong>: Click the unit price field and enter a new value</li>
+        <li><strong>Remove Item</strong>: Click the <strong>Remove</strong> button (red) next to any item</li>
+        <li><strong>Add Receipt</strong>: Click <strong>Add Receipt</strong> to upload an invoice photo</li>
+    </ul>
+
+    <h5>3. Approval System</h5>
+    <ul>
+        <li><strong>Approve Item</strong>: Click <strong>Approve</strong> to mark an item as approved</li>
+        <li><strong>Reject Item</strong>: Click <strong>Reject</strong> to mark an item as rejected</li>
+        <li><strong>Reset All Approvals</strong>: Click <strong>Reset All Approvals</strong> to clear all approval statuses</li>
+    </ul>
+
+    <h5>4. Budget Actions</h5>
+    <ul>
+        <li><strong>Save Budget</strong>: Click <strong>Save Budget</strong> to save the current week's budget</li>
+        <li><strong>Save and Continue</strong>: Click <strong>Save and Continue</strong> to save without clearing items</li>
+        <li><strong>Clear Budget</strong>: Click <strong>Clear Budget</strong> to remove all items (recurring items will be re-added)</li>
+        <li><strong>Export to Excel</strong>: Click <strong>Export to Excel</strong> to download budget as spreadsheet</li>
+    </ul>
+
+    <h5>5. Recurring Items</h5>
+    <ul>
+        <li>Items marked as "Recurring Weekly" will automatically appear each Monday</li>
+        <li>If you manually remove a recurring item, it won't reappear until next week</li>
+        <li>Recurring items are identified by the "Recurring Weekly" badge</li>
+    </ul>
+
+    <h5>6. Partial Payments</h5>
+    <ul>
+        <li>When saving a budget, you can mark it as a "Partial Payment"</li>
+        <li>Partial payments allow you to save budgets that aren't fully paid yet</li>
+        <li>These are tracked separately in reports</li>
+    </ul>
+
+    <div class="page-break"></div>
+    <h3>Add Items Tab</h3>
+    <h4>Overview</h4>
+    <p>Quickly add new items directly to your budget without going through categories.</p>
+
+    <h4>How to Use</h4>
+    <ol>
+        <li><strong>Fill in Item Details</strong>
+            <ul>
+                <li><strong>Name (English)</strong>: Item name in English</li>
+                <li><strong>Name (Spanish)</strong>: Item name in Spanish (optional, will auto-translate)</li>
+                <li><strong>Category</strong>: Select from existing categories</li>
+                <li><strong>Unit Price</strong>: Price per unit</li>
+                <li><strong>Quantity</strong>: Number of units</li>
+                <li><strong>Priority</strong>: High, Medium, or Low</li>
+                <li><strong>Supplier</strong>: Supplier name (optional)</li>
+                <li><strong>Description</strong>: Additional notes (optional)</li>
+            </ul>
+        </li>
+        <li><strong>Add to Budget</strong>
+            <ul>
+                <li>Click <strong>Add to Budget</strong> button</li>
+                <li>Item will be added to current week's budget</li>
+                <li>Form will clear for next item</li>
+            </ul>
+        </li>
+        <li><strong>Add to Database</strong>
+            <ul>
+                <li>Check <strong>Also add to item database</strong> if you want to save for future use</li>
+                <li>Item will be available in category selection</li>
+            </ul>
+        </li>
+    </ol>
+
+    <div class="page-break"></div>
+    <h3>Manage Items Tab</h3>
+    <h4>Overview</h4>
+    <p>Manage all items in your item database. Edit, delete, or organize items.</p>
+
+    <h4>Key Functions</h4>
+    <h5>1. Viewing Items</h5>
+    <ul>
+        <li>Select a <strong>Category</strong> to view items in that category</li>
+        <li>Use <strong>Search</strong> to filter items by name</li>
+        <li>Items are displayed in a table with all details</li>
+    </ul>
+
+    <h5>2. Editing Items</h5>
+    <ol>
+        <li>Click <strong>Edit</strong> next to any item</li>
+        <li>Modify the item details in the popup form</li>
+        <li>Click <strong>Save Changes</strong></li>
+        <li>Changes are saved to the database</li>
+    </ol>
+
+    <h5>3. Deleting Items</h5>
+    <ol>
+        <li>Click <strong>Delete</strong> next to any item</li>
+        <li>Confirm deletion</li>
+        <li>Item is permanently removed from database</li>
+    </ol>
+
+    <h5>4. Item Properties</h5>
+    <ul>
+        <li><strong>Recurring Weekly</strong>: Item will auto-add to budget every Monday</li>
+        <li><strong>Recurring Monthly</strong>: Item will auto-add on a specific day each month</li>
+        <li><strong>Available for Canada Requests</strong>: Item can be requested in Can/Mex tab</li>
+        <li><strong>Available for Mexico Requests</strong>: Item can be requested in Mex/Can tab</li>
+    </ul>
+
+    <div class="page-break"></div>
+    <h3>Categories Tab</h3>
+    <h4>Overview</h4>
+    <p>Create and manage budget categories. Categories organize your items and can have special properties.</p>
+
+    <h4>Key Functions</h4>
+    <h5>1. Creating Categories</h5>
+    <ol>
+        <li>Click <strong>Add New Category</strong></li>
+        <li>Fill in category details:
+            <ul>
+                <li><strong>Category Key</strong>: Unique identifier (lowercase, no spaces, e.g., "office_supplies")</li>
+                <li><strong>Name (English)</strong>: Category name in English</li>
+                <li><strong>Name (Spanish)</strong>: Category name in Spanish</li>
+                <li><strong>Description</strong>: Optional description</li>
+            </ul>
+        </li>
+        <li>Click <strong>Add Category</strong></li>
+    </ol>
+
+    <h5>2. Category Properties</h5>
+    <ul>
+        <li><strong>Recurring Weekly</strong>: All items in this category will auto-add weekly</li>
+        <li><strong>Has Due Date</strong>: Category has a payment due date</li>
+        <li><strong>Due Date</strong>: Set the due date for the category</li>
+    </ul>
+
+    <div class="page-break"></div>
+    <h3>Reports Tab</h3>
+    <h4>Overview</h4>
+    <p>Generate detailed reports on budgets, spending patterns, and Canada/Mexico requests.</p>
+
+    <h4>Budget Reports</h4>
+    <h5>1. Budget Summary</h5>
+    <ul>
+        <li>Overview of current week's budget</li>
+        <li>Total amounts by category</li>
+        <li>Approval status summary</li>
+    </ul>
+
+    <h5>2. Saved Budgets</h5>
+    <ul>
+        <li>View all previously saved budgets</li>
+        <li>Filter by date range</li>
+        <li>Click <strong>View Details</strong> to see full budget breakdown</li>
+        <li>Add receipts to saved budget items</li>
+    </ul>
+
+    <h5>3. Spending by Category</h5>
+    <ul>
+        <li>Total spending per category over time</li>
+        <li>Visual breakdown of expenses</li>
+        <li>Date range filtering</li>
+    </ul>
+
+    <h5>4. Item-Focused Report (Canada Reports)</h5>
+    <ul>
+        <li>When filtering by item in Canada Reports, see a detailed table</li>
+        <li>Shows: Date, Request #, Quantity, Unit, Status</li>
+        <li>Displays total quantity for the filtered period at the top</li>
+    </ul>
+
+    <div class="page-break"></div>
+    <h3>Can/Mex Tab</h3>
+    <h4>Overview</h4>
+    <p>Handle requests from Canada requesting items to be shipped to Mexico.</p>
+
+    <h4>Key Functions</h4>
+    <h5>1. Creating Requests</h5>
+    <ol>
+        <li>Select items from the available list</li>
+        <li>Items must be marked "Available for Canada Requests"</li>
+        <li>Set quantities for each item</li>
+        <li>Add tracking numbers (optional)</li>
+        <li>Click <strong>Generate Request</strong> to create PDF and send email</li>
+    </ol>
+
+    <h5>2. UPS Tracking Features</h5>
+    <ul>
+        <li><strong>Real-time Status</strong>: Automatic updates every hour</li>
+        <li><strong>Status Indicators</strong>:
+            <ul>
+                <li>📦 Picked Up</li>
+                <li>🚚 In Transit</li>
+                <li>✅ Delivered</li>
+                <li>💰 Duties/Taxes Due</li>
+                <li>⚠️ Delays/Exceptions</li>
+            </ul>
+        </li>
+        <li><strong>Tracking Details</strong>: Click tracking number to view on UPS website</li>
+        <li><strong>Last Location</strong>: See last known location</li>
+    </ul>
+
+    <h5>3. Backorders</h5>
+    <ul>
+        <li><strong>View Backorders</strong>: See items that weren't fully shipped</li>
+        <li><strong>Update Quantities</strong>: Edit sent quantities to create backorders</li>
+        <li><strong>Dismiss Backorders</strong>: Mark backorders as resolved</li>
+    </ul>
+
+    <div class="page-break"></div>
+    <h3>Mex/Can Tab</h3>
+    <h4>Overview</h4>
+    <p>Handle requests from Mexico requesting items to be shipped from Canada.</p>
+
+    <h4>Key Functions</h4>
+    <h5>1. Creating Requests</h5>
+    <ol>
+        <li>Select items from the available list</li>
+        <li>Items must be marked "Available for Mexico Requests"</li>
+        <li>Set quantities (default unit: pieces, can change to pairs)</li>
+        <li>Add notes to items (optional)</li>
+        <li>Add tracking numbers (optional)</li>
+        <li>Click <strong>Generate Request</strong> to create PDF and send email</li>
+    </ol>
+
+    <h5>2. Item Notes</h5>
+    <ul>
+        <li><strong>Add Note</strong>: Click note icon to add item-specific notes</li>
+        <li><strong>Edit Note</strong>: Click note icon again to edit</li>
+        <li><strong>View Note</strong>: Notes appear in request PDF and email</li>
+    </ul>
+
+    <h5>3. Units</h5>
+    <ul>
+        <li><strong>Default</strong>: Pieces</li>
+        <li><strong>Alternative</strong>: Pairs (for items like shoes, gloves, etc.)</li>
+        <li>Change unit type when adding item to request</li>
+    </ul>
+
+    <div class="page-break"></div>
+    <h3>Settings Tab</h3>
+    <h4>Overview</h4>
+    <p>Configure application settings, APIs, and preferences.</p>
+
+    <h4>Configuration Sections</h4>
+    <h5>1. Email Configuration (EmailJS)</h5>
+    <p><strong>How to Configure:</strong></p>
+    <ol>
+        <li>Sign up at <a href="https://www.emailjs.com">EmailJS.com</a></li>
+        <li>Create email service (Gmail, Outlook, etc.)</li>
+        <li>Create email template</li>
+        <li>Copy Public Key, Service ID, and Template ID</li>
+        <li>Paste into Settings tab</li>
+        <li>Click <strong>Save Email Settings</strong></li>
+    </ol>
+
+    <h5>2. Backup & Restore</h5>
+    <p><strong>Automatic Backup:</strong></p>
+    <ul>
+        <li>Backups are saved to: <code>C:\Users\[YourName]\Desktop\budget manager\</code></li>
+        <li>Filename format: <code>budget-full-backup-with-supabase-YYYY-MM-DD_HH-MM-SS.json</code></li>
+        <li>Includes timestamp to prevent overwrites</li>
+    </ul>
+
+    <p><strong>Manual Backup:</strong></p>
+    <ol>
+        <li>Click <strong>Backup All Data</strong> button</li>
+        <li>Choose save location</li>
+        <li>File will be saved with timestamp</li>
+    </ol>
+
+    <p><strong>Restore Backup:</strong></p>
+    <ol>
+        <li>Click <strong>Choose File</strong> button</li>
+        <li>Select backup JSON file</li>
+        <li>Click <strong>Restore Backup</strong></li>
+        <li>All data will be restored from backup</li>
+    </ol>
+
+    <div class="page-break"></div>
+    <h2 id="user-roles">5. User Roles & Permissions</h2>
+
+    <h3>Admin Role</h3>
+    <ul>
+        <li><strong>Full Access</strong>: All tabs and features</li>
+        <li><strong>Settings Access</strong>: Can configure all settings</li>
+        <li><strong>Data Management</strong>: Full backup/restore access</li>
+    </ul>
+
+    <h3>Limited User Role</h3>
+    <ul>
+        <li><strong>Accessible Tabs</strong>:
+            <ul>
+                <li>Budget</li>
+                <li>Can/Mex</li>
+                <li>Mex/Can</li>
+                <li>Reports</li>
+            </ul>
+        </li>
+        <li><strong>Restricted Tabs</strong>: Add Items, Manage Items, Categories, Monitor, Alerts, Settings (read-only or hidden)</li>
+    </ul>
+
+    <div class="page-break"></div>
+    <h2 id="backup-restore">6. Data Backup & Restore</h2>
+
+    <h3>What's Included in Backup</h3>
+    <ul>
+        <li>All budget items</li>
+        <li>All categories</li>
+        <li>All items in database</li>
+        <li>Saved budgets</li>
+        <li>Canada request history</li>
+        <li>Mexico request history</li>
+        <li>Activity logs</li>
+        <li>Change history</li>
+        <li>Settings (except sensitive API keys)</li>
+        <li>Alerts configuration</li>
+    </ul>
+
+    <div class="page-break"></div>
+    <h2 id="tips">7. Tips & Best Practices</h2>
+
+    <h3>Budget Management</h3>
+    <ul>
+        <li><strong>Save Regularly</strong>: Save your budget frequently to prevent data loss</li>
+        <li><strong>Use Recurring Items</strong>: Mark frequently used items as recurring to save time</li>
+        <li><strong>Add Receipts</strong>: Upload receipts immediately after purchase for better tracking</li>
+        <li><strong>Approve Items</strong>: Use approval system to track what's been reviewed</li>
+        <li><strong>Partial Payments</strong>: Use partial payment feature for budgets paid in installments</li>
+    </ul>
+
+    <h3>Data Safety</h3>
+    <ul>
+        <li><strong>Regular Backups</strong>: Create backups weekly or before major changes</li>
+        <li><strong>Multiple Backups</strong>: Keep multiple backup files for safety</li>
+        <li><strong>Test Restores</strong>: Periodically test restoring from backup</li>
+        <li><strong>Export Important Data</strong>: Export critical reports to Excel</li>
+    </ul>
+
+    <div class="page-break"></div>
+    <h2 id="troubleshooting">8. Troubleshooting</h2>
+
+    <h3>Common Issues</h3>
+
+    <h4>Items Not Appearing</h4>
+    <ul>
+        <li>Check Category: Make sure correct category is selected</li>
+        <li>Check Availability: Verify item is marked as available for requests</li>
+        <li>Refresh Page: Hard refresh (Ctrl+Shift+R) to reload data</li>
+        <li>Check Filters: Clear any active filters</li>
+    </ul>
+
+    <h4>Recurring Items Not Adding</h4>
+    <ul>
+        <li>Check Day: Recurring items add on Monday</li>
+        <li>Already Exists: Item may already be in budget</li>
+        <li>Manually Removed: If you removed it, it won't reappear until next week</li>
+    </ul>
+
+    <h4>Tracking Not Updating</h4>
+    <ul>
+        <li>Check Settings: Verify UPS credentials in Settings</li>
+        <li>Check Internet: Ensure internet connection is active</li>
+        <li>Wait for Polling: Updates check every hour</li>
+        <li>Manual Refresh: Refresh page to trigger update</li>
+    </ul>
+
+    <h4>Email Not Sending</h4>
+    <ul>
+        <li>Check EmailJS Settings: Verify all EmailJS settings are correct</li>
+        <li>Check Template: Ensure template ID matches</li>
+        <li>Check Recipient: Verify recipient email is correct</li>
+        <li>Check Console: Open browser console (F12) for error messages</li>
+    </ul>
+
+    <h4>Lost Data</h4>
+    <ul>
+        <li>Check Backup: Look for automatic backups on desktop</li>
+        <li>Restore Backup: Use restore function to recover data</li>
+        <li>Check Supabase: If logged in, data may be in cloud</li>
+        <li>Contact Admin: If using cloud, contact admin for help</li>
+    </ul>
+
+    <div class="page-break"></div>
+    <h2>Keyboard Shortcuts</h2>
+    <ul>
+        <li><strong>Ctrl+Shift+R</strong>: Hard refresh page</li>
+        <li><strong>F12</strong>: Open browser developer console</li>
+        <li><strong>Ctrl+F</strong>: Search on page</li>
+        <li><strong>Tab</strong>: Navigate between form fields</li>
+        <li><strong>Enter</strong>: Submit forms</li>
+    </ul>
+
+    <h2>System Requirements</h2>
+    <ul>
+        <li>Modern web browser (Chrome, Firefox, Edge recommended)</li>
+        <li>Internet connection (for UPS tracking, emails, translations)</li>
+        <li>JavaScript enabled</li>
+        <li>localStorage enabled</li>
+    </ul>
+
+    <hr>
+    <p style="text-align: center; color: #666; margin-top: 40px;">
+        <strong>End of Manual</strong><br>
+        For additional support or questions, please contact your system administrator.
+    </p>
+
+    <script>
+        // Add print functionality
+        window.onload = function() {
+            // Add print button
+            const printBtn = document.createElement('button');
+            printBtn.textContent = 'Print to PDF';
+            printBtn.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; z-index: 1000;';
+            printBtn.onclick = function() {
+                window.print();
+            };
+            document.body.appendChild(printBtn);
+        };
+    </script>
+</body>
+</html>
+
+

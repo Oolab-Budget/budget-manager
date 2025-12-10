@@ -24,3 +24,5 @@ AND column_name IN ('weekly_added_week', 'monthly_added_month', 'monthly_added_y
 
 
 
+
+

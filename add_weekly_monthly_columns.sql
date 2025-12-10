@@ -8,3 +8,5 @@ ADD COLUMN IF NOT EXISTS monthly_added_year INTEGER;
 
 
 
+
+
