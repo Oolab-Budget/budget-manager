@@ -11607,10 +11607,18 @@ Budget Manager System`;
             // This includes recurring weekly items so they can be edited/managed
             const categoryItems = itemDatabase[category] || [];
             console.log(`Found ${categoryItems.length} items in category "${category}"`);
-            console.log('Items:', categoryItems.map(i => ({
-                name: i.nameEn || i.name,
-                recurring: i.recurringWeekly || false
-            })));
+            console.log('Items with details:');
+            categoryItems.forEach((item, idx) => {
+                console.log(`  Item ${idx}:`, {
+                    nameEn: item.nameEn || item.name || '(none)',
+                    nameEs: item.nameEs || '(none)',
+                    recurringWeekly: item.recurringWeekly,
+                    unitPrice: item.unitPrice,
+                    priority: item.priority
+                });
+            });
+            const recurringCount = categoryItems.filter(i => i.recurringWeekly === true).length;
+            console.log(`Total recurring weekly items: ${recurringCount} out of ${categoryItems.length}`);
             
             manageCategoryItemsDiv.style.display = 'block';
             
@@ -12086,12 +12094,17 @@ Budget Manager System`;
             const { category, index } = editingItem;
             const item = itemDatabase[category][index];
             
+            // Store old price BEFORE updating (to update existing budget items)
+            const oldPrice = item.unitPrice;
+            const newPrice = parseFloat(document.getElementById('editUnitPrice').value);
+            const priceChanged = Math.abs(oldPrice - newPrice) > 0.01; // Allow for floating point precision
+            
             // Update item with new data
             item.nameEn = document.getElementById('editNameEn').value;
             item.nameEs = document.getElementById('editNameEs').value;
             item.descriptionEn = document.getElementById('editDescriptionEn').value;
             item.descriptionEs = document.getElementById('editDescriptionEs').value;
-            item.unitPrice = parseFloat(document.getElementById('editUnitPrice').value);
+            item.unitPrice = newPrice;
             item.priority = document.getElementById('editPriority').value;
             
             // Update photo if changed
@@ -12134,9 +12147,55 @@ Budget Manager System`;
             
             saveCategoryItems();
             loadManageCategoryItems();
+            
+            // IMPORTANT: Update existing budget items if price changed
+            if (priceChanged) {
+                updateBudgetItemsWithNewPrice(item, oldPrice, newPrice);
+            }
+            
             closeEditModal();
             
             alert(currentLanguage === 'en' ? 'Item updated successfully' : 'Artículo actualizado exitosamente');
+        }
+
+        // Function to update existing budget items when a category item's price changes
+        function updateBudgetItemsWithNewPrice(categoryItem, oldPrice, newPrice) {
+            let updatedCount = 0;
+            
+            // Find all budget items that match this category item
+            items.forEach(budgetItem => {
+                // Match by name and category
+                const nameMatches = (budgetItem.nameEn === categoryItem.nameEn || 
+                                   budgetItem.nameEn === categoryItem.name ||
+                                   budgetItem.nameEs === categoryItem.nameEs) &&
+                                   budgetItem.category === categoryItem.category;
+                
+                // Also check if the old price matches (to be more precise)
+                const priceMatches = Math.abs((budgetItem.unitPrice || 0) - oldPrice) < 0.01;
+                
+                if (nameMatches && priceMatches) {
+                    // Update the price and recalculate total
+                    budgetItem.unitPrice = newPrice;
+                    budgetItem.totalPrice = newPrice * (budgetItem.quantity || 1);
+                    updatedCount++;
+                    console.log(`Updated budget item: ${budgetItem.nameEn || budgetItem.nameEs} from $${oldPrice} to $${newPrice}`);
+                }
+            });
+            
+            if (updatedCount > 0) {
+                // Save updated items
+                saveItems();
+                // Refresh the budget display
+                renderBudgetItems();
+                updateTotal();
+                updateApprovalSummary();
+                updateMonitorDashboard();
+                
+                console.log(`Updated ${updatedCount} budget item(s) with new price`);
+                alert(currentLanguage === 'en' 
+                    ? `Item price updated. ${updatedCount} item(s) in your current budget have been updated to reflect the new price.`
+                    : `Precio del artículo actualizado. ${updatedCount} artículo(s) en su presupuesto actual han sido actualizados para reflejar el nuevo precio.`);
+            }
         }
 
         // Categories Management
