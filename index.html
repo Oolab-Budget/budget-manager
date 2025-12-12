@@ -380,13 +380,14 @@
         .item-card {
             background: white;
             border: 1px solid #e1e8ed;
-            border-radius: 5px;
-            padding: 5px 8px !important;
-            margin-bottom: 3px !important;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+            border-radius: 4px;
+            padding: 4px 7px !important;
+            margin-bottom: 2px !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             transition: all 0.3s ease;
             cursor: move;
             position: relative;
+            line-height: 1.3 !important;
         }
 
         .item-card.dragging {
@@ -435,27 +436,31 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 3px !important;
+            margin-bottom: 2px !important;
+            line-height: 1.2 !important;
         }
 
         .item-name {
-            font-size: 0.85rem;
+            font-size: 0.8rem !important;
             font-weight: 600;
             color: #2c3e50;
-            margin-bottom: 1px;
+            margin-bottom: 0px !important;
+            line-height: 1.2 !important;
         }
 
         .item-description {
             color: #7f8c8d;
-            font-size: 0.7rem;
-            margin-bottom: 2px;
+            font-size: 0.65rem !important;
+            margin-bottom: 1px !important;
+            line-height: 1.2 !important;
         }
 
         .item-details {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 5px !important;
-            margin-bottom: 3px !important;
+            gap: 4px !important;
+            margin-bottom: 2px !important;
+            line-height: 1.2 !important;
         }
 
         .detail-item {
@@ -463,15 +468,17 @@
         }
 
         .detail-label {
-            font-size: 0.7rem;
+            font-size: 0.65rem !important;
             color: #7f8c8d;
-            margin-bottom: 5px;
+            margin-bottom: 2px !important;
+            line-height: 1.1 !important;
         }
 
         .detail-value {
-            font-size: 0.9rem;
+            font-size: 0.8rem !important;
             font-weight: 600;
             color: #2c3e50;
+            line-height: 1.2 !important;
         }
 
         .supplier-info {
@@ -534,14 +541,16 @@
 
         .quantity-priority input,
         .quantity-priority select {
-            width: 70px;
-            padding: 3px 5px;
-            font-size: 0.8rem;
+            width: 65px !important;
+            padding: 2px 4px !important;
+            font-size: 0.75rem !important;
+            line-height: 1.2 !important;
         }
         
         .quantity-priority label {
-            font-size: 0.7rem;
-            margin-bottom: 1px;
+            font-size: 0.65rem !important;
+            margin-bottom: 0px !important;
+            line-height: 1.1 !important;
         }
 
         .budget-summary {
@@ -11389,17 +11398,17 @@ Budget Manager System`;
                                     (item.priority === 'high' ? 'Alta' : item.priority === 'medium' ? 'Media' : 'Baja')}</div>
                             </div>
                         </div>
-                        <div class="supplier-info" style="margin-bottom: 2px !important;">
+                        <div class="supplier-info" style="margin-bottom: 1px !important; padding: 2px 4px !important;">
                             <span data-en="Supplier:" data-es="Proveedor:">Supplier:</span> ${supplierName}
                         </div>
                         <div class="quantity-priority">
                             <div class="form-group" style="margin: 0;">
-                                <label data-en="Qty:" data-es="Cant:" style="font-size: 0.7rem; margin-bottom: 1px;">Qty:</label>
-                                <input type="number" id="qty_${category}_${index}" min="1" value="1" style="width: 55px; padding: 3px 5px; font-size: 0.8rem;">
+                                <label data-en="Qty:" data-es="Cant:" style="font-size: 0.65rem !important; margin-bottom: 0px !important;">Qty:</label>
+                                <input type="number" id="qty_${category}_${index}" min="1" value="1" style="width: 60px !important; padding: 2px 4px !important; font-size: 0.75rem !important;">
                             </div>
                             <div class="form-group" style="margin: 0;">
-                                <label data-en="Priority:" data-es="Prioridad:" style="font-size: 0.7rem; margin-bottom: 1px;">Priority:</label>
-                                <select id="priority_${category}_${index}" style="width: 65px; padding: 3px 5px; font-size: 0.8rem;">
+                                <label data-en="Priority:" data-es="Prioridad:" style="font-size: 0.65rem !important; margin-bottom: 0px !important;">Priority:</label>
+                                <select id="priority_${category}_${index}" style="width: 60px !important; padding: 2px 4px !important; font-size: 0.75rem !important;">
                                     <option value="high" selected data-en="High" data-es="Alta">High</option>
                                     <option value="medium" data-en="Medium" data-es="Media">Medium</option>
                                     <option value="low" data-en="Low" data-es="Baja">Low</option>
@@ -11407,15 +11416,15 @@ Budget Manager System`;
                             </div>
                             ${categories[category] && categories[category].pricingType === 'flexible' ? `
                                 <div class="form-group" style="margin: 0;">
-                                    <label data-en="Price:" data-es="Precio:" style="font-size: 0.7rem; margin-bottom: 1px;">Price:</label>
-                                    <input type="number" id="price_${category}_${index}" step="0.01" min="0" value="${item.unitPrice || ''}" placeholder="Price" style="width: 70px; padding: 3px 5px; font-size: 0.8rem;">
+                                    <label data-en="Price:" data-es="Precio:" style="font-size: 0.65rem !important; margin-bottom: 0px !important;">Price:</label>
+                                    <input type="number" id="price_${category}_${index}" step="0.01" min="0" value="${item.unitPrice || ''}" placeholder="Price" style="width: 65px !important; padding: 2px 4px !important; font-size: 0.75rem !important;">
                                 </div>
                             ` : ''}
                         </div>
                         <div class="notes-field-row" id="notesRow_${category}_${index}" style="display: ${notesEnabled ? 'block' : 'none'}; margin-top: 4px;">
                             <div class="form-group" style="margin: 0; width: 100%;">
-                                <label data-en="Notes:" data-es="Notas:" style="font-size: 0.7rem; margin-bottom: 1px;">Notes:</label>
-                                <textarea id="notes_${category}_${index}" rows="1" placeholder="What are you buying? (e.g., printer paper and pens)" style="width: 100%; padding: 4px; font-size: 0.75rem; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>
+                                <label data-en="Notes:" data-es="Notas:" style="font-size: 0.65rem !important; margin-bottom: 0px !important;">Notes:</label>
+                                <textarea id="notes_${category}_${index}" rows="1" placeholder="What are you buying? (e.g., printer paper and pens)" style="width: 100%; padding: 3px !important; font-size: 0.7rem !important; border: 1px solid #ddd; border-radius: 4px; resize: vertical; line-height: 1.2 !important;"></textarea>
                             </div>
                         </div>
                     </div>
