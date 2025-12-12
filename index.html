@@ -380,10 +380,10 @@
         .item-card {
             background: white;
             border: 1px solid #e1e8ed;
-            border-radius: 6px;
-            padding: 6px 10px;
-            margin-bottom: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-radius: 5px;
+            padding: 5px 8px !important;
+            margin-bottom: 3px !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
             transition: all 0.3s ease;
             cursor: move;
             position: relative;
@@ -435,7 +435,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 4px;
+            margin-bottom: 3px !important;
         }
 
         .item-name {
@@ -454,8 +454,8 @@
         .item-details {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 6px;
-            margin-bottom: 4px;
+            gap: 5px !important;
+            margin-bottom: 3px !important;
         }
 
         .detail-item {
@@ -477,11 +477,10 @@
         .supplier-info {
             background: #f8f9fa;
             border-radius: 4px;
-            padding: 4px 6px;
-            margin-top: 2px;
-            margin-bottom: 2px;
-            font-size: 0.75rem;
-            font-size: 0.75rem;
+            padding: 3px 5px !important;
+            margin-top: 2px !important;
+            margin-bottom: 2px !important;
+            font-size: 0.7rem !important;
         }
 
         .supplier-details {
@@ -527,10 +526,10 @@
 
         .quantity-priority {
             display: flex;
-            gap: 6px;
+            gap: 5px !important;
             align-items: flex-end;
-            margin-top: 2px;
-            margin-bottom: 2px;
+            margin-top: 2px !important;
+            margin-bottom: 2px !important;
         }
 
         .quantity-priority input,
@@ -11390,7 +11389,7 @@ Budget Manager System`;
                                     (item.priority === 'high' ? 'Alta' : item.priority === 'medium' ? 'Media' : 'Baja')}</div>
                             </div>
                         </div>
-                        <div class="supplier-info" style="margin-bottom: 4px;">
+                        <div class="supplier-info" style="margin-bottom: 2px !important;">
                             <span data-en="Supplier:" data-es="Proveedor:">Supplier:</span> ${supplierName}
                         </div>
                         <div class="quantity-priority">
